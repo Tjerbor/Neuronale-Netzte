@@ -3,19 +3,53 @@ import java.util.stream.IntStream;
 
 public class NeuronalesNetz {
     /**
+     * This variable represents the identity function.
+     */
+    private static final String IDENTITY = "identity";
+    /**
+     * This variable represents a semi-linear function.
+     */
+    private static final String SEMI = "semi";
+    /**
+     * This variable represents a hard limiting threshold function.
+     */
+    private static final String HARD = "hard";
+    /**
+     * This variable represents a smoothly limiting threshold function.
+     */
+    private static final String SMOOTH = "smooth";
+    /**
+     * This variable represents the hyperbolic tangent function.
+     */
+    private static final String TANH = "tanh";
+    /**
      * This array contains the number of units per layer, including bias units.
      * Its length corresponds to the number of layers of the neural network.
      */
     private int[] layers;
-    private String[][] nodeFunctions; //[Layer][Node]
+    /**
+     * This array contains the activation functions of the individual units.
+     */
+    private String[][] functions;
     private double[][][] weights; //[Layer][Node][Edge] Includes BIAS nodes
 
     /**
      * This method initializes the neural network with the given number of units per layer.
-     * It adds a bias unit to the input layer and hidden layers.
+     * It adds a bias unit to all layers except the output layer,
+     * and sets the identity function as the activation function for all units.
      */
     public void create(int[] layers) {
+        if (layers.length <= 1) {
+            throw new IllegalArgumentException("The neural network must have more than one layer.");
+        }
+
         this.layers = IntStream.range(0, layers.length).map(i -> layers[i] + (i < layers.length - 1 ? 1 : 0)).toArray();
+
+        functions = new String[layers.length][Arrays.stream(layers).min().getAsInt()];
+
+        for (int i = 0; i < layers.length; i++) {
+            Arrays.fill(functions[i], IDENTITY);
+        }
     }
 
     /**
