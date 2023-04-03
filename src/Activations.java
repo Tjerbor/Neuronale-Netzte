@@ -63,6 +63,7 @@ public class Activations {
 
 
     //Berechnet die Sigmoid Funktion für gegebenen Input.
+    // andere Name logistic_regression.
     public double sigmoid(double x) {
         return 1 / (1 + Math.exp(-x));
 
@@ -70,18 +71,18 @@ public class Activations {
 
     //Die Ableitung der Sigmoid Funktion.
     public double sigmoid_prime(double x) {
-        double s = this.sigmoid(x);
+        double s = Math.log(x);
         return s * (1 - s);
 
     }
 
-    //Die Hyperbolic Tangent FunKtion
+    //Die Hyperbolic Tangent Funktion
     public double tahn(double x) {
         return 1 - (2 / (Math.exp(2 * x) + 1));
     }
 
     public double tahn_prime(double x) {
-        return 1 - Math.pow(this.tahn(x), 2);
+        return 2 * Math.log(2 * x) - 1;
     }
 
 
