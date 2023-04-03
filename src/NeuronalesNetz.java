@@ -1,13 +1,21 @@
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public class NeuronalesNetz {
-    private int[] layers; //Length of layer, includes BIAS nodes
+    /**
+     * This array contains the number of units per layer, including bias units.
+     * Its length corresponds to the number of layers of the neural network.
+     */
+    private int[] layers;
     private String[][] nodeFunctions; //[Layer][Node]
     private double[][][] weights; //[Layer][Node][Edge] Includes BIAS nodes
 
-
-    public void create(int[] struktur) {
-        //TODO
+    /**
+     * This method initializes the neural network with the given number of units per layer.
+     * It adds a bias unit to the input layer and hidden layers.
+     */
+    public void create(int[] layers) {
+        this.layers = IntStream.range(0, layers.length).map(i -> layers[i] + (i < layers.length - 1 ? 1 : 0)).toArray();
     }
 
     /**
@@ -17,11 +25,11 @@ public class NeuronalesNetz {
         return weights;
     }
 
-    public void setUnitType(int layer, int node, String function, double theta) {
+    public void setWeights(double[][][] weights) {
         //TODO
     }
 
-    public void setWeights(double[][][] weights) {
+    public void setUnitType(int layer, int node, String function, double theta) {
         //TODO
     }
 
@@ -36,7 +44,7 @@ public class NeuronalesNetz {
         for (int layer = 0; layer < weights.length - 1; layer++) {
             for (int node = 0; node < weights[layer].length; node++) {
                 for (int edge = 0; edge < weights[layer][node].length; edge++) {
-                   // newIteration[edge] += weights[layer][node][edge] *
+                    // newIteration[edge] += weights[layer][node][edge] *
                 }
             }
         }
@@ -54,9 +62,9 @@ public class NeuronalesNetz {
         return null;
     }
 
+    @Override
     public String toString() {
-        //TODO
-        return null;
+        return Arrays.toString(layers);
     }
 
 
