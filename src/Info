@@ -1,0 +1,7 @@
+Da sie gesagt hat, dass wir die implementierung so machen dürfen wie wir wollen.
+Hätte ich einen Vorschlag für die Berechnung der und die Implementierung der Layer.
+
+Ich lege mal ein Beispiel package an und ihr könnt dann ja entscheiden, ob euch die Alternative gefällt.
+Falls es für Piet okay wäre müsste er dann das laden der Weights etwas ändern.
+
+Das package ist noch nicht ganz fertig.
