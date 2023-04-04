@@ -45,7 +45,7 @@ public class NeuronalesNetz {
 
         this.layers = IntStream.range(0, layers.length).map(i -> layers[i] + (i < layers.length - 1 ? 1 : 0)).toArray();
 
-        functions = new String[layers.length][Arrays.stream(layers).min().getAsInt()];
+        functions = new String[layers.length][Arrays.stream(layers).max().getAsInt()];
 
         for (int i = 0; i < layers.length; i++) {
             Arrays.fill(functions[i], IDENTITY);
