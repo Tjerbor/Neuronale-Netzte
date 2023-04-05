@@ -5,7 +5,7 @@ public class FullyConnectedLayer extends Layer {
     double[] biases; //biases of the Dense Layer
     double[][] weights; //weights of the layer
     double[][] outputs; //calculated outputs of the layer
-    double inputs[][];
+    double inputs[][]; // wichtig für die Veränderung der Parameter
     double dinputs[][];
 
 
@@ -34,6 +34,12 @@ public class FullyConnectedLayer extends Layer {
         this.biases = new double[output_size];
     }
 
+    /**
+     * Forward-Pass für eine Batch von daten.
+     *
+     * @param inputs
+     * @return
+     */
     public double[][] forward(double[][] inputs) {
 
         this.outputs = Utils.matmul2D(inputs, this.weights);
@@ -43,8 +49,14 @@ public class FullyConnectedLayer extends Layer {
 
     }
 
+    /**
+     * Forward Pass für eine einzeles Prediction.
+     *
+     * @param input Data
+     * @return
+     */
     public double[] forward(double[] input) {
-        output = new double[input.length];
+        double[] output = new double[input.length];
         output = Utils.dotProdukt_1D(Utils.transpose(this.weights), input);
         output = Utils.add_bias(output, this.biases);
         return output;

@@ -11,10 +11,33 @@ public class Activations {
     /**
      * Entescheide welche Aktivierungs-Funktion genutzt wird.
      *
-     * @param type enthält den namen der Funktion
-     * @param x    is der wert des weights
+     * @param schwellenwert optional entscheided ob der Ausgabe Wert 0 oder 1 ist.
+     * @param type          enthält den namen der Funktion
+     * @param x             is der wert des weights
      * @return returned den berechneten wert des outputs.
      */
+    public double useForwardFunktion(String type, double x, double schwellenwert) {
+
+
+        if (type.equals("relu")) {
+            x = this.relu(x);
+        } else if (type.equals("tahn")) {
+            x = this.tahn(x);
+        } else if (type.equals("sigmoid")) {
+            x = this.sigmoid(x);
+        }
+
+        if (schwellenwert > 0) {
+            if (schwellenwert > x) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+        return x;
+
+    }
+
     public double useForwardFunktion(String type, double x) {
 
 
@@ -26,9 +49,10 @@ public class Activations {
             x = this.sigmoid(x);
         }
 
-        return x;
-    }
 
+        return x;
+
+    }
 
     /**
      * verwendet die identitäts-Funktion als Aktivierungs-Funktion.
