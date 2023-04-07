@@ -16,6 +16,11 @@ public class Activations {
      * @return returned den berechneten wert des outputs.
      */
     public double useForwardFunktion(String type, double x) {
+        String[] split = type.split(",");
+
+        if(split.length == 2){ //Function has Theta Value
+            return useForwardFunktion(split[0],Double.parseDouble(split[1]),x);
+        }
 
 
         if (type.equals("relu")) {
@@ -24,9 +29,16 @@ public class Activations {
             x = this.tahn(x);
         } else if (type.equals("sigmoid")) {
             x = this.sigmoid(x);
+        } else if (type.equals("one")) {
+            x = 1;
         }
 
         return x;
+    }
+
+    private double useForwardFunktion(String type, double Theta, double x) {
+        //TODO
+        return -1;
     }
 
 
