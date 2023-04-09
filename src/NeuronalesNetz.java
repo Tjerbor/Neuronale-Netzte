@@ -65,7 +65,6 @@ public class NeuronalesNetz {
                 list.add(values);
             }
 
-            // TODO: Create a separate method to check the read values and initialize a new neural network.
             return list;
         }
     }
@@ -103,6 +102,33 @@ public class NeuronalesNetz {
         }
 
         this.fillWeights();
+    }
+
+    /**
+     * This method reads the given CSV file and initializes the neural network with the values it contains.
+     * It adds a bias unit to all layers except the output layer,
+     * and sets the identity function as the activation function for all units.
+     */
+    public void create(String path) throws IOException {
+        List<String[]> list = read(path);
+
+        if (!list.get(0)[0].equals("layers")) {
+            throw new IllegalArgumentException();
+        }
+
+        String[] layers = list.get(0);
+
+        this.layers = IntStream.range(1, layers.length).map(i -> {
+            int number = Integer.parseInt(layers[i]);
+
+            if (number < 1) {
+                throw new IllegalArgumentException("Each layer must have at least one unit.");
+            }
+
+            return number;
+        }).toArray();
+
+        // TODO
     }
 
     /**
