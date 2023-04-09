@@ -1,4 +1,9 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -24,7 +29,7 @@ public class NeuronalesNetz {
      */
     private static final String TANH = "tanh";
     /**
-     * This variable represents the BIAS function, which always outputs 1.
+     * This variable represents the bias function, which always returns <code>1</code>.
      */
     private static final String ONE = "one";
     /**
@@ -33,33 +38,70 @@ public class NeuronalesNetz {
      */
     private int[] layers;
     /**
-     * This array contains the activation functions of the individual units including BIAS nodes.
+     * This array contains the activation functions of the individual units, including bias nodes.
+     * The value for the unit <code>j</code> in layer <code>i</code> can be found at the index <code>[i][j]</code>.
      */
-    private String[][] functions; //[Layer][Node]
-    private double[][][] weights; //[Layer][Node][Edge] Includes BIAS nodes
+    private String[][] functions;
+    /**
+     * This array contains the weights that define the connections between the units, including bias units.
+     * The value for the connection between unit <code>j</code> in layer <code>i</code>
+     * and unit <code>k</code> in the next layer can be found at index <code>[i][j][k]</code>.
+     */
+    private double[][][] weights;
+
+    /**
+     * This method attempts to read the given CSV file and return the values it contains.
+     * It throws an exception if the file does not exist or an I/O error occurs.
+     */
+    private static List<String[]> read(String path) throws IOException {
+        try (BufferedReader in = new BufferedReader(new FileReader(path))) {
+            String line;
+
+            List<String[]> list = new ArrayList<>();
+
+            while ((line = in.readLine()) != null) {
+                String[] values = line.split(";");
+
+                list.add(values);
+            }
+
+            // TODO: Create a separate method to check the read values and initialize a new neural network.
+            return list;
+        }
+    }
 
     /**
      * This method initializes the neural network with the given number of units per layer.
      * It adds a bias unit to all layers except the output layer,
-     * and sets the identity function as the activation function for all units.
+     * sets the identity function as the activation function for all units,
+     * and initializes the weights with random values between <code>-1</code> and <code>1</code>.
      */
     public void create(int[] layers) {
         if (layers.length <= 1) {
             throw new IllegalArgumentException("The neural network must have more than one layer.");
         }
 
-        this.layers = IntStream.range(0, layers.length).map(i -> layers[i] + (i < layers.length - 1 ? 1 : 0)).toArray();
+        this.layers = IntStream.range(0, layers.length).map(i -> {
+            if (layers[i] < 1) {
+                throw new IllegalArgumentException("Each layer must have at least one unit.");
+            }
 
-        functions = new String[this.layers.length][];
+            return layers[i] + (i < layers.length - 1 ? 1 : 0);
+        }).toArray();
+
+        functions = new String[layers.length][];
 
         for (int i = 0; i < functions.length; i++) {
             functions[i] = new String[this.layers[i]];
+
             Arrays.fill(functions[i], IDENTITY);
+
             if (i != functions.length - 1) {
                 functions[i][functions[i].length - 1] = ONE; //Sets BIAS functions
             }
 
         }
+
         this.fillWeights();
     }
 
@@ -133,11 +175,6 @@ public class NeuronalesNetz {
             Output[i] = this.compute(data[i]);
         }
         return Output;
-    }
-
-    public NeuronalesNetz read_CSV(String filePath) {
-        //TODO
-        return null;
     }
 
     @Override
