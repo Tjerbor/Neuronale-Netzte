@@ -143,13 +143,7 @@ public class NeuronalesNetz {
     }
 
     public void setUnitType(int layer, int node, String function, double theta) {
-        //TODO
-        //Idee:
         functions[layer][node] = function + ',' + Double.toString(theta);
-        /*
-        Also entweder splitten wir dann den String in Activations, um Theta in die bereits stehende Struktur einzubauen,
-        oder vielleicht sollten wir Activations als Objekte speichern die jeweils ein Attribut für Function und ein optionales Attribut für Theta haben.
-         */
     }
 
     public void setUnitType(int layer, int node, String function) {
@@ -167,31 +161,11 @@ public class NeuronalesNetz {
             Output[i] = input[i];
         }
 
-
         for (int i = 0; i < layers.length; i++) {
             Input = Output;
             Output = calculateLayer(i, Input);
         }
 
-        /*
-        Activations act = new Activations();
-        for (int layer = 0; layer < weights.length - 1; layer++) {
-            Output = new double[layers[layer + 1]];
-            for (int node = 0; node < weights[layer].length; node++) {
-                Iteration[node] = act.useForwardFunktion(functions[layer][node], Iteration[node]); //Calculates node output and overrides input sum
-                for (int edge = 0; edge < weights[layer][node].length; edge++) {
-                    Output[edge] += weights[layer][node][edge] * Iteration[node]; //Calculates next layer's node input sum
-                }
-
-            }
-            Iteration = Output;
-        }
-        for (int i = 0; i < Iteration.length; i++) {
-            Iteration[i] = act.useForwardFunktion(functions[layers.length - 1][i], Iteration[i]); //Last Layer's sum to output calculation
-        }
-
-        return Iteration;
-        */
         return Output;
     }
 

@@ -18,42 +18,24 @@ public class Activations {
     public double useForwardFunktion(String type, double x) {
         String[] split = type.split(",");
 
-        if(split.length == 2){ //Function has Theta Value
-            return useForwardFunktion(split[0],Double.parseDouble(split[1]),x);
-        }
-
-
-        if (type.equals("relu")) {
+        if (split[0].equals("relu")) {
             x = this.relu(x);
-        } else if (type.equals("tahn")) {
+        } else if (split[0].equals("tahn")) {
             x = this.tahn(x);
-        } else if (type.equals("sigmoid")) {
+        } else if (split[0].equals("sigmoid")) {
             x = this.sigmoid(x);
-        } else if (type.equals("one")) {
+        } else if (split[0].equals("one")) {
             x = 1;
         }
 
-        return x;
+        /*
+        Checks if calculted value x must be gated with theta value.
+        If true, then x get normalized to 1 or 0 depending on theta.
+        */
+        return split.length == 2 ? (x >= Double.valueOf(split[1]) ? 1 : 0) : x;
     }
 
-    private double useForwardFunktion(String type, double Theta, double x) {
-        //TODO
-        return -1;
-    }
-
-
-    /**
-     * verwendet die identitäts-Funktion als Aktivierungs-Funktion.
-     *
-     * @param x wert des outputs
-     * @return returend den output
-     */
-    public double useForwardFunktion(double x) {
-        return x;
-    }
-
-
-    public double relu(double x) {
+    private double relu(double x) {
 
         if (x > 0) {
             return x;
@@ -65,7 +47,7 @@ public class Activations {
 
     //die Backward rectified linear unit wichtig für die Backpropagation.
     //Ableitung der relu Funktion.
-    public double relu_prime(double x) {
+    private double relu_prime(double x) {
         if (x > 0) {
             return 1;
         } else {
@@ -76,24 +58,24 @@ public class Activations {
 
     //Berechnet die Sigmoid Funktion für gegebenen Input.
     // andere Name logistic_regression.
-    public double sigmoid(double x) {
+    private double sigmoid(double x) {
         return 1 / (1 + Math.exp(-x));
 
     }
 
     //Die Ableitung der Sigmoid Funktion.
-    public double sigmoid_prime(double x) {
+    private double sigmoid_prime(double x) {
         double s = Math.log(x);
         return s * (1 - s);
 
     }
 
     //Die Hyperbolic Tangent Funktion
-    public double tahn(double x) {
+    private double tahn(double x) {
         return 1 - (2 / (Math.exp(2 * x) + 1));
     }
 
-    public double tahn_prime(double x) {
+    private double tahn_prime(double x) {
         return 2 * Math.log(2 * x) - 1;
     }
 
