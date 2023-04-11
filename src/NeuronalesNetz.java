@@ -177,6 +177,31 @@ public class NeuronalesNetz {
         return Output;
     }
 
+    /**
+     * Computes every result for all input combinations of 0.0 and 1.0
+     */
+    public double[][] computeAll() {
+        int n = 1;
+        for (int i = 0; i < layers[0] - 1; i++) {
+            n *= 2;
+        }
+        double[][] Output = new double[n][layers[layers.length - 1]];
+        for (int i = 0; i < n; i++) {
+            double[] Input = new double[layers[0] - 1];
+            int m = n;
+            for (int j = 0; j < Input.length; j++) {
+                m /= 2;
+                int BIT = i;
+                BIT &= m;
+                BIT >>= (Input.length - 1) - j;
+                Input[j] = (double) BIT;
+            }
+            System.out.println(Arrays.toString(Input));
+            Output[i] = compute(Input);
+        }
+        return Output;
+    }
+
     @Override
     public String toString() {
         return Arrays.toString(layers);
