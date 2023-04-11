@@ -196,7 +196,6 @@ public class NeuronalesNetz {
                 BIT >>= (Input.length - 1) - j;
                 Input[j] = (double) BIT;
             }
-            System.out.println(Arrays.toString(Input));
             Output[i] = compute(Input);
         }
         return Output;
