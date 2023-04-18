@@ -70,6 +70,46 @@ public class NeuronalesNetz {
     }
 
     /**
+     * This method sets the identity function as the activation function for all units.
+     * The number of layers and units per layer must be set beforehand.
+     */
+    private void setFunctions() {
+        functions = new String[layers.length][];
+
+        for (int i = 0; i < functions.length; i++) {
+            functions[i] = new String[layers[i]];
+
+            Arrays.fill(functions[i], IDENTITY);
+
+            if (i != functions.length - 1) {
+                functions[i][functions[i].length - 1] = ONE;
+            }
+        }
+    }
+
+    /**
+     * This method initializes the weights with random values between <code>-1</code> and <code>1</code>.
+     * The number of layers and units per layer must be set beforehand.
+     */
+    private void setWeights() {
+        Random r = new Random();
+
+        weights = new double[layers.length - 1][][];
+
+        for (int i = 0; i < layers.length - 1; i++) {
+            weights[i] = new double[layers[i]][];
+
+            for (int j = 0; j < weights[i].length; j++) {
+                weights[i][j] = new double[layers[i + 1]];
+
+                for (int k = 0; k < weights[i][j].length; k++) {
+                    weights[i][j][k] = r.nextDouble(-1, 1 + Double.MIN_VALUE);
+                }
+            }
+        }
+    }
+
+    /**
      * This method initializes the neural network with the given number of units per layer.
      * It adds a bias unit to all layers except the output layer,
      * sets the identity function as the activation function for all units,
@@ -88,20 +128,9 @@ public class NeuronalesNetz {
             return layers[i] + (i < layers.length - 1 ? 1 : 0);
         }).toArray();
 
-        functions = new String[layers.length][];
+        setFunctions();
 
-        for (int i = 0; i < functions.length; i++) {
-            functions[i] = new String[this.layers[i]];
-
-            Arrays.fill(functions[i], IDENTITY);
-
-            if (i != functions.length - 1) {
-                functions[i][functions[i].length - 1] = ONE; //Sets BIAS functions
-            }
-
-        }
-
-        this.fillWeights();
+        setWeights();
     }
 
     /**
@@ -127,6 +156,8 @@ public class NeuronalesNetz {
 
             return number;
         }).toArray();
+
+        setFunctions();
 
         // TODO
     }
@@ -204,20 +235,6 @@ public class NeuronalesNetz {
     @Override
     public String toString() {
         return Arrays.toString(layers);
-    }
-
-    private void fillWeights() {
-        Random r = new Random();
-        this.weights = new double[layers.length - 1][][];
-        for (int layer = 0; layer < layers.length - 1; layer++) {
-            weights[layer] = new double[layers[layer]][];
-            for (int i = 0; i < weights[layer].length; i++) {
-                weights[layer][i] = new double[layers[layer + 1]];
-                for (int j = 0; j < weights[layer][i].length; j++) {
-                    weights[layer][i][j] = r.nextDouble(-1.0, 1 + Double.MIN_VALUE);
-                }
-            }
-        }
     }
 
     private double[] calculateLayer(int layer, double[] input) {
