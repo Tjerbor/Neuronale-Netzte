@@ -100,30 +100,13 @@ public class NeuronalesNetz {
             weights[i] = new double[layers[i]][];
 
             for (int j = 0; j < weights[i].length; j++) {
-                weights[i][j] = new double[layers[i + 1]];
+                weights[i][j] = new double[layers[i + 1] + (i == layers.length - 2 ? 1 : 0)];
 
                 for (int k = 0; k < weights[i][j].length; k++) {
                     weights[i][j][k] = r.nextDouble(-1, 1 + Double.MIN_VALUE);
                 }
             }
         }
-    }
-
-    /**
-     * This method reads the given CSV file and initializes the neural network with the values it contains.
-     * It adds a bias unit to all layers except the output layer,
-     * and sets the identity function as the activation function for all units.
-     */
-    public void create(String path) throws IOException {
-        List<String[]> list = read(path);
-
-        if (!list.get(0)[0].equals("layers")) {
-            throw new IllegalArgumentException("The file must start with the keyword \"layers\".");
-        }
-
-        create(IntStream.range(1, list.get(0).length).map(i -> Integer.parseInt(list.get(0)[i])).toArray());
-
-        // TODO: Initialize the weights with the values from the file.
     }
 
     /**
@@ -148,6 +131,31 @@ public class NeuronalesNetz {
         setFunctions();
 
         setWeights();
+    }
+
+    /**
+     * This method reads the given CSV file and initializes the neural network with the values it contains.
+     * It adds a bias unit to all layers except the output layer,
+     * and sets the identity function as the activation function for all units.
+     */
+    public void create(String path) throws IOException {
+        List<String[]> list = read(path);
+
+        if (!list.get(0)[0].equals("layers")) {
+            throw new IllegalArgumentException("The file must start with the keyword \"layers\".");
+        }
+
+        create(IntStream.range(1, list.get(0).length).map(i -> Integer.parseInt(list.get(0)[i])).toArray());
+
+        for (int i = 0; i < weights.length; i++) {
+            for (int j = 0; j < weights[i].length; j++) {
+                for (int k = 0; k < weights[i][j].length - 1; k++) {
+                    int sum = Arrays.stream(Arrays.copyOfRange(layers, 0, i)).map(l -> l + 1).sum();
+
+                    weights[i][j][k] = Double.parseDouble(list.get(sum + j + 1)[k]);
+                }
+            }
+        }
     }
 
     /**
@@ -220,9 +228,12 @@ public class NeuronalesNetz {
         return Output;
     }
 
+    /**
+     * This method returns a string containing the number of units per layer and the weights of the neural network.
+     */
     @Override
     public String toString() {
-        return Arrays.toString(layers);
+        return Arrays.toString(layers) + "\n" + Arrays.deepToString(weights);
     }
 
     private double[] calculateLayer(int layer, double[] input) {
