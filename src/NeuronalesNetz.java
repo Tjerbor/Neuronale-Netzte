@@ -39,7 +39,7 @@ public class NeuronalesNetz {
     private int[] layers;
     /**
      * This array contains the activation functions of the individual units, including bias nodes.
-     * The value for the unit <code>j</code> in layer <code>i</code> can be found at the index <code>[i][j]</code>.
+     * The value for the unit <code>j</code> in layer <code>i</code> can be found at index <code>[i][j]</code>.
      */
     private String[][] functions;
     /**
@@ -110,6 +110,23 @@ public class NeuronalesNetz {
     }
 
     /**
+     * This method reads the given CSV file and initializes the neural network with the values it contains.
+     * It adds a bias unit to all layers except the output layer,
+     * and sets the identity function as the activation function for all units.
+     */
+    public void create(String path) throws IOException {
+        List<String[]> list = read(path);
+
+        if (!list.get(0)[0].equals("layers")) {
+            throw new IllegalArgumentException("The file must start with the keyword \"layers\".");
+        }
+
+        create(IntStream.range(1, list.get(0).length).map(i -> Integer.parseInt(list.get(0)[i])).toArray());
+
+        // TODO: Initialize the weights with the values from the file.
+    }
+
+    /**
      * This method initializes the neural network with the given number of units per layer.
      * It adds a bias unit to all layers except the output layer,
      * sets the identity function as the activation function for all units,
@@ -131,35 +148,6 @@ public class NeuronalesNetz {
         setFunctions();
 
         setWeights();
-    }
-
-    /**
-     * This method reads the given CSV file and initializes the neural network with the values it contains.
-     * It adds a bias unit to all layers except the output layer,
-     * and sets the identity function as the activation function for all units.
-     */
-    public void create(String path) throws IOException {
-        List<String[]> list = read(path);
-
-        if (!list.get(0)[0].equals("layers")) {
-            throw new IllegalArgumentException();
-        }
-
-        String[] layers = list.get(0);
-
-        this.layers = IntStream.range(1, layers.length).map(i -> {
-            int number = Integer.parseInt(layers[i]);
-
-            if (number < 1) {
-                throw new IllegalArgumentException("Each layer must have at least one unit.");
-            }
-
-            return number;
-        }).toArray();
-
-        setFunctions();
-
-        // TODO
     }
 
     /**
