@@ -1,0 +1,8 @@
+Wenn man ein Array erzeugt mit einem anderen array. Dann bleibt die shape gleich,
+selbst wenn man ein kleiners array gleichsätz.
+
+z.b double[784] = double[10]
+ist die Shape immer noch 784. Nur da mit es man weiß.
+Es gibt keine Probleme, wenn sich das Array vergrößert.
+
+
