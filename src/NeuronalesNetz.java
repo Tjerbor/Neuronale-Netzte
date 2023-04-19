@@ -212,10 +212,7 @@ public class NeuronalesNetz {
      * Computes every result for all input combinations of 0.0 and 1.0
      */
     public double[][] computeAll() {
-        int n = 1;
-        for (int i = 0; i < layers[0] - 1; i++) {
-            n *= 2;
-        }
+        int n = 1 << layers[0] - 1;
         double[][] Output = new double[n][layers[layers.length - 1]];
         for (int i = 0; i < n; i++) {
             double[] Input = new double[layers[0] - 1];
