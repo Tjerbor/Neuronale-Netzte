@@ -243,21 +243,23 @@ public class NeuronalesNetz {
     private double[] calculateLayer(int layer, double[] input) {
         Activations act = new Activations();
         double[] output;
+
+        for (int i = 0; i < input.length; i++) {
+            input[i] = act.useForwardFunktion(functions[layer][i], input[i]);
+        }
         if (layer + 1 < layers.length) {
             output = new double[layers[layer + 1]];
             for (int node = 0; node < layers[layer]; node++) {
                 for (int edge = 0; edge < weights[layer][node].length; edge++) {
-                    output[edge] +=
-                            act.useForwardFunktion(functions[layer][node],
-                                    input[node]) *
-                                    weights[layer][node][edge];
+                    if (edge == weights[layer][node].length) {
+                        output[edge] += 1.0 * weights[layer][node][edge];
+                    } else {
+                        output[edge] += input[node] * weights[layer][node][edge];
+                    }
                 }
             }
         } else {
             output = input;
-            for (int node = 0; node < output.length; node++) {
-                output[node] = act.useForwardFunktion(functions[layer][node], input[node]);
-            }
         }
         return output;
     }
