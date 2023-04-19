@@ -100,7 +100,11 @@ public class NeuronalesNetz {
             weights[i] = new double[layers[i]][];
 
             for (int j = 0; j < weights[i].length; j++) {
-                weights[i][j] = new double[layers[i + 1] + (i == layers.length - 2 ? 1 : 0)];
+                if (i + 2 < layers.length) {
+                    weights[i][j] = new double[layers[i + 1] - 1];
+                } else {
+                    weights[i][j] = new double[layers[i + 1]];
+                }
 
                 for (int k = 0; k < weights[i][j].length; k++) {
                     weights[i][j][k] = r.nextDouble(-1, 1 + Double.MIN_VALUE);
@@ -243,7 +247,10 @@ public class NeuronalesNetz {
             output = new double[layers[layer + 1]];
             for (int node = 0; node < layers[layer]; node++) {
                 for (int edge = 0; edge < weights[layer][node].length; edge++) {
-                    output[edge] += act.useForwardFunktion(functions[layer][node], input[node]) * weights[layer][node][edge];
+                    output[edge] +=
+                            act.useForwardFunktion(functions[layer][node],
+                                    input[node]) *
+                                    weights[layer][node][edge];
                 }
             }
         } else {
