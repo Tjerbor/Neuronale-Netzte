@@ -153,7 +153,7 @@ public class NeuronalesNetz {
 
         for (int i = 0; i < weights.length; i++) {
             for (int j = 0; j < weights[i].length; j++) {
-                for (int k = 0; k < weights[i][j].length - 1; k++) {
+                for (int k = 0; k < weights[i][j].length; k++) {
                     int sum = Arrays.stream(Arrays.copyOfRange(layers, 0, i)).map(l -> l + 1).sum();
 
                     weights[i][j][k] = Double.parseDouble(list.get(sum + j + 1)[k]);
