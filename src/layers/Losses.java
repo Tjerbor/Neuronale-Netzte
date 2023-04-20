@@ -1,5 +1,9 @@
 package layers;
 
+/**
+ * loss function of the NN.
+ * has the same names so it is easy to use.
+ */
 public class Losses {
 
     public double forward(double[] input, double[] y_true) {

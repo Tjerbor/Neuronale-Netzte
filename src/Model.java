@@ -6,17 +6,21 @@ import java.util.Arrays;
 public class Model {
 
 
-    static int decimal_precision = 8;
+    static int decimal_precision = 8; //depricated.
     int model_size; //number of layers
     int parameter_size; //parameter Size
-    Layer[] structur;
-    Activation[] activations;
-    FullyConnectedLayer[] Ebenen;
-    int[] topologie;
+    Layer[] structur; //strucktur of the model. contains Layers and Activations.
+    Activation[] activations; //needed for test purpose
+    FullyConnectedLayer[] Ebenen; //needed for test purpose
+    int[] topologie; //the original topologie.
 
-    Losses loss = null;
-    SGD optimizer = null;
+    Losses loss = null; //loss function of our NN. // now only MSE is available.
+    SGD optimizer = null; // right now not really supported.
 
+    /**
+     * cerates the model with a given Topologie.
+     * @param Topologie strucktur addeds an activation after every Layer.
+     */
     public void create(int[] Topologie) {
         //size -1, weil die erste Zahl die größe der Eingabe Daten entspricht.
         model_size = Topologie.length - 1; //länge der Topologie
@@ -36,9 +40,8 @@ public class Model {
 
     /**
      * uses Same Activation Function for every Layer.
-     *
-     * @param Topologie
-     * @param function
+     * @param Topologie model strucktur.
+     * @param function activation Function.
      */
     public void create(int[] Topologie, String function) {
         //size -1, weil die erste Zahl die größe der Eingabe Daten entspricht.
@@ -59,6 +62,9 @@ public class Model {
         updateParameterSize();
     }
 
+    /**
+     * calculates the parameter Size of the NN.
+     */
     public void updateParameterSize() {
         this.parameter_size = 0;
         for (int i = 0; i < model_size; i += 2) {
@@ -67,6 +73,10 @@ public class Model {
     }
 
 
+    /**
+     * creates the model with a given Layer Array.
+     * @param layers
+     */
     public void create(Layer[] layers) {
         //size -1, weil die erste Zahl die größe der Eingabe Daten entspricht.
         model_size = layers.length; //länge der Topologie
@@ -84,6 +94,15 @@ public class Model {
 
     }
 
+    /**
+     *
+     * @param Topologie
+     * @param function activation it is expected to get the same size as the
+     * given Topologie -1. if only 2 Functions are given, is the meaning,
+     * that the first 1 is used after every Layer and the last One is for the
+     * Output.
+     * @throws IllegalArgumentException
+     */
     public void create(int[] Topologie, String[] function) throws IllegalArgumentException {
         //size -1, weil die erste Zahl die größe der Eingabe Daten entspricht.
         model_size = Topologie.length - 1; //länge der Topologie
@@ -125,6 +144,12 @@ public class Model {
 
     }
 
+    /**
+     * computes the backpropagation
+     * @param dinput delta input of NN.
+     * @param learning_rate learning rate of the NN. (adjustment weights rate.)
+     * @throws Exception shape Errors
+     */
     public void computeBackward(double[] dinput, double learning_rate) throws Exception {
 
 
@@ -137,7 +162,12 @@ public class Model {
 
 
     }
-
+    /**
+     * computes the backpropagation
+     * @param dinput delta input of NN.
+     * has noo learning rate because the optimizer updates the parameter.
+     * @throws Exception Shape Errors
+     */
     public void computeBackward(double[] dinput) throws Exception {
 
         double[] doutput = dinput;
@@ -146,7 +176,12 @@ public class Model {
         }
 
     }
-
+     /**
+     * computes the backpropagation
+     * @param dinputs delta inputs of NN.
+     * @param learning_rate learning rate of the NN. (adjustment weights rate.)
+     * @throws Exception Shape Errors
+     */
     public void computeAllBackward(double[][] dinputs, double learning_rate) throws Exception {
 
 
@@ -158,7 +193,12 @@ public class Model {
         }
 
     }
-
+    /**
+     * computes the backpropagation
+     * @param dinputs delta input of NN.
+     * has noo learning rate because the optimizer updates the parameter.
+     * @throws Exception Shape Errors
+     */
     public void computeAllBackward(double[][] dinputs) throws Exception {
 
         double[][] doutputs = dinputs;
@@ -172,6 +212,12 @@ public class Model {
     }
 
 
+    /**
+     * forward pass of the NN with a batch.
+     * @param inputs batch of inputs.
+     * @return the computed Output of the NN.
+     * @throws Exception
+     */
     public double[][] computeAll(double[][] inputs) throws Exception {
 
         double[][] outputs = inputs;
@@ -187,6 +233,12 @@ public class Model {
         return outputs;
     }
 
+    /**
+     * forward pass of the NN with a single input.
+     * @param input batch of inputs.
+     * @return the computed Output of the NN.
+     * @throws Exception
+     */
     public double[] compute(double[] input) throws Exception {
 
         double[] output = input;
@@ -199,16 +251,33 @@ public class Model {
         return output;
     }
 
-    public void train_with_batch(int epoch, double[][][] inputData, double[][][] y_train) throws Exception {
+    /**
+     * train the model with a batch.
+     * has no learning rate because it uses and optimizer.
+     * @param epoch epochs to train for
+     * @param x_train input data for the NN.
+     * @param y_train the output the NN shall give.
+     * @throws Exception Shape Error.
+     */
+    public void train_with_batch(int epoch, double[][][] x_train, double[][][] y_train) throws Exception {
 
         if (this.optimizer == null) {
             throw new Exception("Got no Optimizer and no Learning rate");
-        }
+        } else if (x_train.length != y_train.length) {
+            throw new IllegalArgumentException("x und y Data have diffrent Size.");
+        } else if (this.loss == null) {
+            throw new IllegalArgumentException("loss function is not set.");
+        } else if (topologie[topologie.length - 1] != y_train[0].length) {
+            throw new IllegalArgumentException("y has " + String.valueOf(y_train[0].length) + " classes but " +
+                    "model output shape is: " + String.valueOf(topologie[topologie.length - 1]));
+        } else if (topologie[0] != x_train[0].length) {
+            throw new IllegalArgumentException("x has " + String.valueOf(x_train[0].length) + " input shape but " +
+                    "model inputs shape is: " + String.valueOf(topologie[0]));}
 
 
         double loss_per_epoch = 0;
-        int step_size = inputData.length;
-        int batch_size = inputData[0].length;
+        int step_size = x_train.length;
+        int batch_size = x_train[0].length;
 
         double[] step_losses = new double[step_size];
 
@@ -218,7 +287,7 @@ public class Model {
             double[][] outs = new double[batch_size][];
 
             for (int j = 0; j < step_size; j++) {
-                outs = computeAll(inputData[j]);
+                outs = computeAll(x_train[j]);
 
                 //one epoch is finished.
                 //calculates Loss
@@ -243,7 +312,29 @@ public class Model {
     }
 
 
+    /**
+     * train the model with a batch.
+     * @param epoch epochs to train for
+     * @param x_train input data for the NN.
+     * @param y_train the output the NN shall give.
+     * @param learning_rate learning rate for weights.
+     * @throws Exception Shape Error.
+     */
     public void train_with_batch(int epoch, double[][][] x_train, double[][][] y_train, double learning_rate) throws Exception {
+
+        //checks for rxceptions
+        if (x_train.length != y_train.length) {
+            throw new IllegalArgumentException("x und y Data have diffrent Size.");
+        } else if (this.loss == null) {
+            throw new IllegalArgumentException("loss function is not set.");
+        } else if (topologie[topologie.length - 1] != y_train[0].length) {
+            throw new IllegalArgumentException("y has " + String.valueOf(y_train[0].length) + " classes but " +
+                    "model output shape is: " + String.valueOf(topologie[topologie.length - 1]));
+        } else if (topologie[0] != x_train[0].length) {
+            throw new IllegalArgumentException("x has " + String.valueOf(x_train[0].length) + " input shape but " +
+                    "model inputs shape is: " + String.valueOf(topologie[0]));}
+
+
         double loss_per_epoch = 0;
 
         int step_size = x_train.length;
@@ -278,6 +369,14 @@ public class Model {
     }
 
 
+    /**
+     * train the model with a batch.
+     * has no learning rate because Optimizer is used.
+     * @param epoch epochs to train for
+     * @param x_train single data input for the NN.
+     * @param y_train single y the NN shall give.
+     * @throws Exception More.
+     */
     public void train_single(int epoch, double[][] x_train, double[][] y_train) throws Exception {
 
 
@@ -332,7 +431,14 @@ public class Model {
 
     }
 
-
+    /**
+     * train the model with a batch.
+     * @param epoch epochs to train for
+     * @param x_train single data input for the NN.
+     * @param y_train single y NN shall give.
+     * @param learning_rate learning rate for weights.
+     * @throws Exception More.
+     */
     public void train_single(int epoch, double[][] x_train, double[][] y_train, double learning_rate) throws Exception {
 
 

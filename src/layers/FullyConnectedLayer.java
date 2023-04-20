@@ -6,6 +6,10 @@ import utils.global_variables;
 
 import java.text.ParseException;
 
+/**
+ * the normal Dense Layer.
+ * calculates the input times the weights.
+ */
 public class FullyConnectedLayer extends Layer {
 
 
@@ -40,8 +44,15 @@ public class FullyConnectedLayer extends Layer {
 
     }
 
+    /**
+     * init with linspace weights to get some simulation with weights which are not zero or 1.
+     * @param n_input
+     * @param n_neurons
+     * @param Test indicates test.
+     */
     public FullyConnectedLayer(int n_input, int n_neurons, boolean Test) {
         //double[][] w = Utils.genRandomWeights(n_input, n_neurons);
+        //has decimal precission because java messes up.
         this.weights = Array_utils.getLinspaceWeights_wo_endpoint(n_input, n_neurons, -1, 1, 4);
         this.biases = Array_utils.getOnesBiases(n_neurons);
         this.parameter_size = n_input * n_neurons + n_neurons;
@@ -54,11 +65,20 @@ public class FullyConnectedLayer extends Layer {
 
     }
 
+    /**
+     * can not be initialised without the needed values.
+     */
     public FullyConnectedLayer() {
         throw new RuntimeException();
     }
 
 
+    /**
+     * set the weighst with weighst and biases or
+     * @param w weights which shall be set.
+     * @param b biases which shall be set.
+     * @throws Exception
+     */
     public void set_weights(double[][] w, double[] b) throws Exception {
         this.weights = new double[w.length][w[0].length];
         this.biases = new double[b.length];
@@ -83,6 +103,10 @@ public class FullyConnectedLayer extends Layer {
         return w;
     }
 
+    /**
+     * returns the biases on top of the weights.
+     * @return
+     */
     public double[][] get_weights() {
 
         return this.add_weights_and_biases();
@@ -90,6 +114,11 @@ public class FullyConnectedLayer extends Layer {
 
     }
 
+    /**
+     * can get the biases on top. of the weights.
+     * @param w
+     */
+    //TODO needs to throw Exceptions.
     public void set_weights(double[][] w) {
         this.weights = new double[w.length][w[0].length];
         this.biases = new double[w[0].length];
@@ -98,8 +127,7 @@ public class FullyConnectedLayer extends Layer {
     }
 
     /**
-     * Forward Pas for the 1 layer.
-     *
+     * Forward Pas for the layer.
      * @param inputs inputs of the layer.
      * @return computed output
      */
@@ -139,7 +167,6 @@ public class FullyConnectedLayer extends Layer {
      * computes Vailla SGD
      * expects delta values and computes the gradient. updates weights.
      */
-
     public double[][] backward(double[][] output_gradient, double learning_rate) throws Exception {
 
 
@@ -161,6 +188,12 @@ public class FullyConnectedLayer extends Layer {
         return this.dinputs;
     }
 
+    /**
+     * only used if learning rate is set.
+     * @param dbiases delta biases
+     * @param learning_rate learning rate of the NN.
+     * @throws ParseException because values are corrected with decimal precision.
+     */
     private void updateBiases_self(double[] dbiases, double learning_rate) throws ParseException {
 
         //System.out.println(dbiases.length);
@@ -173,6 +206,12 @@ public class FullyConnectedLayer extends Layer {
         }
     }
 
+    /**
+     * only used if optimizer is not set.
+     * @param output_gradient
+     * @param learning_rate
+     * @throws ParseException because values are corrected with decimal precision.
+     */
     private void updateWeights_self(double[][] output_gradient, double learning_rate) throws ParseException {
 
         for (int i = 0; i < this.weights.length; i++) {
@@ -188,7 +227,15 @@ public class FullyConnectedLayer extends Layer {
 
     }
 
-    // should not be needed but is backward for Single Data.
+
+    /**
+     * backward pass of the Layer.
+     * @param output_gradient output gradient
+     * @param learning_rate leaning rate.
+     * @return calculated delta input.
+     * @throws Exception Shape Error
+     */
+    // should not be needed but is backward for Single Data. beacuse trained is normaly with a batch.
     public double[] backward(double[] output_gradient, double learning_rate) throws Exception {
 
 
@@ -213,6 +260,13 @@ public class FullyConnectedLayer extends Layer {
 
     }
 
+    /**
+     * jsut calculated the delta values.
+     * updating weights is done by the optimizer.
+     * @param output_gradient delta inputs of the last layer.
+     * @return delta inputs.
+     * @throws Exception Shape Error
+     */
     public double[][] backward(double[][] output_gradient) throws Exception {
 
 
@@ -227,7 +281,14 @@ public class FullyConnectedLayer extends Layer {
         return this.dinputs;
     }
 
-    // should not be needed but is backward for Single Data.
+    /**
+     * backward pass of the Layer.
+     * @param output_gradient output gradient
+     * updating weights is done by the optimizer.
+     * @return calculated delta input.
+     * @throws Exception Shape Error
+     */
+    // should not be needed but is backward for Single Data. beacuse trained is normaly with a batch.
     public double[] backward(double[] output_gradient) throws Exception {
 
 

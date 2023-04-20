@@ -4,6 +4,10 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.Arrays;
 
+/**
+ * this class helps with array operations like print or
+ * linspace to help simulate thinks.
+ */
 public class Array_utils {
 
 

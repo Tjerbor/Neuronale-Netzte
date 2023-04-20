@@ -3,6 +3,12 @@ package layers;
 
 import utils.Utils;
 
+/**
+ * only Loss supported right no.
+ * more comming in the future.
+ * Calculates the Mean Squared Error.
+ * is the normal option and not the 1/2 one.
+ */
 public class MSE extends Losses{
 
 

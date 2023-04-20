@@ -486,6 +486,11 @@ public class Utils {
         return l_out;
     }
 
+    public static Activation getActivation() {
+        Activation a = new Activation();;
+        return a;
+    }
+
     public static Activation getActivation(String name) {
         name = name.toLowerCase();
 

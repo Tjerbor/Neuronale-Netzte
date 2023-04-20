@@ -1,6 +1,12 @@
 import layers.Layer;
 import utils.Utils;
 
+
+/**
+ * is not really implemented. Shall be in the future.
+ * He calculates the updated Weights with either options such as decay and momentum
+ * or uses vanilla gradient. which is just learning rate.
+ */
 public class SGD {
 
 
