@@ -11,4 +11,8 @@ public class Sigmoid extends Activation{
 
     }
 
+    public Sigmoid(){
+        this.name = "sigmoid";
+    }
+
 }

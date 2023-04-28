@@ -1,6 +1,8 @@
 import layers.*;
 import utils.Utils;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.Arrays;
 
 public class Model {
@@ -85,7 +87,7 @@ public class Model {
         updateParameterSize();
         int count = 0;
         for (int i = 0; i < model_size; i++) {
-            if (this.structur[i].hasWeights) {
+            if (this.structur[i].weights != null) {
                 topologie[count] = this.structur[i].weights.length;
                 count += 1;
             }
@@ -300,7 +302,7 @@ public class Model {
 
                 //updates values.
                 for (int k = 0; k < model_size; k++) {
-                    if (structur[k].hasWeights) {
+                    if (structur[k].weights != null) {
                         this.optimizer.calculate(structur[k]);
                     }
                 }
@@ -419,7 +421,7 @@ public class Model {
 
                 //updates values.
                 for (int k = 0; k < model_size; k++) {
-                    if (structur[k].hasWeights) {
+                    if (structur[k].weights != null) {
                         this.optimizer.calculate(structur[k]);
                     }
                 }
@@ -661,7 +663,7 @@ public class Model {
 
         for (int k = 0; k < structur.length; k++) {
 
-            if (structur[k].hasWeights) {
+            if (structur[k].weights != null) {
                 System.out.println(structur[k].name);
                 System.out.println(structur[k].biases);
                 System.out.println(structur[k].weights);
@@ -669,11 +671,14 @@ public class Model {
                 s_out += Utils.weightsAndBiases_export(structur[k].weights,
                         structur[k].biases);
             } else {
-                s_out += structur[k].name + "\n";
-            }
+                if (k < structur.length-1){
+                s_out += structur[k].name;
+            }else{
+                    s_out += structur[k].name + "\n";
+                }
 
 
-        }
+        }}
         return s_out;
     }
 
@@ -682,6 +687,20 @@ public class Model {
         s_out += this.layer_export();
         return s_out;
     }
+
+    public void modelExport2file(String fpath) throws Exception{
+        String s_out = "layers: " + Arrays.toString(topologie) + "\n";
+        s_out += this.layer_export();
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fpath));
+        writer.write(s_out);
+        writer.close();
+    }
+
+
+
+
+
 
 
     public String toString() {

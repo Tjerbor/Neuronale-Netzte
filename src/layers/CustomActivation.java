@@ -1,5 +1,7 @@
 package layers;
 
+import utils.Array_utils;
+
 import java.util.Arrays;
 
 /**
@@ -11,6 +13,8 @@ import java.util.Arrays;
  */
 public class CustomActivation {
     String[] acts;
+    double[][] inputs;
+    double[] input;
     double[] schwellenwert; //0 means has no schwellenwert.
 
     /**
@@ -69,5 +73,109 @@ public class CustomActivation {
         }
 
     }
+
+    public double def(double x, int pos){
+        if (schwellenwert[pos] != 0){
+            return activation_utils.useForwardFunktion(acts[pos],x ,schwellenwert[pos]);
+        }else {
+            return activation_utils.useForwardFunktion(acts[pos], x);
+        }
+
+    }
+
+    public double prime(double x, int pos){
+        if (schwellenwert[pos] != 0){
+            return activation_utils.useBackwardFunktion(acts[pos], x, schwellenwert[pos]);
+        }else {
+            return activation_utils.useBackwardFunktion(acts[pos], x);
+        }
+
+    }
+
+    public double[] forward(double[] input) {
+
+        this.input = input;
+
+        double out[] = new double[input.length];
+
+        for (int i = 0; i < input.length; i++) {
+            out[i] = this.def(input[i], i);
+        }
+        return out;
+    }
+
+    public double[][] forward(double[][] inputs) {
+
+
+        double[][] out = new double[inputs.length][inputs[0].length];
+
+        for (int i = 0; i < inputs.length; i++) {
+            for (int j = 0; j < inputs[0].length; j++) {
+                out[i][j] = this.def(inputs[i][j], j);
+            }
+
+        }
+        this.inputs = inputs;
+
+        return out;
+    }
+
+    public double[][] backward(double[][] dvalues, double learning_rate) throws Exception {
+
+
+        double[][] outputs = new double[dvalues.length][dvalues[0].length];
+
+
+        for (int i = 0; i < dvalues.length; i++) {
+            for (int j = 0; j < dvalues[0].length; j++) {
+                outputs[i][j] = this.prime(dvalues[i][j], j);
+            }
+
+
+            outputs = Array_utils.multiply2D(dvalues, outputs);
+        }
+        return outputs;
+    }
+
+    public double[][] backward(double[][] dvalues) throws Exception {
+
+        double[][] outputs = new double[dvalues.length][dvalues[0].length];
+
+        for (int i = 0; i < dvalues.length; i++) {
+            for (int j = 0; j < dvalues[0].length; j++) {
+                outputs[i][j] = this.prime(dvalues[i][j], j);
+            }
+
+
+            outputs = Array_utils.multiply2D(dvalues, outputs);
+        }
+        return outputs;
+    }
+
+    ;;
+
+    public double[] backward(double[] dvalue, double learning_rate) throws Exception {
+
+        double out[] = new double[dvalue.length];
+        for (int i = 0; i < dvalue.length; i++) {
+            out[i] = this.prime(dvalue[i], i);
+        }
+
+
+        out = Array_utils.multiply1D(dvalue, out);
+        return out;
+    }
+
+    public double[] backward(double[] dvalue) throws Exception {
+        double out[] = new double[dvalue.length];
+        for (int i = 0; i < dvalue.length; i++) {
+            dvalue[i] = this.prime(dvalue[i], i);
+        }
+
+        out = Array_utils.multiply1D(dvalue, out);
+        return out;
+    }
+
+
 
 }

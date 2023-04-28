@@ -497,7 +497,7 @@ public class Utils {
         Activation a;
         if (name.equals("relu")) {
             a = new ReLu();
-        } else if (name.equals("tahn")) {
+        } else if (name.equals("tanh")) {
             a = new Tanh();
         } else if (name.equals("sigmoid")) {
             a = new Sigmoid();

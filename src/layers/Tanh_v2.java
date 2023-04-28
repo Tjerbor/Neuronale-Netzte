@@ -2,6 +2,9 @@ package layers;
 
 public class Tanh_v2 extends Activation {
 
+    public Tanh_v2(){
+        this.name = "tanh";
+    }
     public double def(double x) {
         return (Math.exp(x) - Math.exp(-x)) / (Math.exp(x) + Math.exp(-x));
     }

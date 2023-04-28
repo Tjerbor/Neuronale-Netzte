@@ -4,6 +4,10 @@ public class Softmax extends Activation{
 
     double exp = 0;
 
+    public Softmax(){
+        this.name = "softmax";
+    }
+
     public double softmax(double x, double sum){
         return Math.exp(x) / sum;
 

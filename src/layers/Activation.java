@@ -8,12 +8,16 @@ public class Activation extends Layer {
     double[] input;
     double[][] inputs;
 
+    public Activation(){
+        this.name = "id";
+    }
+
     public double def(double x) {
         return x;
     }
 
     public double prime(double x) {
-        return x;
+        return 1;
     }
 
     ;
