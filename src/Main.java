@@ -9,7 +9,7 @@ public class Main {
         System.out.println("Hello world!");
 
 
-        Model model = new Model();
+        NeuralNetwork model = new NeuralNetwork();
 
         int[] topologie = {784, 20, 10};
         model.create(topologie, "tahn");

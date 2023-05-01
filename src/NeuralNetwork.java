@@ -5,22 +5,19 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.Arrays;
 
-public class Model {
-
-
-    static int decimal_precision = 8; //depricated.
+public class NeuralNetwork {
     int model_size; //number of layers
     int parameter_size; //parameter Size
     Layer[] structur; //strucktur of the model. contains Layers and Activations.
     Activation[] activations; //needed for test purpose
     FullyConnectedLayer[] Ebenen; //needed for test purpose
     int[] topologie; //the original topologie.
-
     Losses loss = null; //loss function of our NN. // now only MSE is available.
     SGD optimizer = null; // right now not really supported.
 
     /**
      * cerates the model with a given Topologie.
+     *
      * @param Topologie strucktur addeds an activation after every Layer.
      */
     public void create(int[] Topologie) {
@@ -42,8 +39,9 @@ public class Model {
 
     /**
      * uses Same Activation Function for every Layer.
+     *
      * @param Topologie model strucktur.
-     * @param function activation Function.
+     * @param function  activation Function.
      */
     public void create(int[] Topologie, String function) {
         //size -1, weil die erste Zahl die größe der Eingabe Daten entspricht.
@@ -74,9 +72,9 @@ public class Model {
         }
     }
 
-
     /**
      * creates the model with a given Layer Array.
+     *
      * @param layers
      */
     public void create(Layer[] layers) {
@@ -97,12 +95,11 @@ public class Model {
     }
 
     /**
-     *
      * @param Topologie
-     * @param function activation it is expected to get the same size as the
-     * given Topologie -1. if only 2 Functions are given, is the meaning,
-     * that the first 1 is used after every Layer and the last One is for the
-     * Output.
+     * @param function  activation it is expected to get the same size as the
+     *                  given Topologie -1. if only 2 Functions are given, is the meaning,
+     *                  that the first 1 is used after every Layer and the last One is for the
+     *                  Output.
      * @throws IllegalArgumentException
      */
     public void create(int[] Topologie, String[] function) throws IllegalArgumentException {
@@ -148,7 +145,8 @@ public class Model {
 
     /**
      * computes the backpropagation
-     * @param dinput delta input of NN.
+     *
+     * @param dinput        delta input of NN.
      * @param learning_rate learning rate of the NN. (adjustment weights rate.)
      * @throws Exception shape Errors
      */
@@ -157,17 +155,17 @@ public class Model {
 
         double[] doutput = dinput;
         for (int i = 1; i < model_size; i++) {
-            //System.out.println("doutput got length: " + String.valueOf(doutput.length));
             doutput = this.structur[model_size - i].backward(doutput, learning_rate);
-            //System.out.println("doutput length: " + String.valueOf(doutput.length));
         }
 
 
     }
+
     /**
      * computes the backpropagation
+     *
      * @param dinput delta input of NN.
-     * has noo learning rate because the optimizer updates the parameter.
+     *               has noo learning rate because the optimizer updates the parameter.
      * @throws Exception Shape Errors
      */
     public void computeBackward(double[] dinput) throws Exception {
@@ -178,9 +176,11 @@ public class Model {
         }
 
     }
-     /**
+
+    /**
      * computes the backpropagation
-     * @param dinputs delta inputs of NN.
+     *
+     * @param dinputs       delta inputs of NN.
      * @param learning_rate learning rate of the NN. (adjustment weights rate.)
      * @throws Exception Shape Errors
      */
@@ -188,17 +188,18 @@ public class Model {
 
 
         double[][] doutputs = dinputs;
-        //System.out.println(model_size);
         for (int i = 0; i < structur.length; i++) {
             doutputs = this.structur[structur.length - 1 - i].backward(doutputs, learning_rate);
 
         }
 
     }
+
     /**
      * computes the backpropagation
+     *
      * @param dinputs delta input of NN.
-     * has noo learning rate because the optimizer updates the parameter.
+     *                has noo learning rate because the optimizer updates the parameter.
      * @throws Exception Shape Errors
      */
     public void computeAllBackward(double[][] dinputs) throws Exception {
@@ -213,9 +214,9 @@ public class Model {
 
     }
 
-
     /**
      * forward pass of the NN with a batch.
+     *
      * @param inputs batch of inputs.
      * @return the computed Output of the NN.
      * @throws Exception
@@ -223,25 +224,21 @@ public class Model {
     public double[][] computeAll(double[][] inputs) throws Exception {
 
         double[][] outputs = inputs;
-        for (int i = 0; i < this.structur.length; i++) {
-            outputs = this.structur[i].forward(outputs);
+        for (Layer layer : this.structur) {
+            outputs = layer.forward(outputs);
 
         }
 
-        //double[] b = this.structur[this.structur.length -2].biases;
-        //System.out.println(Arrays.toString(b));
-        //double[][] a = new double[inputs.length][this.structur[this.structur.length -2].biases.length];
-        //a = Utils.clean_inputs(outputs, );
         return outputs;
     }
 
     /**
      * forward pass of the NN with a single input.
+     *
      * @param input batch of inputs.
      * @return the computed Output of the NN.
-     * @throws Exception
      */
-    public double[] compute(double[] input) throws Exception {
+    public double[] compute(double[] input) {
 
         double[] output = input;
         for (int i = 0; i < model_size; i++) {
@@ -256,7 +253,8 @@ public class Model {
     /**
      * train the model with a batch.
      * has no learning rate because it uses and optimizer.
-     * @param epoch epochs to train for
+     *
+     * @param epoch   epochs to train for
      * @param x_train input data for the NN.
      * @param y_train the output the NN shall give.
      * @throws Exception Shape Error.
@@ -270,23 +268,21 @@ public class Model {
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
         } else if (topologie[topologie.length - 1] != y_train[0].length) {
-            throw new IllegalArgumentException("y has " + String.valueOf(y_train[0].length) + " classes but " +
-                    "model output shape is: " + String.valueOf(topologie[topologie.length - 1]));
+            throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
+                    "model output shape is: " + topologie[topologie.length - 1]);
         } else if (topologie[0] != x_train[0].length) {
-            throw new IllegalArgumentException("x has " + String.valueOf(x_train[0].length) + " input shape but " +
-                    "model inputs shape is: " + String.valueOf(topologie[0]));}
+            throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
+                    "model inputs shape is: " + topologie[0]);
+        }
 
 
-        double loss_per_epoch = 0;
+        double loss_per_epoch;
         int step_size = x_train.length;
-        int batch_size = x_train[0].length;
 
         double[] step_losses = new double[step_size];
 
         for (int i = 0; i < epoch; i++) {
-            loss_per_epoch = 0;
-
-            double[][] outs = new double[batch_size][];
+            double[][] outs;
 
             for (int j = 0; j < step_size; j++) {
                 outs = computeAll(x_train[j]);
@@ -309,16 +305,16 @@ public class Model {
 
             }
             loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
-            System.out.println("Loss per epoch: " + String.valueOf(loss_per_epoch));
+            System.out.println("Loss per epoch: " + loss_per_epoch);
         }
     }
 
-
     /**
      * train the model with a batch.
-     * @param epoch epochs to train for
-     * @param x_train input data for the NN.
-     * @param y_train the output the NN shall give.
+     *
+     * @param epoch         epochs to train for
+     * @param x_train       input data for the NN.
+     * @param y_train       the output the NN shall give.
      * @param learning_rate learning rate for weights.
      * @throws Exception Shape Error.
      */
@@ -330,27 +326,25 @@ public class Model {
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
         } else if (topologie[topologie.length - 1] != y_train[0].length) {
-            throw new IllegalArgumentException("y has " + String.valueOf(y_train[0].length) + " classes but " +
-                    "model output shape is: " + String.valueOf(topologie[topologie.length - 1]));
+            throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
+                    "model output shape is: " + topologie[topologie.length - 1]);
         } else if (topologie[0] != x_train[0].length) {
-            throw new IllegalArgumentException("x has " + String.valueOf(x_train[0].length) + " input shape but " +
-                    "model inputs shape is: " + String.valueOf(topologie[0]));}
+            throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
+                    "model inputs shape is: " + topologie[0]);
+        }
 
 
-        double loss_per_epoch = 0;
+        double loss_per_epoch;
 
         int step_size = x_train.length;
-        int batch_size = x_train[0].length;
 
         double[] step_losses = new double[step_size];
 
 
-        //double[][] outs = new double[batch_size][];
         for (int i = 0; i < epoch; i++) {
-            loss_per_epoch = 0;
 
             for (int j = 0; j < step_size; j++) {
-                double[][] outs = new double[batch_size][];
+                double[][] outs;
                 outs = computeAll(x_train[j]);
                 //one epoch is finished.
                 //calculates Loss
@@ -359,22 +353,20 @@ public class Model {
                 outs = loss.backward(outs, y_train[j]);
                 // now does back propagation //updates values.
                 this.computeAllBackward(outs, learning_rate);
-                continue;
 
 
             }
 
             loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
-            System.out.println("Loss per epoch: " + String.valueOf(loss_per_epoch));
-            loss_per_epoch = 0;
+            System.out.println("Loss per epoch: " + loss_per_epoch);
         }
     }
-
 
     /**
      * train the model with a batch.
      * has no learning rate because Optimizer is used.
-     * @param epoch epochs to train for
+     *
+     * @param epoch   epochs to train for
      * @param x_train single data input for the NN.
      * @param y_train single y the NN shall give.
      * @throws Exception More.
@@ -388,20 +380,19 @@ public class Model {
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
         } else if (topologie[topologie.length - 1] != y_train[0].length) {
-            throw new IllegalArgumentException("y has " + String.valueOf(y_train[0].length) + " classes but " +
-                    "model output shape is: " + String.valueOf(topologie[topologie.length - 1]));
+            throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
+                    "model output shape is: " + topologie[topologie.length - 1]);
         } else if (topologie[0] != x_train[0].length) {
-            throw new IllegalArgumentException("x has " + String.valueOf(x_train[0].length) + " input shape but " +
-                    "model inputs shape is: " + String.valueOf(topologie[0]));
+            throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
+                    "model inputs shape is: " + topologie[0]);
         } else if (this.optimizer == null) {
             throw new IllegalArgumentException("Got no Optimizer and no Learning rate");
         }
 
 
-        double loss_per_epoch = 0;
+        double loss_per_epoch;
         int step_size = x_train.length;
-        int batch_size = x_train[0].length;
-        double step_loss = 0;
+        double step_loss;
         for (int i = 0; i < epoch; i++) {
             loss_per_epoch = 0;
 
@@ -428,16 +419,17 @@ public class Model {
 
             }
             loss_per_epoch = loss_per_epoch / x_train.length;
-            System.out.println("Loss per epoch: " + String.valueOf(loss_per_epoch));
+            System.out.println("Loss per epoch: " + loss_per_epoch);
         }
 
     }
 
     /**
      * train the model with a batch.
-     * @param epoch epochs to train for
-     * @param x_train single data input for the NN.
-     * @param y_train single y NN shall give.
+     *
+     * @param epoch         epochs to train for
+     * @param x_train       single data input for the NN.
+     * @param y_train       single y NN shall give.
      * @param learning_rate learning rate for weights.
      * @throws Exception More.
      */
@@ -450,30 +442,27 @@ public class Model {
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
         } else if (topologie[topologie.length - 1] != y_train[0].length) {
-            throw new IllegalArgumentException("y has " + String.valueOf(y_train[0].length) + " classes but " +
-                    "model output shape is: " + String.valueOf(topologie[topologie.length - 1]));
+            throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
+                    "model output shape is: " + topologie[topologie.length - 1]);
         } else if (topologie[0] != x_train[0].length) {
-            throw new IllegalArgumentException("x has " + String.valueOf(x_train[0].length) + " input shape but " +
-                    "model inputs shape is: " + String.valueOf(topologie[0]));
+            throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
+                    "model inputs shape is: " + topologie[0]);
         }
 
 
-        double loss_per_epoch = 0;
-        double step_loss = 0;
+        double loss_per_epoch;
+        double step_loss;
         int step_size = x_train.length;
-        int batch_size = x_train[0].length;
         for (int i = 0; i < epoch; i++) {
             loss_per_epoch = 0;
 
-            double[] outs = new double[y_train[0].length];
+            double[] outs;
 
             for (int j = 0; j < step_size; j++) {
-                outs = compute(x_train[j]);
+                compute(x_train[j]);
 
                 outs = new double[y_train[0].length];
-                //Arrays.fill(outs, 0);
                 outs = Utils.clean_input(outs, y_train[0].length);
-                //System.out.println(outs.length);
 
                 step_loss = loss.forward(outs, y_train[j]);
 
@@ -486,8 +475,7 @@ public class Model {
 
             }
             loss_per_epoch = loss_per_epoch / x_train.length;
-            System.out.println("Loss per epoch: " + String.valueOf(loss_per_epoch));
-            loss_per_epoch = 0;
+            System.out.println("Loss per epoch: " + loss_per_epoch);
         }
     }
 
@@ -498,7 +486,6 @@ public class Model {
 
 
     }
-
 
     public double[][][] get_weights() {
 
@@ -512,7 +499,7 @@ public class Model {
         return w;
     }
 
-    public void load_weights(double[][][] w) throws Exception {
+    public void load_weights(double[][][] w) {
         int layers_got = w.length;
 
         for (int i = 0; i < layers_got; i++) {
@@ -523,7 +510,6 @@ public class Model {
 
     }
 
-
     public void test_with_batch(double[][][] x_train, double[][][] y_train) throws Exception {
 
         int step_size = x_train.length;
@@ -532,7 +518,7 @@ public class Model {
 
         double[][] compare = new double[total_size][2];
 
-        double loss_per_epoch = 0;
+        double loss_per_epoch;
         double[] step_losses = new double[step_size];
 
         this.Ebenen = new FullyConnectedLayer[3];
@@ -542,15 +528,11 @@ public class Model {
 
         Activation act = new Tanh();
 
-        int totalSize = step_size * batch_size;
-
-        int ownSize = Ebenen.length;
-        double[][] outs = new double[batch_size][];
+        double[][] outs;
         for (int j = 0; j < step_size; j++) {
-            outs = new double[batch_size][];
             outs = x_train[j];
-            for (int l = 0; l < Ebenen.length; l++) {
-                outs = Ebenen[l].forward(outs);
+            for (FullyConnectedLayer fullyConnectedLayer : Ebenen) {
+                outs = fullyConnectedLayer.forward(outs);
                 outs = act.forward(outs);
             }
 
@@ -567,12 +549,11 @@ public class Model {
             }
         }
         loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
-        System.out.println("Loss per epoch: " + String.valueOf(loss_per_epoch));
-        loss_per_epoch = 0;
+        System.out.println("Loss per epoch: " + loss_per_epoch);
 
         for (int preds = 0; preds < compare.length; preds++) {
-            System.out.println("Predicted Class: " + String.valueOf(compare[preds][0])
-                    + " Y true Class: " + String.valueOf(compare[preds][1]));
+            System.out.println("Predicted Class: " + compare[preds][0]
+                    + " Y true Class: " + compare[preds][1]);
             if (preds == 20) {
                 break;
             }
@@ -582,11 +563,9 @@ public class Model {
 
     public void train_batch_new(int epoch, double[][][] x_train, double[][][] y_train, double learning_rate) throws Exception {
 
-        double loss_per_epoch = 0;
+        double loss_per_epoch;
 
         int step_size = x_train.length;
-        int batch_size = x_train[0].length;
-        int in_data = x_train[0][0].length;
 
         double[] step_losses = new double[step_size];
 
@@ -597,19 +576,17 @@ public class Model {
         Activation act = new Tanh();
 
         int ownSize = Ebenen.length;
-        double[][] outs = new double[batch_size][];
-        //double[][] outs = new double[batch_size][];
+        double[][] outs;
         for (int i = 0; i < epoch; i++) {
-            loss_per_epoch = 0;
 
             for (int j = 0; j < step_size; j++) {
 
-                double[][] data = new double[batch_size][in_data];
+                double[][] data;
 
                 data = x_train[j];
                 outs = data;
-                for (int l = 0; l < Ebenen.length; l++) {
-                    outs = Ebenen[l].forward(outs);
+                for (FullyConnectedLayer fullyConnectedLayer : Ebenen) {
+                    outs = fullyConnectedLayer.forward(outs);
                     outs = act.forward(outs);
 
 
@@ -631,55 +608,48 @@ public class Model {
             }
 
             loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
-            System.out.println("Loss per epoch: " + String.valueOf(loss_per_epoch));
-            loss_per_epoch = 0;
+            System.out.println("Loss per epoch: " + loss_per_epoch);
         }
     }
-
 
     private String layer2b_w() {
-        String s_out = "";
-
-
-        for (int k = 0; k < structur.length; k++) {
-
-            if (structur[k].hasWeights) {
-                System.out.println(structur[k].name);
-                System.out.println(structur[k].biases);
-                System.out.println(structur[k].weights);
-                s_out += "Layer " + String.valueOf(k) + ": \n";
-                s_out += Utils.weightsAndBiases_toString(structur[k].weights,
-                        structur[k].biases);
-            }
-
-
-        }
-        return s_out;
-    }
-
-    private String layer_export() {
-        String s_out = "";
+        StringBuilder s_out = new StringBuilder();
 
 
         for (int k = 0; k < structur.length; k++) {
 
             if (structur[k].weights != null) {
-                System.out.println(structur[k].name);
-                System.out.println(structur[k].biases);
-                System.out.println(structur[k].weights);
-                s_out += "Layer " + String.valueOf(k) + ": \n";
-                s_out += Utils.weightsAndBiases_export(structur[k].weights,
-                        structur[k].biases);
+                s_out.append("Layer ").append(k).append(": \n");
+                s_out.append(Utils.weightsAndBiases_toString(structur[k].weights,
+                        structur[k].biases));
+            }
+
+
+        }
+        return s_out.toString();
+    }
+
+    private String layer_export() {
+        StringBuilder s_out = new StringBuilder();
+
+
+        for (int k = 0; k < structur.length; k++) {
+
+            if (structur[k].weights != null) {
+                s_out.append("Layer ").append(k).append(": \n");
+                s_out.append(Utils.weightsAndBiases_export(structur[k].weights,
+                        structur[k].biases));
             } else {
-                if (k < structur.length-1){
-                s_out += structur[k].name;
-            }else{
-                    s_out += structur[k].name + "\n";
+                if (k < structur.length - 1) {
+                    s_out.append(structur[k].name);
+                } else {
+                    s_out.append(structur[k].name).append("\n");
                 }
 
 
-        }}
-        return s_out;
+            }
+        }
+        return s_out.toString();
     }
 
     public String modelExport() {
@@ -688,7 +658,7 @@ public class Model {
         return s_out;
     }
 
-    public void modelExport2file(String fpath) throws Exception{
+    public void modelExport2file(String fpath) throws Exception {
         String s_out = "layers: " + Arrays.toString(topologie) + "\n";
         s_out += this.layer_export();
 
@@ -697,15 +667,9 @@ public class Model {
         writer.close();
     }
 
-
-
-
-
-
-
     public String toString() {
         String s_out = "Strucktur: " + Arrays.toString(topologie) + "\n";
-        s_out += "Parameter: " + String.valueOf(parameter_size) + "\n";
+        s_out += "Parameter: " + parameter_size + "\n";
         s_out += layer2b_w();
 
         return s_out;
