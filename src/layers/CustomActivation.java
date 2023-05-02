@@ -29,6 +29,13 @@ public class CustomActivation extends Activation {
         Arrays.fill(schwellenwert, 0);
     }
 
+    public CustomActivation(int n_inputs, double theata) {
+        acts = new String[n_inputs];
+        schwellenwert = new double[n_inputs];
+        Arrays.fill(acts, "id");
+        Arrays.fill(schwellenwert, theata);
+    }
+
     /**
      * just creates this function, so it knows the number of expected nodes.
      *

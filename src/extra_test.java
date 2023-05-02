@@ -9,11 +9,11 @@ public class extra_test {
 
         NeuralNetwork NN = new NeuralNetwork();
 
-        NN.create(read_utils.correkt_read_weights(""));
+        NN.create(read_utils.correkt_read_weights("csv/topology/trafficLight.csv"));
 
         Layer[] l = NN.getModel();
 
-        Layer cF = new CustomActivation(l[-2].biases.length);
+        Layer cF = new CustomActivation(l[-2].biases.length, 1.5);
 
         l[-1] = cF;
         NN.create(l);
