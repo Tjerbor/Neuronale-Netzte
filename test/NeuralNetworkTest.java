@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import utils.Reader;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,20 +29,8 @@ public class NeuralNetworkTest {
         Layer[] l = neuralNetwork.getModel();
         Layer cF = new CustomActivation(new String[]{"logi", "logi", "logi", "id"});
 
-        for (Layer l1 : l) {
-            System.out.println(l1.name);
-            System.out.println(Arrays.deepToString(l1.weights));
-        }
-
-        //l[0].biases = new double[]{1, 1, 1, 1};
-        //l[2].biases = new double[]{1, 1, 1};
 
         l[1] = cF;
-        //neuralNetwork.create(l);
-
-
-        //double[] result = new double[]{1, 0, 0};
-
 
         double[] result = neuralNetwork.compute(new double[]{1, 0, 0});
 
