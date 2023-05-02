@@ -13,7 +13,7 @@ public class extra_test {
 
         Layer[] l = NN.getModel();
 
-        Layer cF = new CustomActivation(l[-2].biases.length, 1.5);
+        Layer cF = new CustomActivation(l[l.length - 2].biases.length, 1.5);
 
         l[-1] = cF;
         NN.create(l);
