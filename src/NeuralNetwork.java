@@ -72,6 +72,27 @@ public class NeuralNetwork {
         }
     }
 
+
+    public int[] getTopologie() {
+        int[] t;
+        int count = 0;
+        for (Layer l : this.structur) {
+            if (l.weights != null) {
+                count += 1;
+            }
+        }
+        t = new int[count];
+
+        count = 0;
+        for (Layer l : this.structur) {
+            if (l.weights != null) {
+                t[count] = l.weights.length;
+                count += 1;
+            }
+        }
+        return t;
+    }
+
     /**
      * creates the model with a given Layer Array.
      *
@@ -82,6 +103,7 @@ public class NeuralNetwork {
         model_size = layers.length; //länge der Topologie
 
         this.structur = layers;
+        this.topologie = this.getTopologie();
         updateParameterSize();
         int count = 0;
         for (int i = 0; i < model_size; i++) {
