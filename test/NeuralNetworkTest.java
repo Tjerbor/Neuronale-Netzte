@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import utils.Reader;
@@ -8,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * This class contains various tests to assert the correctness of the neural network.
+ * This class contains various tests to assert the correctness of the {@link NeuralNetwork}.
  *
  * @see <a href="https://junit.org/junit5/docs/current/user-guide/">JUnit Jupiter</a>
  */
@@ -18,6 +19,11 @@ public class NeuralNetworkTest {
     @BeforeEach
     void initialize() {
         neuralNetwork = new NeuralNetwork();
+    }
+
+    @AfterEach
+    void tearDown() {
+        neuralNetwork = null;
     }
 
     @Test
