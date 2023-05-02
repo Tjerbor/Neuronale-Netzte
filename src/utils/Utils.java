@@ -94,7 +94,7 @@ public class Utils {
                 c[j][i] = a[i][j];
             }
         }
-
+        
 
         return c;
     }
@@ -122,6 +122,25 @@ public class Utils {
         return output;
 
     }
+
+    public static double[] matmul2d_1d(double[][] wT, double[] input) {
+
+        System.out.println(Arrays.deepToString(wT));
+        System.out.println(wT.length);
+
+        double[] out = new double[wT.length];
+        System.out.println(Arrays.toString(input));
+        for (int e = 0; e < wT.length; e++) {
+            for (int x = 0; x < wT[0].length; x++) {
+                for (int j = 0; j < 1; j++) {
+                    out[e] += wT[e][x] * input[x];
+                }
+            }
+        }
+        System.out.println(Arrays.toString(out));
+        return out;
+    }
+
 
     /**
      * function calculates Dot-Produkt. with single Bias value.
@@ -487,7 +506,8 @@ public class Utils {
     }
 
     public static Activation getActivation() {
-        Activation a = new Activation();;
+        Activation a = new Activation();
+        ;
         return a;
     }
 

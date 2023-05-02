@@ -8,8 +8,10 @@ public class Activation extends Layer {
     double[] input;
     double[][] inputs;
 
-    public Activation(){
+
+    public Activation() {
         this.name = "id";
+        super.weights = null;
     }
 
     public double def(double x) {
@@ -24,6 +26,7 @@ public class Activation extends Layer {
 
     /**
      * every Activation has the same methode but different def and prime function
+     *
      * @param input
      * @return
      */

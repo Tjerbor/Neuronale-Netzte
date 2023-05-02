@@ -23,6 +23,7 @@ public class test {
         Activation act = new Tanh_v2();
         Losses loss = new MSE();
 
+
         String fpath = "src/utils/mnist_data_full.txt";
         double[][] y_train = Mnist_reader.getTrainData_y(fpath);
         double[][] x_train = Mnist_reader.getTrainData_x(fpath);
@@ -38,7 +39,7 @@ public class test {
 
         //System.out.println(Arrays.toString(x_train2[0][0]));
         //System.out.println(Arrays.toString(x_train2[0][1]));
-
+     /*
         String strStep = "";
         for (int stepS = 0; stepS < x_train2.length; stepS++) {
 
@@ -95,6 +96,8 @@ public class test {
             }
 
         }
+        */
+
 
     }
 }

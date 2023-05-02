@@ -1,4 +1,5 @@
 package layers;
+
 /**
  * The CustomActivation uses this function to calculate the activation of a node.
  */
@@ -6,7 +7,7 @@ public class activation_utils {
     /**
      * Prints out the supported Activation Functions.
      */
-    public static void printSupportedActivations(){
+    public static void printSupportedActivations() {
         System.out.println("relu");
         System.out.println("tanh");
         System.out.println("sigmoid, logistisch, logi");
@@ -17,8 +18,9 @@ public class activation_utils {
 
     /**
      * used the forward dunction given by the node. is uesed by CustomActivation.
-     * @param type name of the activation function.
-     * @param x value given by the node.
+     *
+     * @param type   name of the activation function.
+     * @param x      value given by the node.
      * @param theata theata value. clip value or binary decision.
      * @return the computed value or identity.
      */
@@ -31,14 +33,15 @@ public class activation_utils {
         } else if (type.equals("sigmoid") || type.equals("logistisch") || type.equals("logi")) {
             x = sigmoid(x);
 
-        } else if (type.equals("semi")|| type.equals("semi_linear") || type.equals("semi linear")) {
+        } else if (type.equals("semi") || type.equals("semi_linear") || type.equals("semi linear")) {
             // is a clip for the given value for up and down.
             //otherwise returns the given value.
-            if (x > theata){
+            if (x > theata) {
                 x = theata;
-            }else if (x < -theata){
+            } else if (x < -theata) {
                 x = -theata;
-            }} else if (!type.equals("id") | !type.equals("identity")|!type.equals("identity_function")|!type.equals("identity function")) {
+            }
+        } else if (!type.equals("id")) {
             System.out.println("Activation Function is not Supported");
         }
 
@@ -46,10 +49,10 @@ public class activation_utils {
         //Custom activation function sets all theata values to 0.
         //it is expected for 0 is relu used.
         // so this check is needed.
-        if (!(type.equals("semi")|| type.equals("semi_linear") || type.equals("semi linear")) && theata != 0){
-            if (x > theata){
+        if (!(type.equals("semi") || type.equals("semi_linear") || type.equals("semi linear")) && theata != 0) {
+            if (x > theata) {
                 x = 1;
-            }else{
+            } else {
                 x = 0;
             }
         }
@@ -59,8 +62,9 @@ public class activation_utils {
 
     /**
      * used the forward dunction given by the node. is uesed by CustomActivation.
+     *
      * @param type name of the activation function.
-     * @param x value given by the node.
+     * @param x    value given by the node.
      * @return the computed value or identity.
      */
     public static double useForwardFunktion(String type, double x) {
@@ -70,12 +74,13 @@ public class activation_utils {
             x = relu(x);
         } else if (split[0].equals("tanh")) {
             x = tahn(x);
-        } else if (split[0].equals("sigmoid")) {
+        } else if (type.equals("sigmoid") || type.equals("logistisch") || type.equals("logi")) {
             x = sigmoid(x);
         } else if (split[0].equals("one")) {
             x = 1;
-        }else if (!type.equals("id") | !type.equals("identity")|!type.equals("identity_function")|!type.equals("identity function")) {
-            System.out.println("Activation Function is not Supported");}
+        } else if (!type.equals("id")) {
+            System.out.println("Activation Function is not Supported");
+        }
         //semi linear activation Function is not allowed,
         //because it needs a theata so set upper and lower Boundaries.
 
@@ -96,14 +101,15 @@ public class activation_utils {
         } else if (type.equals("sigmoid") || type.equals("logistisch") || type.equals("logi")) {
             x = sigmoid_prime(x);
 
-        } else if (type.equals("semi")|| type.equals("semi_linear") || type.equals("semi linear")) {
+        } else if (type.equals("semi") || type.equals("semi_linear") || type.equals("semi linear")) {
             // is a clip for the given value for up and down.
             //otherwise returns the given value.
-            if (x > theata){
+            if (x > theata) {
                 x = theata;
-            }else if (x < -theata){
+            } else if (x < -theata) {
                 x = -theata;
-            }} else if (!type.equals("id") | !type.equals("identity")|!type.equals("identity_function")|!type.equals("identity function")) {
+            }
+        } else if (!type.equals("id") | !type.equals("identity") | !type.equals("identity_function") | !type.equals("identity function")) {
             System.out.println("Activation Function is not Supported");
         }
 
@@ -111,10 +117,10 @@ public class activation_utils {
         //Custom activation function sets all theata values to 0.
         //it is expected for 0 is relu used.
         // so this check is needed.
-        if (!(type.equals("semi")|| type.equals("semi_linear") || type.equals("semi linear")) && theata != 0){
-            if (x > theata){
+        if (!(type.equals("semi") || type.equals("semi_linear") || type.equals("semi linear")) && theata != 0) {
+            if (x > theata) {
                 x = 1;
-            }else{
+            } else {
                 x = 0;
             }
         }
@@ -124,8 +130,9 @@ public class activation_utils {
 
     /**
      * used the forward dunction given by the node. is uesed by CustomActivation.
+     *
      * @param type name of the activation function.
-     * @param x value given by the node.
+     * @param x    value given by the node.
      * @return the computed value or identity.
      */
     public static double useBackwardFunktion(String type, double x) {
@@ -139,8 +146,9 @@ public class activation_utils {
             x = sigmoid_prime(x);
         } else if (split[0].equals("one")) {
             x = 1;
-        }else if (!type.equals("id") | !type.equals("identity")|!type.equals("identity_function")|!type.equals("identity function")) {
-            System.out.println("Activation Function is not Supported");}
+        } else if (!type.equals("id") | !type.equals("identity") | !type.equals("identity_function") | !type.equals("identity function")) {
+            System.out.println("Activation Function is not Supported");
+        }
         //semi linear activation Function is not allowed,
         //because it needs a theata so set upper and lower Boundaries.
 

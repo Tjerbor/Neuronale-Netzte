@@ -266,7 +266,7 @@ public class NeuralNetwork {
     public double[] compute(double[] input) {
 
         double[] output = input;
-        for (int i = 0; i < model_size; i++) {
+        for (int i = 0; i < structur.length; i++) {
             output = this.structur[i].forward(output);
 
         }
