@@ -72,6 +72,9 @@ public class NeuralNetwork {
         }
     }
 
+    public Layer[] getModel() {
+        return this.structur;
+    }
 
     public int[] getTopologie() {
         int[] t;

@@ -11,7 +11,7 @@ import java.util.Arrays;
  * Expects a given value starting from 1.
  * expects activation function in lower Case
  */
-public class CustomActivation {
+public class CustomActivation extends Activation {
     String[] acts;
     double[][] inputs;
     double[] input;
@@ -19,9 +19,10 @@ public class CustomActivation {
 
     /**
      * just creates this function, so it knows the number of expected nodes.
+     *
      * @param n_inputs number of inputs expected.
      */
-    public CustomActivation(int n_inputs){
+    public CustomActivation(int n_inputs) {
         acts = new String[n_inputs];
         schwellenwert = new double[n_inputs];
         Arrays.fill(acts, "id");
@@ -30,10 +31,11 @@ public class CustomActivation {
 
     /**
      * just creates this function, so it knows the number of expected nodes.
+     *
      * @param n_inputs a string value filled with functions. the other values are filled with
-     * the identity-Function.
+     *                 the identity-Function.
      */
-    public CustomActivation(String[] n_inputs){
+    public CustomActivation(String[] n_inputs) {
         Arrays.fill(acts, "id");
         acts = n_inputs;
         schwellenwert = new double[n_inputs.length];
@@ -41,10 +43,19 @@ public class CustomActivation {
 
     }
 
+    public CustomActivation(String[] n_inputs, double theata) {
+        Arrays.fill(acts, "id");
+        acts = n_inputs;
+        schwellenwert = new double[n_inputs.length];
+        Arrays.fill(schwellenwert, theata);
+
+    }
+
 
     /**
      * set the activation for the node.
-     * @param node number starting from 1.
+     *
+     * @param node     number starting from 1.
      * @param function activation which shall be set.
      * @throws Exception if the node number is too high
      */
@@ -58,12 +69,14 @@ public class CustomActivation {
         }
 
     }
+
     /**
      * set the activation for the node.
-     * @param node number starting from 1.
+     *
+     * @param node     number starting from 1.
      * @param function activation which shall be set.
-     * @param theata if set to semi linear is clip value for up and down.
-     *  otherwise binary decision.
+     * @param theata   if set to semi linear is clip value for up and down.
+     *                 otherwise binary decision.
      * @throws Exception if the node number is too high or to low.
      */
     public void setUnit(int node, String function, double theata) throws Exception {
@@ -74,19 +87,19 @@ public class CustomActivation {
 
     }
 
-    public double def(double x, int pos){
-        if (schwellenwert[pos] != 0){
-            return activation_utils.useForwardFunktion(acts[pos],x ,schwellenwert[pos]);
-        }else {
+    public double def(double x, int pos) {
+        if (schwellenwert[pos] != 0) {
+            return activation_utils.useForwardFunktion(acts[pos], x, schwellenwert[pos]);
+        } else {
             return activation_utils.useForwardFunktion(acts[pos], x);
         }
 
     }
 
-    public double prime(double x, int pos){
-        if (schwellenwert[pos] != 0){
+    public double prime(double x, int pos) {
+        if (schwellenwert[pos] != 0) {
             return activation_utils.useBackwardFunktion(acts[pos], x, schwellenwert[pos]);
-        }else {
+        } else {
             return activation_utils.useBackwardFunktion(acts[pos], x);
         }
 
@@ -175,7 +188,6 @@ public class CustomActivation {
         out = Array_utils.multiply1D(dvalue, out);
         return out;
     }
-
 
 
 }
