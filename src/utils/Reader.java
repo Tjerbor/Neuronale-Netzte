@@ -10,7 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class read_utils {
+/**
+ * This class contains utility methods for creating a neural network from a CSV file.
+ */
+public class Reader {
     /**
      * This method attempts to read the given CSV file and return the values it contains.
      * It throws an exception if the file does not exist or an I/O error occurs.
@@ -31,15 +34,11 @@ public class read_utils {
         }
     }
 
-
     /**
-     * creates the model.
-     *
-     * @param path filepath with weights
-     * @return Strucktur Layer
-     * @throws IOException
+     * This method attempts to read the given CSV file and create a neural network with the values it contains.
+     * It throws an exception if the file does not exist or an I/O error occurs.
      */
-    public static Layer[] correkt_read_weights(String path) throws IOException {
+    public static Layer[] create(String path) throws IOException {
         List<String[]> list = read(path);
 
         if (!list.get(0)[0].equals("layers")) {
