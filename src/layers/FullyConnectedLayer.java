@@ -5,6 +5,7 @@ import utils.Utils;
 import utils.global_variables;
 
 import java.text.ParseException;
+import java.util.Arrays;
 
 /**
  * the normal Dense Layer.
@@ -35,7 +36,7 @@ public class FullyConnectedLayer extends Layer {
     public FullyConnectedLayer(int n_input, int n_neurons) {
         //this.weights = Utils.genRandomWeights(n_input + 1, n_neurons);
         //super.weights = new double[n_input + 1][n_neurons];
-        //super.weights = super.weights;
+        //this.weights = super.weights;
         this.parameter_size = n_input * n_neurons + n_neurons;
         input = new double[n_input];
         inputs = new double[n_input][n_input];
@@ -53,7 +54,7 @@ public class FullyConnectedLayer extends Layer {
      * @param Test      indicates test.
      */
     public FullyConnectedLayer(int n_input, int n_neurons, boolean Test) {
-        //double[][] w = Utils.genRandomWeights(n_input, n_neurons);
+        double[][] w = Utils.genRandomWeights(n_input + 1, n_neurons);
         //has decimal precission because java messes up.
         super.weights = Array_utils.getLinspaceWeights_wo_endpoint(n_input + 1, n_neurons, -1, 1, 4);
         this.parameter_size = n_input * n_neurons + n_neurons;
@@ -81,6 +82,10 @@ public class FullyConnectedLayer extends Layer {
 
     }
 
+    public void setBIAS(double x) {
+        this.BIAS = x;
+    }
+
 
     /**
      * returns the biases on top of the weights.
@@ -97,7 +102,7 @@ public class FullyConnectedLayer extends Layer {
      * @param w
      */
 
-    public void set_weights(double[][] w) {
+    public void setWeights(double[][] w) {
         //this.weights = new double[w.length][w[0].length];
         //this.biases = new double[w[0].length];
         this.weights = w;
@@ -140,7 +145,7 @@ public class FullyConnectedLayer extends Layer {
         }
 
         for (int i = 0; i < in.length; i++) {
-            out[i][in.length] = this.BIAS;
+            out[i][in[0].length] = this.BIAS;
         }
         return out;
     }
@@ -157,26 +162,6 @@ public class FullyConnectedLayer extends Layer {
         return out;
     }
 
-    public double[][] removeBIAS(double[][] in) {
-        double[][] out = new double[in.length][in[0].length - 1];
-        for (int i = 0; i < in.length; i++) {
-            for (int j = 0; j < in[0].length - 1; j++) {
-                out[i][j] = in[i][j];
-            }
-        }
-        return out;
-    }
-
-
-    public double[] removeBIAS(double[] in) {
-        double[] out = new double[in.length - 1];
-        for (int i = 0; i < in.length - 1; i++) {
-            out[i] = in[i];
-        }
-        return out;
-    }
-
-
     /**
      * Forward Pas for the layer.
      *
@@ -185,15 +170,19 @@ public class FullyConnectedLayer extends Layer {
      */
     public double[][] forward(double[][] inputs) throws Exception {
         double[][] outputs;
-        this.inputs = new double[inputs.length][weights.length];
-        this.inputs = Utils.clean_inputs(inputs, weights.length);
+        //this.inputs = new double[inputs.length][weights.length];
+        //this.inputs = Utils.clean_inputs(inputs, weights.length);
 
+        this.inputs = inputs;
         inputs = this.addBIAS(inputs);
-        outputs = Utils.matmul2D(this.inputs, weights);
+        System.out.println(Arrays.deepToString(inputs));
+        System.out.println(Arrays.deepToString(weights));
+
+        outputs = Utils.matmul2D(inputs, weights);
 
         //outputs = Utils.add_biases(outputs, biases);
         //da die erste dimension der weights die Input-shape is
-        return removeBIAS(outputs);
+        return (outputs);
 
 
     }
@@ -241,7 +230,7 @@ public class FullyConnectedLayer extends Layer {
         updateBiases_self(dbiases, learning_rate);
         updateWeights_self(dweights, learning_rate);
 
-        return removeBIAS(this.dinputs);
+        return (this.dinputs);
     }
 
     /**
@@ -315,7 +304,7 @@ public class FullyConnectedLayer extends Layer {
         updateWeights_self(Utils.tranpose(weights_gradient), learning_rate);
 
 
-        return removeBIAS(dinput);
+        return (dinput);
 
     }
 
@@ -338,7 +327,7 @@ public class FullyConnectedLayer extends Layer {
         double[][] weights_t = Utils.tranpose(weights);
         this.dinputs = Utils.matmul2D(output_gradient, weights_t);
 
-        return removeBIAS(this.dinputs);
+        return (this.dinputs);
     }
 
     /**
@@ -360,7 +349,7 @@ public class FullyConnectedLayer extends Layer {
 
         this.dinput = dinput;
 
-        return removeBIAS(this.dinput);
+        return (this.dinput);
 
     }
 

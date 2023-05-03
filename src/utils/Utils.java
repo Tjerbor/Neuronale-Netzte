@@ -94,7 +94,7 @@ public class Utils {
                 c[j][i] = a[i][j];
             }
         }
-        
+
 
         return c;
     }
@@ -169,6 +169,7 @@ public class Utils {
      */
     public static double[][] matmul2D(double[][] a, double[][] b) throws Exception {
 
+       
         if (a[0].length != b.length) {
             throw new Exception("Mismatching Shape " + Integer.toString(a[0].length) + " " + Integer.toString(b[0].length));
         }

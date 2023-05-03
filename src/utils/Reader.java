@@ -66,6 +66,7 @@ public class Reader {
                 list_pos += 1; //update layer position.
             }
 
+
             list_pos += 1; //wegen der leerzeile.
             //structur[i + count].weights = Utils.split_for_weights(w);
             structur[count].weights = w;

@@ -9,8 +9,6 @@ public class NeuralNetwork {
     int model_size; //number of layers
     int parameter_size; //parameter Size
     Layer[] structur; //strucktur of the model. contains Layers and Activations.
-    Activation[] activations; //needed for test purpose
-    FullyConnectedLayer[] Ebenen; //needed for test purpose
     int[] topologie; //the original topologie.
     Losses loss = null; //loss function of our NN. // now only MSE is available.
     SGD optimizer = null; // right now not really supported.
@@ -20,22 +18,7 @@ public class NeuralNetwork {
      *
      * @param Topologie strucktur addeds an activation after every Layer.
      */
-    public void create(int[] Topologie) {
-        //size -1, weil die erste Zahl die größe der Eingabe Daten entspricht.
-        model_size = Topologie.length - 1; //länge der Topologie
-        topologie = Topologie;
-        this.structur = new Layer[model_size];
-        this.activations = new Activation[model_size];
 
-
-        for (int i = 0; i < model_size; i++) {
-            structur[i] = new FullyConnectedLayer(Topologie[i], Topologie[i + 1]);
-            activations[i] = new Tanh();
-            parameter_size += Topologie[i] * Topologie[i + 1] + Topologie[i + 1];
-
-        }
-
-    }
 
     /**
      * uses Same Activation Function for every Layer.
@@ -253,7 +236,6 @@ public class NeuralNetwork {
             outputs = layer.forward(outputs);
 
         }
-
         return outputs;
     }
 
@@ -501,88 +483,6 @@ public class NeuralNetwork {
             }
             loss_per_epoch = loss_per_epoch / x_train.length;
             System.out.println("Loss per epoch: " + loss_per_epoch);
-        }
-    }
-
-    //TODO topologie musst be correkted
-    public void set_model(Layer[] layers) {
-
-        this.structur = layers;
-
-
-    }
-
-    public double[][][] get_weights() {
-
-        int layers_got = Ebenen.length;
-        double[][][] w = new double[layers_got][][];
-        for (int i = 0; i < layers_got; i++) {
-            w[i] = this.Ebenen[i].get_weights();
-
-        }
-
-        return w;
-    }
-
-    public void load_weights(double[][][] w) {
-        int layers_got = w.length;
-
-        for (int i = 0; i < layers_got; i++) {
-            this.Ebenen[i].set_weights(w[i]);
-
-        }
-
-
-    }
-
-    public void test_with_batch(double[][][] x_train, double[][][] y_train) throws Exception {
-
-        int step_size = x_train.length;
-        int batch_size = x_train[0].length;
-        int total_size = step_size * batch_size;
-
-        double[][] compare = new double[total_size][2];
-
-        double loss_per_epoch;
-        double[] step_losses = new double[step_size];
-
-        this.Ebenen = new FullyConnectedLayer[3];
-        Ebenen[0] = new FullyConnectedLayer(784, 49);
-        Ebenen[1] = new FullyConnectedLayer(49, 20);
-        Ebenen[2] = new FullyConnectedLayer(20, 10);
-
-        Activation act = new Tanh();
-
-        double[][] outs;
-        for (int j = 0; j < step_size; j++) {
-            outs = x_train[j];
-            for (FullyConnectedLayer fullyConnectedLayer : Ebenen) {
-                outs = fullyConnectedLayer.forward(outs);
-                outs = act.forward(outs);
-            }
-
-            //one epoch is finished.
-            //calculates Loss
-            step_losses[j] = this.loss.forward(outs, y_train[j]);
-            for (int y_out = 0; y_out < y_train[0].length; y_out++) {
-
-
-                compare[j * batch_size + y_out][0] = Utils.argmax(outs[y_out]);
-                compare[j * batch_size + y_out][1] = Utils.argmax(y_train[j][y_out]);
-
-
-            }
-        }
-        loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
-        System.out.println("Loss per epoch: " + loss_per_epoch);
-
-        for (int preds = 0; preds < compare.length; preds++) {
-            System.out.println("Predicted Class: " + compare[preds][0]
-                    + " Y true Class: " + compare[preds][1]);
-            if (preds == 20) {
-                break;
-            }
-
         }
     }
 
