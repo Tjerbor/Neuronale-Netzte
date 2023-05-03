@@ -14,7 +14,6 @@ public class FullyConnectedLayer extends Layer {
 
 
     public static boolean hasWeights = true;
-    Jatrix jweights; //weights of layer.
     //double[] biases; not needed because biases are just extra weigthts.
     double[][] dweights; // gradients of weights needed if the optimizer is set.
     double[][] momentum_weights; // gradients of weights needed if the optimizer is set.
