@@ -92,7 +92,7 @@ public class FullyConnectedLayer extends Layer {
      *
      * @return
      */
-    public double[][] get_weights() {
+    public double[][] getWeights() {
         return this.weights;
     }
 
@@ -291,8 +291,6 @@ public class FullyConnectedLayer extends Layer {
 
 
         //System.out.println(weights.length);
-
-
         output_gradient = this.addPRIME_BIAS(output_gradient);
         double[][] weights_gradient = Utils.calcWeightGradient(output_gradient, this.input);
         //double[][]t_weights = Utils.tranpose(weights);
@@ -325,7 +323,7 @@ public class FullyConnectedLayer extends Layer {
 
         output_gradient = this.addPRIME_BIAS(output_gradient);
         this.dweights = Utils.matmul2D(Utils.tranpose(this.inputs), output_gradient);
-        this.dbiases = Utils.sumBiases(output_gradient);
+        //this.dbiases = Utils.sumBiases(output_gradient);
 
 
         //  Gradient on input values.

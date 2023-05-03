@@ -48,14 +48,15 @@ public class Layer {
         return dinputs;
     }
 
-
-    public void setWeights(double[][] a) {
-        this.weights = a;
-    }
-
     public void setWeights(int inputs, int neurons) {
         this.weights = Utils.genRandomWeights(inputs + 1, neurons);
     }
 
+    public double[][] getWeights() {
+        return this.weights;
+    }
 
+    public void setWeights(double[][] a) {
+        this.weights = a;
+    }
 }

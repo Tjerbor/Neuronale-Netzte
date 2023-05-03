@@ -64,16 +64,17 @@ public class NeuralNetwork {
         int count = 0;
 
         for (Layer l : this.structur) {
-            if (l.weights != null) {
+            if (l.getWeights() != null) {
                 count += 1;
             }
         }
-        t = new int[count];
+        t = new int[count + 1];
 
         count = 0;
         for (Layer l : this.structur) {
-            if (l.weights != null) {
-                t[count] = l.weights.length;
+            if (l.getWeights() != null) {
+                t[count] = l.getWeights().length - 1;
+                t[count + 1] = l.getWeights()[0].length;
                 count += 1;
             }
         }
@@ -445,17 +446,18 @@ public class NeuralNetwork {
     public void train_single(int epoch, double[][] x_train, double[][] y_train, double learning_rate) throws Exception {
 
 
+        System.out.println(Arrays.toString(this.topologie));
         //checks for rxceptions
         if (x_train.length != y_train.length) {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
-        } else if (topologie[topologie.length - 1] != y_train[0].length) {
+        } else if (this.topologie[topologie.length - 1] != y_train[0].length) {
             throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
-                    "model output shape is: " + topologie[topologie.length - 1]);
-        } else if (topologie[0] != x_train[0].length) {
+                    "model output shape is: " + this.topologie[this.topologie.length - 1]);
+        } else if (this.topologie[0] != x_train[0].length) {
             throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + topologie[0]);
+                    "model inputs shape is: " + this.topologie[0]);
         }
 
 

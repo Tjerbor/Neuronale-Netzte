@@ -52,5 +52,7 @@ public class test {
         nn.loss = new MSE();
         System.out.println(Arrays.toString(nn.topologie));
         nn.train_with_batch(5, x_train2, y_train2, 0.5);
+
+        
     }
 }

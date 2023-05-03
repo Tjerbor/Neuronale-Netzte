@@ -37,11 +37,9 @@ public class NeuralNetworkTest {
 
         System.out.println(Arrays.deepToString(neuralNetwork.structur[0].weights));
         neuralNetwork.structur[s - 1] = new StepFunc(1.5);
-        neuralNetwork.structur[0].setBIAS(0);
+
         //neuralNetwork.structur[0].setWeights(Array_utils.getLinspaceWeights_wo_endpoint(2 + 1, 1, 1, 3, 4));
-
-
-        // TODO: Disable Bias Neuron & Set Activation Function
+    
 
         double[][] result = neuralNetwork.computeAll(new double[][]{{0, 0}, {0, 1}, {1, 0}, {1, 1}});
 
