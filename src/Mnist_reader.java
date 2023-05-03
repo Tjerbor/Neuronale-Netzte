@@ -4,7 +4,7 @@ import java.io.FileReader;
 public class Mnist_reader {
 
 
-    public static int limit = 1000;
+    public static int limit = 300;
 
     static double[][] getTrainData_x(String fpath) throws Exception {
 

@@ -1,5 +1,7 @@
 package layers;
 
+import utils.Utils;
+
 public class Layer {
 
     public boolean hasWeights = false;
@@ -49,6 +51,10 @@ public class Layer {
 
     public void setWeights(double[][] a) {
         this.weights = a;
+    }
+
+    public void setWeights(int inputs, int neurons) {
+        this.weights = Utils.genRandomWeights(inputs + 1, neurons);
     }
 
 

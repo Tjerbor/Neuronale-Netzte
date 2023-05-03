@@ -4,10 +4,10 @@ import layers.StepFunc;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import utils.Array_utils;
 import utils.Reader;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,9 +35,10 @@ public class NeuralNetworkTest {
         neuralNetwork.create(Reader.create("csv/topology/logicalConjunction.csv"));
         int s = neuralNetwork.structur.length;
 
+        System.out.println(Arrays.deepToString(neuralNetwork.structur[0].weights));
         neuralNetwork.structur[s - 1] = new StepFunc(1.5);
         neuralNetwork.structur[0].setBIAS(0);
-        neuralNetwork.structur[0].setWeights(Array_utils.getLinspaceWeights_wo_endpoint(2 + 1, 1, 1, 3, 4));
+        //neuralNetwork.structur[0].setWeights(Array_utils.getLinspaceWeights_wo_endpoint(2 + 1, 1, 1, 3, 4));
 
 
         // TODO: Disable Bias Neuron & Set Activation Function

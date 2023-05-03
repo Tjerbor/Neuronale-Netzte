@@ -34,7 +34,7 @@ public class FullyConnectedLayer extends Layer {
 
 
     public FullyConnectedLayer(int n_input, int n_neurons) {
-        //this.weights = Utils.genRandomWeights(n_input + 1, n_neurons);
+        this.weights = Utils.genRandomWeights(n_input + 1, n_neurons);
         //super.weights = new double[n_input + 1][n_neurons];
         //this.weights = super.weights;
         this.parameter_size = n_input * n_neurons + n_neurons;
@@ -109,6 +109,11 @@ public class FullyConnectedLayer extends Layer {
         //this.biases = Utils.split_for_biases(w);
     }
 
+    public void setWeights(int inputs, int neurons) {
+        this.weights = Utils.genRandomWeights(inputs + 1, neurons);
+    }
+
+
     public double[][] addPRIME_BIAS(double[][] in) {
         double[][] out = new double[in.length][in[0].length + 1];
         for (int i = 0; i < in.length; i++) {
@@ -175,10 +180,10 @@ public class FullyConnectedLayer extends Layer {
 
         this.inputs = inputs;
         inputs = this.addBIAS(inputs);
-        System.out.println(Arrays.deepToString(inputs));
-        System.out.println(Arrays.deepToString(weights));
+        System.out.println("" + Arrays.deepToString(inputs));
+        System.out.println("forward:" + Arrays.deepToString(weights));
 
-        outputs = Utils.matmul2D(inputs, weights);
+        outputs = Utils.matmul2D(inputs, this.weights);
 
         //outputs = Utils.add_biases(outputs, biases);
         //da die erste dimension der weights die Input-shape is
@@ -200,7 +205,7 @@ public class FullyConnectedLayer extends Layer {
         //input = new double[weights.length - 1];
         //input = Utils.clean_input(input, weights.length - 1);
 
-        double[][] weights_t = super.weights;
+        double[][] weights_t = this.weights;
 
         weights_t = Utils.tranpose(weights_t);
         input = this.addBIAS(input);

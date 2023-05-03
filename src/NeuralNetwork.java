@@ -62,6 +62,7 @@ public class NeuralNetwork {
     public int[] getTopologie() {
         int[] t;
         int count = 0;
+
         for (Layer l : this.structur) {
             if (l.weights != null) {
                 count += 1;
@@ -90,6 +91,7 @@ public class NeuralNetwork {
 
         this.structur = layers;
         this.topologie = this.getTopologie();
+
         updateParameterSize();
         int count = 0;
         for (int i = 0; i < model_size; i++) {
@@ -332,8 +334,8 @@ public class NeuralNetwork {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
-        } else if (topologie[topologie.length - 1] != y_train[0].length) {
-            throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
+        } else if (this.topologie[this.topologie.length - 1] != y_train[0].length) {
+            throw new IllegalArgumentException("y has " + y_train[0][0].length + " classes but " +
                     "model output shape is: " + topologie[topologie.length - 1]);
         } else if (topologie[0] != x_train[0].length) {
             throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
