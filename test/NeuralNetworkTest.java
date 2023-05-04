@@ -1,16 +1,11 @@
 import layers.CustomActivation;
-import layers.Layer;
 import layers.StepFunc;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import utils.Reader;
 
 import java.io.IOException;
-import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This class contains various tests to assert the correctness of the neural network.
@@ -32,14 +27,9 @@ public class NeuralNetworkTest {
 
     @Test
     void logicalConjunction() throws Exception {
-        neuralNetwork.create(Reader.create("csv/topology/logicalConjunction.csv"));
-        int s = neuralNetwork.structur.length;
+        neuralNetwork.setLayers(Reader.create("csv/topology/logicalConjunction.csv"));
 
-        System.out.println(Arrays.deepToString(neuralNetwork.structur[0].weights));
-        neuralNetwork.structur[s - 1] = new StepFunc(1.5);
-
-        //neuralNetwork.structur[0].setWeights(Array_utils.getLinspaceWeights_wo_endpoint(2 + 1, 1, 1, 3, 4));
-    
+        neuralNetwork.setFunction(1, new StepFunc(1.5));
 
         double[][] result = neuralNetwork.computeAll(new double[][]{{0, 0}, {0, 1}, {1, 0}, {1, 1}});
 
@@ -53,11 +43,9 @@ public class NeuralNetworkTest {
 
     @Test
     void trafficLight() throws IOException {
-        neuralNetwork.create(Reader.create("csv/topology/trafficLight.csv"));
+        neuralNetwork.setLayers(Reader.create("csv/topology/trafficLight.csv"));
 
-        Layer[] topology = neuralNetwork.getModel();
-
-        topology[1] = new CustomActivation(new String[]{"logi", "logi", "logi", "id"});
+        neuralNetwork.setFunction(1, new CustomActivation(new String[]{"logi", "logi", "logi", "id"}));
 
         double[] result = neuralNetwork.compute(new double[]{1, 0, 0});
 
@@ -67,5 +55,46 @@ public class NeuralNetworkTest {
                 () -> assertEquals(0.11976621345436994, result[2]),
                 () -> assertEquals(0.032371141308330784, result[3])
         );
+    }
+
+    @Nested
+    class UnitTest {
+        @Test
+        @DisplayName("Create: One Activation Function")
+        void createOne() {
+            int[] topology = {3, 3, 4};
+
+            neuralNetwork.create(topology, "id");
+
+            assertArrayEquals(topology, neuralNetwork.getTopology(), "The returned topology is not correct.");
+
+            assertEquals(4, neuralNetwork.size(), "The size of the neural network is not correct.");
+        }
+
+        @Test
+        @DisplayName("Create: Two Activation Functions")
+        void createTwo() {
+            int[] topology = {3, 3, 3, 3, 4, 4};
+
+            neuralNetwork.create(topology, new String[]{"id", "id"});
+
+            assertArrayEquals(topology, neuralNetwork.getTopology(), "The returned topology is not correct.");
+
+            assertEquals(10, neuralNetwork.size(), "The size of the neural network is not correct.");
+        }
+
+        @Test
+        @DisplayName("Create: Multiple Activation Functions")
+        void createMultiple() {
+            int[] topology = {3, 3, 3, 3, 4, 4};
+
+            neuralNetwork.create(topology, new String[]{"id", "id", "id", "id", "id"});
+
+            assertArrayEquals(topology, neuralNetwork.getTopology(), "The returned topology is not correct.");
+
+            assertEquals(10, neuralNetwork.size(), "The size of the neural network is not correct.");
+
+            assertThrows(IllegalArgumentException.class, () -> neuralNetwork.create(topology, new String[]{"id"}));
+        }
     }
 }

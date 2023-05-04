@@ -5,153 +5,125 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.Arrays;
 
+/**
+ * This class models a feed-forward neural network.
+ */
 public class NeuralNetwork {
-    int model_size; //number of layers
-    int parameter_size; //parameter Size
-    Layer[] structur; //strucktur of the model. contains Layers and Activations.
-    int[] topologie; //the original topologie.
     Losses loss = null; //loss function of our NN. // now only MSE is available.
     SGD optimizer = null; // right now not really supported.
 
     /**
-     * cerates the model with a given Topologie.
+     * This variable contains the layers of the neural network.
+     * It does not correspond to the topology used to create the neural network.
      *
-     * @param Topologie strucktur addeds an activation after every Layer.
+     * @see NeuralNetwork#create(int[], String)
      */
-
+    private Layer[] layers;
 
     /**
-     * uses Same Activation Function for every Layer.
+     * This method initializes the neural network with the given topology and activation function.
+     * For each edge layer, a {@link FullyConnectedLayer} and an {@link Activation} layer are created.
+     */
+    public void create(int[] topology, String function) {
+        layers = new Layer[(topology.length - 1) * 2];
+
+        for (int i = 0; i < topology.length - 1; i++) {
+            layers[i * 2] = new FullyConnectedLayer(topology[i], topology[i + 1]);
+            layers[i * 2 + 1] = Utils.getActivation(function);
+        }
+    }
+
+    /**
+     * This method initializes the neural network with the given topology and activation functions.
+     * For each edge layer, a {@link FullyConnectedLayer} and an {@link Activation} layer are created.
+     * The activation functions can be set in two different ways:
      *
-     * @param Topologie model strucktur.
-     * @param function  activation Function.
+     * <ul>
+     *     <li>One activation function is given for each layer.</li>
+     *     <li>
+     *         Two activation functions are given.
+     *         In this case, the second one is used for the output layer, and the first one for all other layers.
+     *     </li>
+     * </ul>
+     * <p>
+     * The method throws an exception if the number of activation functions is not correct.
      */
-    public void create(int[] Topologie, String function) {
-        //size -1, weil die erste Zahl die größe der Eingabe Daten entspricht.
-        model_size = (Topologie.length - 1) * 2; //länge der Topologie
+    public void create(int[] topology, String[] functions) {
+        int size = topology.length - 1;
 
-        topologie = Topologie;
-        this.structur = new Layer[model_size];
-
-
-        int count = 0;
-        for (int i = 0; i < model_size; i += 2) {
-            structur[i] = new FullyConnectedLayer(Topologie[count], Topologie[count + 1]);
-            structur[i + 1] = Utils.getActivation(function);
-            count += 1;
-
-
-        }
-        updateParameterSize();
-    }
-
-    /**
-     * calculates the parameter Size of the NN.
-     */
-    public void updateParameterSize() {
-        this.parameter_size = 0;
-        for (int i = 0; i < model_size; i += 2) {
-            this.parameter_size += this.structur[i].parameter_size;
-        }
-    }
-
-    public Layer[] getModel() {
-        return this.structur;
-    }
-
-    public int[] getTopologie() {
-        int[] t;
-        int count = 0;
-
-        for (Layer l : this.structur) {
-            if (l.getWeights() != null) {
-                count += 1;
-            }
-        }
-        t = new int[count + 1];
-
-        count = 0;
-        for (Layer l : this.structur) {
-            if (l.getWeights() != null) {
-                t[count] = l.getWeights().length - 1;
-                t[count + 1] = l.getWeights()[0].length;
-                count += 1;
-            }
-        }
-        return t;
-    }
-
-    /**
-     * creates the model with a given Layer Array.
-     *
-     * @param layers
-     */
-    public void create(Layer[] layers) {
-        //size -1, weil die erste Zahl die größe der Eingabe Daten entspricht.
-        model_size = layers.length; //länge der Topologie
-
-        this.structur = layers;
-        this.topologie = this.getTopologie();
-
-        updateParameterSize();
-        int count = 0;
-        for (int i = 0; i < model_size; i++) {
-            if (this.structur[i].weights != null) {
-                topologie[count] = this.structur[i].weights.length;
-                count += 1;
-            }
+        if (functions.length != size && !(functions.length == 2 && size > 1)) {
+            throw new IllegalArgumentException("The number of activation functions is not correct.");
         }
 
+        if (functions.length == 2) {
+            create(topology, functions[0]);
 
-    }
-
-    /**
-     * @param Topologie
-     * @param function  activation it is expected to get the same size as the
-     *                  given Topologie -1. if only 2 Functions are given, is the meaning,
-     *                  that the first 1 is used after every Layer and the last One is for the
-     *                  Output.
-     * @throws IllegalArgumentException
-     */
-    public void create(int[] Topologie, String[] function) throws IllegalArgumentException {
-        //size -1, weil die erste Zahl die größe der Eingabe Daten entspricht.
-        model_size = Topologie.length - 1; //länge der Topologie
-        topologie = Topologie;
-
-        if (model_size != function.length && !(function.length == 2 && model_size > 1)) {
-            throw new IllegalArgumentException("Methode create got mismatching Size activations");
-        }
-
-
-        model_size = model_size * 2;
-
-        this.structur = new Layer[model_size];
-
-
-        if (function.length != 2) {
-            for (int i = 0; i < model_size; i += 2) {
-                structur[i] = new FullyConnectedLayer(Topologie[i], Topologie[i + 1]);
-                structur[i + 1] = Utils.getActivation(function[i]);
-
-            }
+            layers[layers.length - 1] = Utils.getActivation(functions[1]);
         } else {
-            //meaning the function got one Activation function for every Layer
-            // and the last function as last activation function.
-            for (int i = 0; i < model_size; i += 2) {
-                if (model_size == i + 2) {
-                    structur[i] = new FullyConnectedLayer(Topologie[i], Topologie[i + 1]);
-                    structur[i + 1] = Utils.getActivation(function[1]);
+            layers = new Layer[(topology.length - 1) * 2];
 
-                } else {
-                    structur[i] = new FullyConnectedLayer(Topologie[i], Topologie[i + 1]);
-                    structur[i + 1] = Utils.getActivation(function[0]);
-
-                }
+            for (int i = 0; i < topology.length - 1; i++) {
+                layers[i * 2] = new FullyConnectedLayer(topology[i], topology[i + 1]);
+                layers[i * 2 + 1] = Utils.getActivation(functions[i]);
             }
+        }
+    }
 
+    /**
+     * This method returns the topology used to create the neural network.
+     */
+    protected int[] getTopology() {
+        int[] topology = new int[size() / 2 + 1];
+
+        for (int i = 0; i < topology.length - 1; i++) {
+            topology[i] = layers[i * 2].getWeights().length - 1;
+            topology[i + 1] = layers[i * 2].getWeights()[0].length;
         }
 
+        return topology;
+    }
 
+    /**
+     * This method returns the number of layers of the neural network.
+     * The returned value does not correspond to the length of the topology used to create the neural network.
+     *
+     * @see NeuralNetwork#create(int[], String)
+     */
+    protected int size() {
+        return layers.length;
+    }
+
+    /**
+     * This method sets the {@link NeuralNetwork#layers}.
+     * It can be used to initialize a neural network with the return value of {@link utils.Reader#create(String)}.
+     */
+    public void setLayers(Layer[] layers) {
+        this.layers = layers;
+    }
+
+    /**
+     * This method overwrites the {@link Activation} layer at the given index.
+     * It throws an exception if the index is out of bounds or is not that of a function layer.
+     */
+    public void setFunction(int index, Activation function) {
+        if (index < 0 || index >= layers.length || index % 2 != 1) {
+            throw new IllegalArgumentException();
+        }
+
+        layers[index] = function;
+    }
+
+    /**
+     * This method returns the number of parameters of the neural network.
+     */
+    public int parameters() {
+        int parameters = 0;
+
+        for (int i = 0; i < size(); i += 2) {
+            parameters += this.layers[i].parameter_size;
+        }
+
+        return parameters;
     }
 
     /**
@@ -165,8 +137,8 @@ public class NeuralNetwork {
 
 
         double[] doutput = dinput;
-        for (int i = 1; i < model_size; i++) {
-            doutput = this.structur[model_size - i].backward(doutput, learning_rate);
+        for (int i = 1; i < size(); i++) {
+            doutput = this.layers[size() - i].backward(doutput, learning_rate);
         }
 
 
@@ -182,8 +154,8 @@ public class NeuralNetwork {
     public void computeBackward(double[] dinput) throws Exception {
 
         double[] doutput = dinput;
-        for (int i = 1; i < structur.length; i++) {
-            doutput = this.structur[structur.length - 1 - i].backward(doutput);
+        for (int i = 1; i < layers.length; i++) {
+            doutput = this.layers[layers.length - 1 - i].backward(doutput);
         }
 
     }
@@ -199,8 +171,8 @@ public class NeuralNetwork {
 
 
         double[][] doutputs = dinputs;
-        for (int i = 0; i < structur.length; i++) {
-            doutputs = this.structur[structur.length - 1 - i].backward(doutputs, learning_rate);
+        for (int i = 0; i < layers.length; i++) {
+            doutputs = this.layers[layers.length - 1 - i].backward(doutputs, learning_rate);
 
         }
 
@@ -218,8 +190,8 @@ public class NeuralNetwork {
         double[][] doutputs = dinputs;
 
 
-        for (int i = 0; i < model_size; i++) {
-            doutputs = this.structur[model_size - i].backward(doutputs);
+        for (int i = 0; i < size(); i++) {
+            doutputs = this.layers[size() - i].backward(doutputs);
 
         }
 
@@ -235,7 +207,7 @@ public class NeuralNetwork {
     public double[][] computeAll(double[][] inputs) throws Exception {
 
         double[][] outputs = inputs;
-        for (Layer layer : this.structur) {
+        for (Layer layer : this.layers) {
             outputs = layer.forward(outputs);
 
         }
@@ -251,8 +223,8 @@ public class NeuralNetwork {
     public double[] compute(double[] input) {
 
         double[] output = input;
-        for (int i = 0; i < structur.length; i++) {
-            output = this.structur[i].forward(output);
+        for (int i = 0; i < layers.length; i++) {
+            output = this.layers[i].forward(output);
 
         }
 
@@ -277,12 +249,12 @@ public class NeuralNetwork {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
-        } else if (topologie[topologie.length - 1] != y_train[0].length) {
+        } else if (getTopology()[getTopology().length - 1] != y_train[0].length) {
             throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
-                    "model output shape is: " + topologie[topologie.length - 1]);
-        } else if (topologie[0] != x_train[0].length) {
+                    "model output shape is: " + getTopology()[getTopology().length - 1]);
+        } else if (getTopology()[0] != x_train[0].length) {
             throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + topologie[0]);
+                    "model inputs shape is: " + getTopology()[0]);
         }
 
 
@@ -307,9 +279,9 @@ public class NeuralNetwork {
                 this.computeAllBackward(outs);
 
                 //updates values.
-                for (int k = 0; k < model_size; k++) {
-                    if (structur[k].weights != null) {
-                        this.optimizer.calculate(structur[k]);
+                for (int k = 0; k < size(); k++) {
+                    if (layers[k].weights != null) {
+                        this.optimizer.calculate(layers[k]);
                     }
                 }
 
@@ -335,12 +307,12 @@ public class NeuralNetwork {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
-        } else if (this.topologie[this.topologie.length - 1] != y_train[0].length) {
+        } else if (this.getTopology()[this.getTopology().length - 1] != y_train[0].length) {
             throw new IllegalArgumentException("y has " + y_train[0][0].length + " classes but " +
-                    "model output shape is: " + topologie[topologie.length - 1]);
-        } else if (topologie[0] != x_train[0].length) {
+                    "model output shape is: " + getTopology()[getTopology().length - 1]);
+        } else if (getTopology()[0] != x_train[0].length) {
             throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + topologie[0]);
+                    "model inputs shape is: " + getTopology()[0]);
         }
 
 
@@ -389,12 +361,12 @@ public class NeuralNetwork {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
-        } else if (topologie[topologie.length - 1] != y_train[0].length) {
+        } else if (getTopology()[getTopology().length - 1] != y_train[0].length) {
             throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
-                    "model output shape is: " + topologie[topologie.length - 1]);
-        } else if (topologie[0] != x_train[0].length) {
+                    "model output shape is: " + getTopology()[getTopology().length - 1]);
+        } else if (getTopology()[0] != x_train[0].length) {
             throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + topologie[0]);
+                    "model inputs shape is: " + getTopology()[0]);
         } else if (this.optimizer == null) {
             throw new IllegalArgumentException("Got no Optimizer and no Learning rate");
         }
@@ -421,9 +393,9 @@ public class NeuralNetwork {
                 this.computeBackward(outs);
 
                 //updates values.
-                for (int k = 0; k < model_size; k++) {
-                    if (structur[k].weights != null) {
-                        this.optimizer.calculate(structur[k]);
+                for (int k = 0; k < size(); k++) {
+                    if (layers[k].weights != null) {
+                        this.optimizer.calculate(layers[k]);
                     }
                 }
 
@@ -446,18 +418,18 @@ public class NeuralNetwork {
     public void train_single(int epoch, double[][] x_train, double[][] y_train, double learning_rate) throws Exception {
 
 
-        System.out.println(Arrays.toString(this.topologie));
+        System.out.println(Arrays.toString(this.getTopology()));
         //checks for rxceptions
         if (x_train.length != y_train.length) {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
-        } else if (this.topologie[topologie.length - 1] != y_train[0].length) {
+        } else if (this.getTopology()[getTopology().length - 1] != y_train[0].length) {
             throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
-                    "model output shape is: " + this.topologie[this.topologie.length - 1]);
-        } else if (this.topologie[0] != x_train[0].length) {
+                    "model output shape is: " + this.getTopology()[this.getTopology().length - 1]);
+        } else if (this.getTopology()[0] != x_train[0].length) {
             throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + this.topologie[0]);
+                    "model inputs shape is: " + this.getTopology()[0]);
         }
 
 
@@ -545,12 +517,12 @@ public class NeuralNetwork {
         StringBuilder s_out = new StringBuilder();
 
 
-        for (int k = 0; k < structur.length; k++) {
+        for (int k = 0; k < layers.length; k++) {
 
-            if (structur[k].weights != null) {
+            if (layers[k].weights != null) {
                 s_out.append("Layer ").append(k).append(": \n");
-                s_out.append(Utils.weightsAndBiases_toString(structur[k].weights,
-                        structur[k].biases));
+                s_out.append(Utils.weightsAndBiases_toString(layers[k].weights,
+                        layers[k].biases));
             }
 
 
@@ -562,17 +534,17 @@ public class NeuralNetwork {
         StringBuilder s_out = new StringBuilder();
 
 
-        for (int k = 0; k < structur.length; k++) {
+        for (int k = 0; k < layers.length; k++) {
 
-            if (structur[k].weights != null) {
+            if (layers[k].weights != null) {
                 s_out.append("Layer ").append(k).append(": \n");
-                s_out.append(Utils.weightsAndBiases_export(structur[k].weights,
-                        structur[k].biases));
+                s_out.append(Utils.weightsAndBiases_export(layers[k].weights,
+                        layers[k].biases));
             } else {
-                if (k < structur.length - 1) {
-                    s_out.append(structur[k].name);
+                if (k < layers.length - 1) {
+                    s_out.append(layers[k].name);
                 } else {
-                    s_out.append(structur[k].name).append("\n");
+                    s_out.append(layers[k].name).append("\n");
                 }
 
 
@@ -582,13 +554,13 @@ public class NeuralNetwork {
     }
 
     public String modelExport() {
-        String s_out = "layers: " + Arrays.toString(topologie) + "\n";
+        String s_out = "layers: " + Arrays.toString(getTopology()) + "\n";
         s_out += this.layer_export();
         return s_out;
     }
 
     public void modelExport2file(String fpath) throws Exception {
-        String s_out = "layers: " + Arrays.toString(topologie) + "\n";
+        String s_out = "layers: " + Arrays.toString(getTopology()) + "\n";
         s_out += this.layer_export();
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(fpath));
@@ -597,8 +569,8 @@ public class NeuralNetwork {
     }
 
     public String toString() {
-        String s_out = "Strucktur: " + Arrays.toString(topologie) + "\n";
-        s_out += "Parameter: " + parameter_size + "\n";
+        String s_out = "Strucktur: " + Arrays.toString(getTopology()) + "\n";
+        s_out += "Parameter: " + parameters() + "\n";
         s_out += layer2b_w();
 
         return s_out;
