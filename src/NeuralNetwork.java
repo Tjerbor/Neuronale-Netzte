@@ -1,4 +1,7 @@
-import layers.*;
+import layers.Activation;
+import layers.FullyConnectedLayer;
+import layers.Layer;
+import layers.Losses;
 import utils.Utils;
 
 import java.io.BufferedWriter;
@@ -249,8 +252,8 @@ public class NeuralNetwork {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
-        } else if (getTopology()[getTopology().length - 1] != y_train[0].length) {
-            throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
+        } else if (getTopology()[getTopology().length - 1] != y_train[0][0].length) {
+            throw new IllegalArgumentException("y has " + y_train[0][0].length + " classes but " +
                     "model output shape is: " + getTopology()[getTopology().length - 1]);
         } else if (getTopology()[0] != x_train[0].length) {
             throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
@@ -344,67 +347,6 @@ public class NeuralNetwork {
         }
     }
 
-    /**
-     * train the model with a batch.
-     * has no learning rate because Optimizer is used.
-     *
-     * @param epoch   epochs to train for
-     * @param x_train single data input for the NN.
-     * @param y_train single y the NN shall give.
-     * @throws Exception More.
-     */
-    public void train_single(int epoch, double[][] x_train, double[][] y_train) throws Exception {
-
-
-        //checks for rxceptions
-        if (x_train.length != y_train.length) {
-            throw new IllegalArgumentException("x und y Data have diffrent Size.");
-        } else if (this.loss == null) {
-            throw new IllegalArgumentException("loss function is not set.");
-        } else if (getTopology()[getTopology().length - 1] != y_train[0].length) {
-            throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
-                    "model output shape is: " + getTopology()[getTopology().length - 1]);
-        } else if (getTopology()[0] != x_train[0].length) {
-            throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + getTopology()[0]);
-        } else if (this.optimizer == null) {
-            throw new IllegalArgumentException("Got no Optimizer and no Learning rate");
-        }
-
-
-        double loss_per_epoch;
-        int step_size = x_train.length;
-        double step_loss;
-        for (int i = 0; i < epoch; i++) {
-            loss_per_epoch = 0;
-
-            double[] outs;
-
-            for (int j = 0; j < step_size; j++) {
-                outs = this.compute(x_train[j]);
-
-                //one epoch is finished.
-                //calculates Loss
-                step_loss = loss.forward(outs, y_train[j]);
-                loss_per_epoch += step_loss;
-                //calculates prime Loss
-                outs = loss.backward(outs, y_train[j]);
-                // now does back propagation
-                this.computeBackward(outs);
-
-                //updates values.
-                for (int k = 0; k < size(); k++) {
-                    if (layers[k].weights != null) {
-                        this.optimizer.calculate(layers[k]);
-                    }
-                }
-
-            }
-            loss_per_epoch = loss_per_epoch / x_train.length;
-            System.out.println("Loss per epoch: " + loss_per_epoch);
-        }
-
-    }
 
     /**
      * train the model with a batch.
@@ -462,56 +404,6 @@ public class NeuralNetwork {
         }
     }
 
-    public void train_batch_new(int epoch, double[][][] x_train, double[][][] y_train, double learning_rate) throws Exception {
-
-        double loss_per_epoch;
-
-        int step_size = x_train.length;
-
-        double[] step_losses = new double[step_size];
-
-        FullyConnectedLayer[] Ebenen = new FullyConnectedLayer[2];
-        Ebenen[0] = new FullyConnectedLayer(784, 49);
-        Ebenen[1] = new FullyConnectedLayer(49, 10);
-
-        Activation act = new Tanh();
-
-        int ownSize = Ebenen.length;
-        double[][] outs;
-        for (int i = 0; i < epoch; i++) {
-
-            for (int j = 0; j < step_size; j++) {
-
-                double[][] data;
-
-                data = x_train[j];
-                outs = data;
-                for (FullyConnectedLayer fullyConnectedLayer : Ebenen) {
-                    outs = fullyConnectedLayer.forward(outs);
-                    outs = act.forward(outs);
-
-
-                }
-
-                //one epoch is finished.
-                //calculates Loss
-                step_losses[j] = loss.forward(outs, y_train[j]);
-                //calculates prime Loss
-                double[][] grad = loss.backward(outs, y_train[j]);
-                // now does back propagation //updates values.
-                for (int l = 0; l < Ebenen.length; l++) {
-                    grad = act.backward(grad);
-                    grad = Ebenen[ownSize - 1 - l].backward(grad, learning_rate);
-
-                }
-
-
-            }
-
-            loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
-            System.out.println("Loss per epoch: " + loss_per_epoch);
-        }
-    }
 
     private String layer2b_w() {
         StringBuilder s_out = new StringBuilder();

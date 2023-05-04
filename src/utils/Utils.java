@@ -125,11 +125,11 @@ public class Utils {
 
     public static double[] matmul2d_1d(double[][] wT, double[] input) {
 
-        System.out.println(Arrays.deepToString(wT));
-        System.out.println(wT.length);
+        //System.out.println(Arrays.deepToString(wT));
+        //System.out.println(wT.length);
 
         double[] out = new double[wT.length];
-        System.out.println(Arrays.toString(input));
+        //System.out.println(Arrays.toString(input));
         for (int e = 0; e < wT.length; e++) {
             for (int x = 0; x < wT[0].length; x++) {
                 for (int j = 0; j < 1; j++) {
@@ -137,7 +137,7 @@ public class Utils {
                 }
             }
         }
-        System.out.println(Arrays.toString(out));
+        //System.out.println(Arrays.toString(out));
         return out;
     }
 
@@ -169,9 +169,9 @@ public class Utils {
      */
     public static double[][] matmul2D(double[][] a, double[][] b) throws Exception {
 
-       
+
         if (a[0].length != b.length) {
-            throw new Exception("Mismatching Shape " + Integer.toString(a[0].length) + " " + Integer.toString(b[0].length));
+            throw new Exception("Mismatching Shape " + Integer.toString(a[0].length) + " " + Integer.toString(b.length));
         }
 
         double[][] c = new double[a.length][b[1].length];

@@ -1,7 +1,7 @@
-import layers.CustomActivation;
-import layers.StepFunc;
+import layers.*;
 import org.junit.jupiter.api.*;
 import utils.Reader;
+import utils.Utils;
 
 import java.io.IOException;
 
@@ -57,6 +57,122 @@ public class NeuralNetworkTest {
         );
     }
 
+    @Test
+    public void train_batch_new() throws Exception {
+
+        double loss_per_epoch;
+
+        double[][] y_train2 = Mnist_reader.getTrainData_y("src/utils/mnist_data_full.txt");
+        double[][] x_train2 = Mnist_reader.getTrainData_x("src/utils/mnist_data_full.txt");
+
+        double[][][] x_train = Mnist_reader.x_train_2_batch(x_train2, 4);
+        double[][][] y_train = Mnist_reader.y_train_2_batch(y_train2, 4);
+
+        int step_size = x_train.length;
+
+        double[] step_losses = new double[step_size];
+
+        FullyConnectedLayer[] Ebenen = new FullyConnectedLayer[2];
+        Ebenen[0] = new FullyConnectedLayer(784, 49);
+        Ebenen[1] = new FullyConnectedLayer(49, 10);
+
+        Activation[] acts = new Activation[2];
+
+        acts[0] = new Tanh();
+        acts[1] = new Tanh();
+
+        Losses loss = new MSE();
+        int ownSize = Ebenen.length;
+
+        int epoch = 30;
+        double[][] outs;
+        for (int e = 0; e < epoch; e++) {
+            for (int j = 0; j < step_size; j++) {
+                outs = x_train[j];
+                ;
+                for (int k = 0; k < Ebenen.length; k++) {
+                    outs = Ebenen[k].forward(outs);
+                    outs = acts[k].forward(outs);
+                }
+
+                step_losses[j] = loss.forward(outs, y_train[j]);
+                //calculates prime Loss
+                double[][] grad = loss.backward(outs, y_train[j]);
+                // now does back propagation //updates values.
+                for (int i = 0; i < Ebenen.length; i++) {
+                    if (i == 0) {
+                        grad = acts[Ebenen.length - 1 - i].backward(grad, 0.1);
+                    }
+
+                    grad = Ebenen[Ebenen.length - 1 - i].backward(grad, 0.1);
+                }
+
+
+            }
+
+            loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
+            System.out.println("Loss per epoch: " + loss_per_epoch);
+        }
+
+    }
+
+    @Test
+    public void train_single_test() throws Exception {
+
+        double loss_per_epoch;
+
+        double[][] y_train = Mnist_reader.getTrainData_y("src/utils/mnist_data_full.txt");
+        double[][] x_train = Mnist_reader.getTrainData_x("src/utils/mnist_data_full.txt");
+
+        int step_size = x_train.length;
+
+        double[] step_losses = new double[step_size];
+
+        FullyConnectedLayer[] Ebenen = new FullyConnectedLayer[2];
+        Ebenen[0] = new FullyConnectedLayer(784, 49);
+        Ebenen[1] = new FullyConnectedLayer(49, 10);
+
+        Activation[] acts = new Activation[2];
+
+        acts[0] = new Tanh();
+        acts[1] = new Tanh();
+
+        Losses loss = new MSE();
+        int ownSize = Ebenen.length;
+
+        int epoch = 30;
+        double[] outs;
+        for (int e = 0; e < epoch; e++) {
+            for (int j = 0; j < step_size; j++) {
+                outs = x_train[j];
+                ;
+                for (int k = 0; k < Ebenen.length; k++) {
+                    outs = Ebenen[k].forward(outs);
+                    outs = acts[k].forward(outs);
+                }
+
+                step_losses[j] = loss.forward(outs, y_train[j]);
+                //calculates prime Loss
+                double[] grad = loss.backward(outs, y_train[j]);
+                // now does back propagation //updates values.
+                for (int i = 0; i < Ebenen.length; i++) {
+                    if (i == 0) {
+                        grad = acts[Ebenen.length - 1 - i].backward(grad, 0.1);
+                    }
+
+                    grad = Ebenen[Ebenen.length - 1 - i].backward(grad, 0.1);
+                }
+
+
+            }
+
+            loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
+            System.out.println("Loss per epoch: " + loss_per_epoch);
+        }
+
+    }
+
+
     @Nested
     class UnitTest {
         @Test
@@ -97,4 +213,5 @@ public class NeuralNetworkTest {
             assertThrows(IllegalArgumentException.class, () -> neuralNetwork.create(topology, new String[]{"id"}));
         }
     }
+
 }

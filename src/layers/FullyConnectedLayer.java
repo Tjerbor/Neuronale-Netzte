@@ -5,7 +5,6 @@ import utils.Utils;
 import utils.global_variables;
 
 import java.text.ParseException;
-import java.util.Arrays;
 
 /**
  * the normal Dense Layer.
@@ -180,8 +179,6 @@ public class FullyConnectedLayer extends Layer {
 
         this.inputs = inputs;
         inputs = this.addBIAS(inputs);
-        System.out.println("" + Arrays.deepToString(inputs));
-        System.out.println("forward:" + Arrays.deepToString(weights));
 
         outputs = Utils.matmul2D(inputs, this.weights);
 
@@ -222,19 +219,25 @@ public class FullyConnectedLayer extends Layer {
      * computes Vailla SGD
      * expects delta values and computes the gradient. updates weights.
      */
-    public double[][] backward(double[][] output_gradient, double learning_rate) throws Exception {
+    public double[][] backward(double[][] output_gradient, double learning_rate, boolean last) throws Exception {
 
 
-        double[][] t_inputs = Utils.tranpose(this.inputs);
+        this.inputs = this.addBIAS(this.inputs);
+        double[][] t_inputs = Utils.tranpose(inputs);
+
         dweights = Utils.matmul2D(t_inputs, output_gradient);
-        dbiases = Utils.sumBiases(output_gradient);
         //  Gradient on input values.
+        double[][] t_w = Utils.tranpose(this.weights);
 
-        this.dinputs = Utils.matmul2D(output_gradient, Utils.tranpose(super.weights));
 
-        updateBiases_self(dbiases, learning_rate);
+        if (last) {
+            this.dinputs = Utils.matmul2D(addPRIME_BIAS(output_gradient), t_w);
+        } else {
+            this.dinputs = Utils.matmul2D(addPRIME_BIAS(output_gradient), t_w);
+        }
+
+
         updateWeights_self(dweights, learning_rate);
-
         return (this.dinputs);
     }
 
@@ -265,8 +268,7 @@ public class FullyConnectedLayer extends Layer {
     private void updateWeights_self(double[][] output_gradient, double learning_rate) throws ParseException {
 
         for (int i = 0; i < this.weights.length; i++) {
-            for (int j = 0; j < this.weights[1].length; j++) {
-
+            for (int j = 0; j < this.weights[0].length; j++) {
                 //this.weights[i][j] += Array_utils.roundDec(-(learning_rate * output_gradient[i][j]), global_variables.decimal_precision);
                 this.weights[i][j] += Array_utils.roundDec(-(learning_rate * output_gradient[i][j]), global_variables.decimal_precision);
 
@@ -297,11 +299,6 @@ public class FullyConnectedLayer extends Layer {
 
         //logischerweise eigentlich Transpose, da Java nicht notwendig.
         double[] dinput = Utils.dotProdukt_1D(weights, output_gradient);
-
-
-        if (this.n_inputs != this.weights.length) {
-            this.weights = Utils.tranpose(weights);
-        }
 
         //updateBiases_self(output_gradient, learning_rate);
         updateWeights_self(Utils.tranpose(weights_gradient), learning_rate);
