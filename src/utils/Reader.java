@@ -94,7 +94,7 @@ public class Reader {
         int count = 0; //notwenidg weil die i die Position in der Liste ist.
         boolean start = false;
         for (int j = 0; j < list.size(); j++) {
-            System.out.println(Arrays.deepToString(list.get(j)));
+            //System.out.println(Arrays.deepToString(list.get(j)));
             for (int i = 0; i < list.get(j).length; i++) {
                 s = list.get(j)[i];
 
