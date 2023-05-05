@@ -187,16 +187,4 @@ public class Array_utils {
 
         return c;
     }
-
-    public static void printMatrix(double[][] a) {
-
-        for (int i = 0; i < a.length; i++) {
-            for (int k = 0; k < a[0].length; k++) {
-                System.out.print(String.valueOf(a[i][k] + " "));
-                if (k == a[0].length - 1) {
-                    System.out.print("\n");
-                }
-            }
-        }
-    }
 }

@@ -2,7 +2,6 @@ package layers;
 
 import utils.Array_utils;
 import utils.Utils;
-import utils.global_variables;
 
 import java.text.ParseException;
 
@@ -254,7 +253,7 @@ public class FullyConnectedLayer extends Layer {
         //System.out.println(this.biases.length);
         for (int i = 0; i < this.biases.length; i++) {
             //this.biases[i] += Array_utils.roundDec(-(learning_rate * dbiases[i]), global_variables.decimal_precision);
-            this.biases[i] += Array_utils.roundDec(-(learning_rate * dbiases[i]), global_variables.decimal_precision);
+            this.biases[i] += Array_utils.roundDec(-(learning_rate * dbiases[i]), 16);
         }
     }
 
@@ -270,7 +269,7 @@ public class FullyConnectedLayer extends Layer {
         for (int i = 0; i < this.weights.length; i++) {
             for (int j = 0; j < this.weights[0].length; j++) {
                 //this.weights[i][j] += Array_utils.roundDec(-(learning_rate * output_gradient[i][j]), global_variables.decimal_precision);
-                this.weights[i][j] += Array_utils.roundDec(-(learning_rate * output_gradient[i][j]), global_variables.decimal_precision);
+                this.weights[i][j] += Array_utils.roundDec(-(learning_rate * output_gradient[i][j]), 16);
 
             }
 

@@ -28,7 +28,7 @@ public class NeuralNetworkTest {
 
     @Test
     void logicalConjunction() throws Exception {
-        neuralNetwork.setLayers(Reader.create("csv/topology/logicalConjunction.csv"));
+        neuralNetwork.setLayers(Reader.create("csv/weights/logicalConjunction.csv"));
 
         neuralNetwork.setFunction(1, new StepFunc(1.5));
 
@@ -44,7 +44,7 @@ public class NeuralNetworkTest {
 
     @Test
     void trafficLight() throws IOException {
-        neuralNetwork.setLayers(Reader.create("csv/topology/trafficLight.csv"));
+        neuralNetwork.setLayers(Reader.create("csv/weights/trafficLight.csv"));
 
         neuralNetwork.setFunction(1, new CustomActivation(new String[]{"logi", "logi", "logi", "id"}));
 
@@ -218,8 +218,8 @@ public class NeuralNetworkTest {
         int epoch = 35;
         double[] outs;
 
-        double[][] x_train = Reader.getTrainDataInputs("csv/trainData/KW16_traindata_trafficlights_classification(1).csv", 3);
-        double[][] y_train = Reader.getTrainDataOutputs("csv/trainData/KW16_traindata_trafficlights_classification(1).csv", 4);
+        double[][] x_train = Reader.getTrainDataInputs("csv/training/trafficLight.csv", 3);
+        double[][] y_train = Reader.getTrainDataOutputs("csv/training/trafficLight.csv", 4);
 
         int step_size = x_train.length;
         double[] step_losses = new double[step_size];
