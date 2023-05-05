@@ -281,7 +281,7 @@ public class NeuralNetworkTest {
 
             neuralNetwork.create(topology, "id");
 
-            assertArrayEquals(topology, neuralNetwork.getTopology(), "The returned topology is not correct.");
+            assertArrayEquals(topology, neuralNetwork.topology(), "The returned topology is not correct.");
 
             assertEquals(4, neuralNetwork.size(), "The size of the neural network is not correct.");
         }
@@ -293,7 +293,7 @@ public class NeuralNetworkTest {
 
             neuralNetwork.create(topology, new String[]{"id", "id"});
 
-            assertArrayEquals(topology, neuralNetwork.getTopology(), "The returned topology is not correct.");
+            assertArrayEquals(topology, neuralNetwork.topology(), "The returned topology is not correct.");
 
             assertEquals(10, neuralNetwork.size(), "The size of the neural network is not correct.");
         }
@@ -305,7 +305,7 @@ public class NeuralNetworkTest {
 
             neuralNetwork.create(topology, new String[]{"id", "id", "id", "id", "id"});
 
-            assertArrayEquals(topology, neuralNetwork.getTopology(), "The returned topology is not correct.");
+            assertArrayEquals(topology, neuralNetwork.topology(), "The returned topology is not correct.");
 
             assertEquals(10, neuralNetwork.size(), "The size of the neural network is not correct.");
 

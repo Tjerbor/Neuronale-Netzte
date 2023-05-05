@@ -75,7 +75,7 @@ public class NeuralNetwork {
     /**
      * This method returns the topology used to create the neural network.
      */
-    protected int[] getTopology() {
+    protected int[] topology() {
         int[] topology = new int[size() / 2 + 1];
 
         for (int i = 0; i < topology.length - 1; i++) {
@@ -270,12 +270,12 @@ public class NeuralNetwork {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
-        } else if (getTopology()[getTopology().length - 1] != y_train[0][0].length) {
+        } else if (topology()[topology().length - 1] != y_train[0][0].length) {
             throw new IllegalArgumentException("y has " + y_train[0][0].length + " classes but " +
-                    "model output shape is: " + getTopology()[getTopology().length - 1]);
-        } else if (getTopology()[0] != x_train[0].length) {
+                    "model output shape is: " + topology()[topology().length - 1]);
+        } else if (topology()[0] != x_train[0].length) {
             throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + getTopology()[0]);
+                    "model inputs shape is: " + topology()[0]);
         }
 
 
@@ -328,12 +328,12 @@ public class NeuralNetwork {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
-        } else if (this.getTopology()[this.getTopology().length - 1] != y_train[0].length) {
+        } else if (this.topology()[this.topology().length - 1] != y_train[0].length) {
             throw new IllegalArgumentException("y has " + y_train[0][0].length + " classes but " +
-                    "model output shape is: " + getTopology()[getTopology().length - 1]);
-        } else if (getTopology()[0] != x_train[0].length) {
+                    "model output shape is: " + topology()[topology().length - 1]);
+        } else if (topology()[0] != x_train[0].length) {
             throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + getTopology()[0]);
+                    "model inputs shape is: " + topology()[0]);
         }
 
 
@@ -378,18 +378,18 @@ public class NeuralNetwork {
     public void train_single(int epoch, double[][] x_train, double[][] y_train, double learning_rate) throws Exception {
 
 
-        System.out.println(Arrays.toString(this.getTopology()));
+        System.out.println(Arrays.toString(this.topology()));
         //checks for rxceptions
         if (x_train.length != y_train.length) {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
-        } else if (this.getTopology()[getTopology().length - 1] != y_train[0].length) {
+        } else if (this.topology()[topology().length - 1] != y_train[0].length) {
             throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
-                    "model output shape is: " + this.getTopology()[this.getTopology().length - 1]);
-        } else if (this.getTopology()[0] != x_train[0].length) {
+                    "model output shape is: " + this.topology()[this.topology().length - 1]);
+        } else if (this.topology()[0] != x_train[0].length) {
             throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + this.getTopology()[0]);
+                    "model inputs shape is: " + this.topology()[0]);
         }
 
 
@@ -422,24 +422,6 @@ public class NeuralNetwork {
         }
     }
 
-
-    private String layer2b_w() {
-        StringBuilder s_out = new StringBuilder();
-
-
-        for (int k = 0; k < layers.length; k++) {
-
-            if (layers[k].weights != null) {
-                s_out.append("Layer ").append(k).append(": \n");
-                s_out.append(Utils.weightsAndBiases_toString(layers[k].weights,
-                        layers[k].biases));
-            }
-
-
-        }
-        return s_out.toString();
-    }
-
     private String layer_export() {
         StringBuilder s_out = new StringBuilder();
 
@@ -464,13 +446,13 @@ public class NeuralNetwork {
     }
 
     public String modelExport() {
-        String s_out = "layers: " + Arrays.toString(getTopology()) + "\n";
+        String s_out = "layers: " + Arrays.toString(topology()) + "\n";
         s_out += this.layer_export();
         return s_out;
     }
 
     public void modelExport2file(String fpath) throws Exception {
-        String s_out = "layers: " + Arrays.toString(getTopology()) + "\n";
+        String s_out = "layers: " + Arrays.toString(topology()) + "\n";
         s_out += this.layer_export();
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(fpath));
@@ -478,11 +460,23 @@ public class NeuralNetwork {
         writer.close();
     }
 
+    /**
+     * This method returns a string representation of the neural network.
+     * It contains the topology and the number of parameters.
+     *
+     * @see NeuralNetwork#topology()
+     * @see NeuralNetwork#parameters()
+     */
+    @Override
     public String toString() {
-        String s_out = "Strucktur: " + Arrays.toString(getTopology()) + "\n";
-        s_out += "Parameter: " + parameters() + "\n";
-        s_out += layer2b_w();
+        String s = "";
 
-        return s_out;
+        s += "Topology: " + Arrays.toString(topology()) + "\n";
+
+        // TODO: Weights
+
+        s += "Parameters: " + parameters() + "\n";
+
+        return s;
     }
 }
