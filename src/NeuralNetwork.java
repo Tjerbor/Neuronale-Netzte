@@ -105,15 +105,33 @@ public class NeuralNetwork {
     }
 
     /**
-     * This method overwrites the {@link Activation} layer at the given index.
-     * It throws an exception if the index is out of bounds or is not that of a function layer.
+     * This method overwrites the weights of the given edge layer.
+     * The index <code>i</code> corresponds to the index <code>2 * i</code> in the {@link NeuralNetwork#layers} array.
+     * It throws an exception if the index is out of bounds or is not that of a {@link FullyConnectedLayer}.
+     *
+     * @see NeuralNetwork#create(int[], String)
      */
-    public void setFunction(int index, Activation function) {
-        if (index < 0 || index >= layers.length || index % 2 != 1) {
+    public void setWeights(int index, double[][] weights) {
+        if (index < 0 || index >= layers.length / 2) {
             throw new IllegalArgumentException();
         }
 
-        layers[index] = function;
+        layers[index * 2].setWeights(weights);
+    }
+
+    /**
+     * This method overwrites the {@link Activation} layer of the given edge layer.
+     * The index <code>i</code> corresponds to <code>2 * i + 1</code> in the {@link NeuralNetwork#layers} array.
+     * It throws an exception if the index is out of bounds or is not that of a function layer.
+     *
+     * @see NeuralNetwork#create(int[], String)
+     */
+    public void setFunction(int index, Activation function) {
+        if (index < 0 || index >= layers.length / 2) {
+            throw new IllegalArgumentException();
+        }
+
+        layers[index * 2 + 1] = function;
     }
 
     /**
