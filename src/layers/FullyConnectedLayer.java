@@ -177,9 +177,9 @@ public class FullyConnectedLayer extends Layer {
         //this.inputs = new double[inputs.length][weights.length];
         //this.inputs = Utils.clean_inputs(inputs, weights.length);
 
-        this.inputs = inputs;
-        inputs = this.addBIAS(inputs);
 
+        inputs = this.addBIAS(inputs);
+        this.inputs = inputs;
         outputs = Utils.matmul2D(inputs, this.weights);
 
         //outputs = Utils.add_biases(outputs, biases);
@@ -222,16 +222,16 @@ public class FullyConnectedLayer extends Layer {
     public double[][] backward(double[][] output_gradient, double learning_rate, boolean last) throws Exception {
 
 
-        this.inputs = this.addBIAS(this.inputs);
-        double[][] t_inputs = Utils.tranpose(inputs);
+        //this.inputs = this.addBIAS(this.inputs);
+        double[][] t_inputs = Utils.tranpose(this.inputs);
 
         dweights = Utils.matmul2D(t_inputs, output_gradient);
         //  Gradient on input values.
         double[][] t_w = Utils.tranpose(this.weights);
 
-
+        //this.dinputs = Utils.matmul2D((output_gradient), t_w);
         if (last) {
-            this.dinputs = Utils.matmul2D(addPRIME_BIAS(output_gradient), t_w);
+            this.dinputs = Utils.matmul2D((output_gradient), t_w);
         } else {
             this.dinputs = Utils.matmul2D(addPRIME_BIAS(output_gradient), t_w);
         }

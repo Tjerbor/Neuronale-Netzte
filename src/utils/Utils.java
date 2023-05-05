@@ -168,8 +168,7 @@ public class Utils {
      * @return returns the calculated matrix with size am x bn
      */
     public static double[][] matmul2D(double[][] a, double[][] b) throws Exception {
-
-
+        
         if (a[0].length != b.length) {
             throw new Exception("Mismatching Shape " + Integer.toString(a[0].length) + " " + Integer.toString(b.length));
         }

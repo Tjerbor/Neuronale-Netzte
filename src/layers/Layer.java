@@ -41,10 +41,12 @@ public class Layer {
     }
 
     public double[][] backward(double[][] dinputs) throws Exception {
+
         return dinputs;
     }
 
     public double[][] backward(double[][] dinputs, double learning_rate) throws Exception {
+
         return dinputs;
     }
 
