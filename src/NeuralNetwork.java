@@ -6,6 +6,7 @@ import utils.Utils;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -94,6 +95,29 @@ public class NeuralNetwork {
      */
     protected int size() {
         return layers.length;
+    }
+
+    /**
+     * This method writes the topology and the weights of the neural network to a file with the given name.
+     * The file has the same format as the files that can be read with the {@link utils.Reader#create(String)} method.
+     * The method throws an exception if an I/O error occurs.
+     */
+    public void exportWeights(String name) throws IOException {
+        StringBuilder s = new StringBuilder("layers");
+
+        for (int i : topology()) {
+            s.append(";").append(i);
+        }
+
+        s.append("\n");
+
+        // TODO: Write Weights
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(name));
+
+        writer.write(s.toString());
+
+        writer.close();
     }
 
     /**
@@ -443,12 +467,6 @@ public class NeuralNetwork {
             }
         }
         return s_out.toString();
-    }
-
-    public String modelExport() {
-        String s_out = "layers: " + Arrays.toString(topology()) + "\n";
-        s_out += this.layer_export();
-        return s_out;
     }
 
     public void modelExport2file(String fpath) throws Exception {
