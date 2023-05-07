@@ -101,10 +101,10 @@ public class NeuralNetwork {
 
     /**
      * This method writes the topology and the weights of the neural network to a file with the given name.
-     * The file has the same format as the files that can be read with the {@link utils.Reader#create(String)} method.
+     * The file has the same format as the files that can be read with {@link utils.Reader#create(String)}.
      * The method throws an exception if an I/O error occurs.
      */
-    public void exportWeights(String name) throws IOException {
+    public void exportWeights(String fileName) throws IOException {
         StringBuilder s = new StringBuilder("layers");
 
         for (int i : topology()) {
@@ -113,9 +113,25 @@ public class NeuralNetwork {
 
         s.append("\n");
 
-        // TODO: Write Weights
+        for (int i = 0; i < size(); i += 2) {
+            double[][] weights = layers[i].getWeights();
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(name))) {
+            if (i != 0) {
+                s.append("\n");
+            }
+
+            for (double[] weight : weights) {
+                s.append(weight[0]);
+
+                for (int j = 1; j < weight.length; j++) {
+                    s.append(";").append(weight[j]);
+                }
+
+                s.append("\n");
+            }
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             writer.write(s.toString());
         }
     }
@@ -444,38 +460,6 @@ public class NeuralNetwork {
             loss_per_epoch = loss_per_epoch / x_train.length;
             System.out.println("Loss per epoch: " + loss_per_epoch);
         }
-    }
-
-    private String layer_export() {
-        StringBuilder s_out = new StringBuilder();
-
-
-        for (int k = 0; k < layers.length; k++) {
-
-            if (layers[k].weights != null) {
-                s_out.append("Layer ").append(k).append(": \n");
-                s_out.append(Utils.weightsAndBiases_export(layers[k].weights,
-                        layers[k].biases));
-            } else {
-                if (k < layers.length - 1) {
-                    s_out.append(layers[k].name);
-                } else {
-                    s_out.append(layers[k].name).append("\n");
-                }
-
-
-            }
-        }
-        return s_out.toString();
-    }
-
-    public void modelExport2file(String fpath) throws Exception {
-        String s_out = "layers: " + Arrays.toString(topology()) + "\n";
-        s_out += this.layer_export();
-
-        BufferedWriter writer = new BufferedWriter(new FileWriter(fpath));
-        writer.write(s_out);
-        writer.close();
     }
 
     /**
