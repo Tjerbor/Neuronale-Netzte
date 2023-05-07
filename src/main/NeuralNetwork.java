@@ -1,3 +1,5 @@
+package main;
+
 import layers.Activation;
 import layers.FullyConnectedLayer;
 import layers.Layer;
@@ -113,11 +115,9 @@ public class NeuralNetwork {
 
         // TODO: Write Weights
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter(name));
-
-        writer.write(s.toString());
-
-        writer.close();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(name))) {
+            writer.write(s.toString());
+        }
     }
 
     /**

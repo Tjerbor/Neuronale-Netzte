@@ -1,3 +1,5 @@
+package main;
+
 import layers.*;
 import org.junit.jupiter.api.*;
 import utils.Reader;
@@ -13,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @see <a href="https://junit.org/junit5/docs/current/user-guide/">JUnit Jupiter</a>
  */
-public class NeuralNetworkTest {
+class NeuralNetworkTest {
     private NeuralNetwork neuralNetwork;
 
     @BeforeEach
