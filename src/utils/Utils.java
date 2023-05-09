@@ -303,10 +303,9 @@ public class Utils {
      * @return weighst.
      */
     public static double[][] split_for_weights(double[][] a) {
-        double[][] weights = new double[a.length - 1][a[0].length];
-        for (int i = 0; i < a.length - 1; i++) {
-            weights[i] = a[i];
-        }
+        double[][] weights;
+
+        weights =  Arrays.copyOf(a, a.length-1);
         return weights;
     }
 
@@ -492,6 +491,17 @@ public class Utils {
 
         return c;
     }
+
+    public static double[] genRandomWeights(int size1) {
+
+        double[] c = new double[size1];
+
+        for (int i = 0; i < size1; i++) {
+                c[i] = genRandomWeight();
+            }
+        return c;
+    }
+
 
     public static double sumUpLoss(double[][] losses) {
         double l_out = 0;

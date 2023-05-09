@@ -106,13 +106,10 @@ class NeuralNetworkTest {
                 // now does back propagation //updates values.
                 for (int i = 0; i < Ebenen.length; i++) {
 
-                    grad = acts[Ebenen.length - 1 - i].backward(grad);
 
-                    if (i == 0) {
-                        grad = Ebenen[Ebenen.length - 1 - i].backward(grad, 0.1, true);
-                    } else {
-                        grad = Ebenen[Ebenen.length - 1 - i].backward(grad, 0.1);
-                    }
+                    grad = acts[Ebenen.length - 1 - i].backward(grad);
+                    grad = Ebenen[Ebenen.length - 1 - i].backward(grad, 0.1);
+
 
                 }
 
@@ -140,12 +137,7 @@ class NeuralNetworkTest {
                 for (int i = 0; i < Ebenen.length; i++) {
 
                     grad = acts[Ebenen.length - 1 - i].backward(grad);
-
-                    if (i == 0) {
-                        grad = Ebenen[Ebenen.length - 1 - i].backward(grad, 0.01, true);
-                    } else {
-                        grad = Ebenen[Ebenen.length - 1 - i].backward(grad, 0.01);
-                    }
+                    grad = Ebenen[Ebenen.length - 1 - i].backward(grad, 0.01);
 
                 }
 
