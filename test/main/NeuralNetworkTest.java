@@ -1,6 +1,6 @@
 package main;
 
-import layers.*;
+import layer.*;
 import org.junit.jupiter.api.*;
 import utils.Reader;
 import utils.Utils;

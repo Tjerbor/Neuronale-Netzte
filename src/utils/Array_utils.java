@@ -1,7 +1,6 @@
 package utils;
 
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.util.Arrays;
 
 /**
@@ -11,7 +10,7 @@ import java.util.Arrays;
 public class Array_utils {
 
 
-    public static double roundDec(double value, int size) throws ParseException {
+    public static double roundDec(double value, int size) {
 
         String strFormat = "#.";
         for (int i = 0; i < size; i++) {
@@ -116,13 +115,8 @@ public class Array_utils {
 
         double d;
         for (int i = 0; i < size; i++) {
-            try {
-                d = start + (step_val * i);
-                out[i] = Array_utils.roundDec(d, round_size);
-            } catch (ParseException e) {
-                out[i] = start + (step_val * i);
-                System.out.println(e);
-            }
+            d = start + (step_val * i);
+            out[i] = Array_utils.roundDec(d, round_size);
 
         }
         return out;
@@ -165,7 +159,7 @@ public class Array_utils {
         return b;
     }
 
-    public static double[] multiply1D(double[] a, double[] b) throws Exception {
+    public static double[] multiply1D(double[] a, double[] b) {
 
         double[] c = new double[a.length];
         for (int i = 0; i < a.length; i++) {

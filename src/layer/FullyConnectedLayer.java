@@ -1,4 +1,4 @@
-package layers;
+package layer;
 
 import utils.Array_utils;
 import utils.Utils;
@@ -6,111 +6,48 @@ import utils.Utils;
 import java.text.ParseException;
 
 /**
- * the normal Dense Layer.
- * calculates the input times the weights.
+ * This class models a fully connected layer of the neural network.
+ * Each fully connected layer represents two layers of neurons.
+ *
+ * @see main.NeuralNetwork#create(int[], String)
  */
-public class FullyConnectedLayer extends Layer {
-
-
-    public static boolean hasWeights = true;
-    //double[] biases; not needed because biases are just extra weigthts.
-    double[][] dweights; // gradients of weights needed if the optimizer is set.
-    double[][] momentum_weights; // gradients of weights needed if the optimizer is set.
-    double[][] momentum_biases; // gradients of weights needed if the optimizer is set.
-    //double[] dbiases;biases; not needed because biases are just extra weigthts.
-    double[][] dinputs;
-    double[] dinput;
-    double[][] inputs; //needed for backpropagation with batch input.
-    double[] input; //needed for backpropagation with Single Input.
-    double BIAS = 1;
-    double BIAS_PRIME = 0;
+public class FullyConnectedLayer implements Layer {
+    private double[] biases;
+    private double[][] dweights; // gradients of weights needed if the optimizer is set.
+    private double[][] momentum_weights; // gradients of weights needed if the optimizer is set.
+    private double[][] momentum_biases; // gradients of weights needed if the optimizer is set.
+    private double[][] dinputs;
+    private double[] dinput;
+    private double[][] inputs; //needed for backpropagation with batch input.
+    private double[] input; //needed for backpropagation with Single Input.
+    private double BIAS = 1;
+    private double BIAS_PRIME = 0;
     private double[][] weights; //weights of layer.
     // or to use other methode to upgrade weights.
     // biases befinden sich auf der letzten Ebene.
-    private int n_inputs;
-    private int n_neurons;
-
 
     public FullyConnectedLayer(int n_input, int n_neurons) {
-        this.weights = Utils.genRandomWeights(n_input + 1, n_neurons);
-        //super.weights = new double[n_input + 1][n_neurons];
-        //this.weights = super.weights;
-        this.parameter_size = n_input * n_neurons + n_neurons;
+        weights = Utils.genRandomWeights(n_input + 1, n_neurons);
         input = new double[n_input];
         inputs = new double[n_input][n_input];
-        this.name = "FullyConnectedLayer";
-        this.n_inputs = n_input;
-        this.n_neurons = n_neurons;
-
     }
-
-    /**
-     * init with linspace weights to get some simulation with weights which are not zero or 1.
-     *
-     * @param n_input
-     * @param n_neurons
-     * @param Test      indicates test.
-     */
-    public FullyConnectedLayer(int n_input, int n_neurons, boolean Test) {
-        double[][] w = Utils.genRandomWeights(n_input + 1, n_neurons);
-        //has decimal precission because java messes up.
-        super.weights = Array_utils.getLinspaceWeights_wo_endpoint(n_input + 1, n_neurons, -1, 1, 4);
-        this.parameter_size = n_input * n_neurons + n_neurons;
-        input = new double[n_input];
-        inputs = new double[n_input][n_input];
-        this.name = "FullyConnectedLayer";
-
-        this.n_inputs = n_input;
-        this.n_neurons = n_neurons;
-
-    }
-
-    /**
-     * can not be initialised without the needed values.
-     */
-    public FullyConnectedLayer() {
-        throw new RuntimeException();
-    }
-
-    public void setBIAS_ACT(String act) {
-        if (act != "id") {
-            this.BIAS = activation_utils.useForwardFunktion(act, this.BIAS);
-            this.BIAS_PRIME = activation_utils.useBackwardFunktion(act, 1.0);
-        }
-
-    }
-
-    public void setBIAS(double x) {
-        this.BIAS = x;
-    }
-
 
     /**
      * returns the biases on top of the weights.
      *
      * @return
      */
+    @Override
     public double[][] getWeights() {
-        return this.weights;
+        return weights;
     }
 
-    /**
-     * can get the biases on top. of the weights.
-     *
-     * @param w
-     */
+    @Override
+    public void setWeights(double[][] weights) {
+        this.weights = Utils.split_for_weights(weights);
 
-    public void setWeights(double[][] w) {
-        //this.weights = new double[w.length][w[0].length];
-        //this.biases = new double[w[0].length];
-        this.weights = w;
-        //this.biases = Utils.split_for_biases(w);
+        biases = Utils.split_for_biases(weights);
     }
-
-    public void setWeights(int inputs, int neurons) {
-        this.weights = Utils.genRandomWeights(inputs + 1, neurons);
-    }
-
 
     public double[][] addPRIME_BIAS(double[][] in) {
         double[][] out = new double[in.length][in[0].length + 1];
@@ -138,46 +75,19 @@ public class FullyConnectedLayer extends Layer {
         return out;
     }
 
-
-    public double[][] addBIAS(double[][] in) {
-        double[][] out = new double[in.length][in[0].length + 1];
-        for (int i = 0; i < in.length; i++) {
-            for (int j = 0; j < in[0].length; j++) {
-                out[i][j] = in[i][j];
-            }
-        }
-
-        for (int i = 0; i < in.length; i++) {
-            out[i][in[0].length] = this.BIAS;
-        }
-        return out;
-    }
-
-    public double[] addBIAS(double[] in) {
-        double[] out = new double[in.length + 1];
-        for (int i = 0; i < in.length; i++) {
-            out[i] = in[i];
-        }
-
-
-        out[in.length] = this.BIAS;
-
-        return out;
-    }
-
     /**
      * Forward Pas for the layer.
      *
      * @param inputs inputs of the layer.
      * @return computed output
      */
-    public double[][] forward(double[][] inputs) throws Exception {
+    @Override
+    public double[][] forward(double[][] inputs) {
         double[][] outputs;
         //this.inputs = new double[inputs.length][weights.length];
         //this.inputs = Utils.clean_inputs(inputs, weights.length);
 
 
-        inputs = this.addBIAS(inputs);
         this.inputs = inputs;
         outputs = Utils.matmul2D(inputs, this.weights);
 
@@ -194,8 +104,7 @@ public class FullyConnectedLayer extends Layer {
      * @param input Single input of the layer.
      * @return computed output
      */
-
-
+    @Override
     public double[] forward(double[] input) {
         double[] output = new double[input.length];
         //input = new double[weights.length - 1];
@@ -204,7 +113,6 @@ public class FullyConnectedLayer extends Layer {
         double[][] weights_t = this.weights;
 
         weights_t = Utils.tranpose(weights_t);
-        input = this.addBIAS(input);
 
         this.input = input;
         output = Utils.matmul2d_1d(weights_t, input);
@@ -213,15 +121,13 @@ public class FullyConnectedLayer extends Layer {
 
     }
 
-
     /**
      * computes Vailla SGD
      * expects delta values and computes the gradient. updates weights.
      */
-    public double[][] backward(double[][] output_gradient, double learning_rate, boolean last) throws Exception {
+    public double[][] backward(double[][] output_gradient, double learning_rate, boolean last) {
 
 
-        //this.inputs = this.addBIAS(this.inputs);
         double[][] t_inputs = Utils.tranpose(this.inputs);
 
         dweights = Utils.matmul2D(t_inputs, output_gradient);
@@ -247,10 +153,8 @@ public class FullyConnectedLayer extends Layer {
      * @param learning_rate learning rate of the NN.
      * @throws ParseException because values are corrected with decimal precision.
      */
-    private void updateBiases_self(double[] dbiases, double learning_rate) throws ParseException {
+    private void updateBiases_self(double[] dbiases, double learning_rate) {
 
-        //System.out.println(dbiases.length);
-        //System.out.println(this.biases.length);
         for (int i = 0; i < this.biases.length; i++) {
             //this.biases[i] += Array_utils.roundDec(-(learning_rate * dbiases[i]), global_variables.decimal_precision);
             this.biases[i] += Array_utils.roundDec(-(learning_rate * dbiases[i]), 16);
@@ -264,7 +168,7 @@ public class FullyConnectedLayer extends Layer {
      * @param learning_rate
      * @throws ParseException because values are corrected with decimal precision.
      */
-    private void updateWeights_self(double[][] output_gradient, double learning_rate) throws ParseException {
+    private void updateWeights_self(double[][] output_gradient, double learning_rate) {
 
         for (int i = 0; i < this.weights.length; i++) {
             for (int j = 0; j < this.weights[0].length; j++) {
@@ -278,20 +182,18 @@ public class FullyConnectedLayer extends Layer {
 
     }
 
-
     /**
      * backward pass of the Layer.
      *
      * @param output_gradient output gradient
      * @param learning_rate   leaning rate.
      * @return calculated delta input.
-     * @throws Exception Shape Error
      */
     // should not be needed but is backward for Single Data. beacuse trained is normaly with a batch.
-    public double[] backward(double[] output_gradient, double learning_rate) throws Exception {
+    @Override
+    public double[] backward(double[] output_gradient, double learning_rate) {
 
 
-        //System.out.println(weights.length);
         output_gradient = this.addPRIME_BIAS(output_gradient);
         double[][] weights_gradient = Utils.calcWeightGradient(output_gradient, this.input);
         //double[][]t_weights = Utils.tranpose(weights);
@@ -313,9 +215,9 @@ public class FullyConnectedLayer extends Layer {
      *
      * @param output_gradient delta inputs of the last layer.
      * @return delta inputs.
-     * @throws Exception Shape Error
      */
-    public double[][] backward(double[][] output_gradient) throws Exception {
+    @Override
+    public double[][] backward(double[][] output_gradient) {
 
         output_gradient = this.addPRIME_BIAS(output_gradient);
         this.dweights = Utils.matmul2D(Utils.tranpose(this.inputs), output_gradient);
@@ -329,16 +231,22 @@ public class FullyConnectedLayer extends Layer {
         return (this.dinputs);
     }
 
+    // TODO
+    @Override
+    public double[][] backward(double[][] inputs, double learningRate) {
+        return new double[0][];
+    }
+
     /**
      * backward pass of the Layer.
      *
      * @param output_gradient output gradient
      *                        updating weights is done by the optimizer.
      * @return calculated delta input.
-     * @throws Exception Shape Error
      */
     // should not be needed but is backward for Single Data. beacuse trained is normaly with a batch.
-    public double[] backward(double[] output_gradient) throws Exception {
+    @Override
+    public double[] backward(double[] output_gradient) {
 
         output_gradient = this.addPRIME_BIAS(output_gradient);
         this.dweights = Utils.calcWeightGradient(output_gradient, this.input);
@@ -351,13 +259,4 @@ public class FullyConnectedLayer extends Layer {
         return (this.dinput);
 
     }
-
-
 }
-
-
-
-
-
-
-

@@ -1,6 +1,6 @@
 package utils;
 
-import layers.*;
+import layer.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -167,10 +167,10 @@ public class Utils {
      * @param b Matrix b
      * @return returns the calculated matrix with size am x bn
      */
-    public static double[][] matmul2D(double[][] a, double[][] b) throws Exception {
-        
+    public static double[][] matmul2D(double[][] a, double[][] b) {
+
         if (a[0].length != b.length) {
-            throw new Exception("Mismatching Shape " + Integer.toString(a[0].length) + " " + Integer.toString(b.length));
+            throw new ArithmeticException("Mismatching Shape " + Integer.toString(a[0].length) + " " + Integer.toString(b.length));
         }
 
         double[][] c = new double[a.length][b[1].length];
@@ -319,7 +319,7 @@ public class Utils {
      * @return computed output
      * @throws Exception if matmul got a mismatching Shape.
      */
-    public static double[][] doForward(double[][] inputs, double[][] weights, double[] biases) throws Exception {
+    public static double[][] doForward(double[][] inputs, double[][] weights, double[] biases) {
 
         double[][] outputs;
         outputs = Utils.matmul2D(inputs, weights);
@@ -338,7 +338,7 @@ public class Utils {
      * @return computed output
      * @throws Exception if matmul got a mismatching Shape.
      */
-    public static double[][] doForward(double[][] inputs, double[][] weights, double biases) throws Exception {
+    public static double[][] doForward(double[][] inputs, double[][] weights, double biases) {
 
 
         double[][] outputs;
@@ -358,7 +358,7 @@ public class Utils {
      * @return computed output
      * @throws Exception if matmul got a mismatching Shape.
      */
-    public static double[] doForward(double[] input, double[][] weights, double[] biases) throws Exception {
+    public static double[] doForward(double[] input, double[][] weights, double[] biases) {
         double[] output = new double[input.length];
         output = Utils.dotProdukt_1D(Utils.tranpose(weights), input);
         output = Utils.add_bias(output, biases);
@@ -376,7 +376,7 @@ public class Utils {
      * @return computed output
      * @throws Exception if matmul got a mismatching Shape.
      */
-    public static double[] doForward(double[] input, double[][] weights, double biases) throws Exception {
+    public static double[] doForward(double[] input, double[][] weights, double biases) {
         double[] output = new double[input.length];
         output = Utils.dotProdukt_1D(Utils.tranpose(weights), input);
         output = Utils.add_bias(output, biases);
@@ -738,7 +738,7 @@ public class Utils {
         }
     }
 
-    public static double[][][] read_own_weights(String fpath) throws Exception {
+    public static double[][][] read_own_weights(String fpath) {
 
         try {
             String line;

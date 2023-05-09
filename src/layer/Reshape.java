@@ -1,4 +1,4 @@
-package layers;
+package layer;
 
 public class Reshape {
 

@@ -1,9 +1,9 @@
 package main;
 
-import layers.Activation;
-import layers.FullyConnectedLayer;
-import layers.Layer;
-import layers.Losses;
+import layer.Activation;
+import layer.FullyConnectedLayer;
+import layer.Layer;
+import layer.Losses;
 import utils.Utils;
 
 import java.io.BufferedWriter;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
- * This class models a feed-forward neural network.
+ * This class models a fully connected feed-forward artificial neural network.
  */
 public class NeuralNetwork {
     Losses loss = null; //loss function of our NN. // now only MSE is available.
@@ -105,7 +105,7 @@ public class NeuralNetwork {
      * The method throws an exception if an I/O error occurs.
      */
     public void exportWeights(String fileName) throws IOException {
-        StringBuilder s = new StringBuilder("layers");
+        StringBuilder s = new StringBuilder("layer");
 
         for (int i : topology()) {
             s.append(";").append(i);
@@ -180,9 +180,7 @@ public class NeuralNetwork {
     public int parameters() {
         int parameters = 0;
 
-        for (int i = 0; i < size(); i += 2) {
-            parameters += this.layers[i].parameter_size;
-        }
+        // TODO
 
         return parameters;
     }
@@ -340,10 +338,8 @@ public class NeuralNetwork {
                 this.computeAllBackward(outs);
 
                 //updates values.
-                for (int k = 0; k < size(); k++) {
-                    if (layers[k].weights != null) {
-                        this.optimizer.calculate(layers[k]);
-                    }
+                for (int k = 0; k < size(); k += 2) {
+                    this.optimizer.calculate(layers[k]);
                 }
 
             }
@@ -474,8 +470,6 @@ public class NeuralNetwork {
         String s = "";
 
         s += "Topology: " + Arrays.toString(topology()) + "\n";
-
-        // TODO: Weights
 
         s += "Parameters: " + parameters() + "\n";
 

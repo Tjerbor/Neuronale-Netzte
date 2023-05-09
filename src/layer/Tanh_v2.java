@@ -1,16 +1,16 @@
-package layers;
+package layer;
 
+public class Tanh_v2 extends Activation {
 
-public class Tanh extends Activation {
-    public Tanh(){
+    public Tanh_v2() {
         this.name = "tanh";
     }
+
     public double def(double x) {
-        return 1 - (2 / (Math.exp(2 * x) + 1));
+        return (Math.exp(x) - Math.exp(-x)) / (Math.exp(x) + Math.exp(-x));
     }
 
     public double prime(double x) {
         return 1 - (Math.pow(this.def(x), 2));
     }
-
 }

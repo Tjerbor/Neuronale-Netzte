@@ -1,7 +1,7 @@
 package utils;
 
-import layers.FullyConnectedLayer;
-import layers.Layer;
+import layer.FullyConnectedLayer;
+import layer.Layer;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

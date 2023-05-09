@@ -1,6 +1,6 @@
 package main;
 
-import layers.Layer;
+import layer.Layer;
 import utils.Utils;
 
 

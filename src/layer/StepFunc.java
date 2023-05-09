@@ -1,4 +1,4 @@
-package layers;
+package layer;
 
 public class StepFunc extends Activation {
 
@@ -12,7 +12,7 @@ public class StepFunc extends Activation {
         if (x >= this.schwellenwert) {
             return 1;
         }
-        
+
         return 0;
     }
 

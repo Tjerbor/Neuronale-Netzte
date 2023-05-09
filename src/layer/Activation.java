@@ -1,18 +1,10 @@
-package layers;
+package layer;
 
 import utils.Array_utils;
 
-public class Activation extends Layer {
-
-    boolean hasWeights = false;
+public class Activation implements Layer {
     double[] input;
     double[][] inputs;
-
-
-    public Activation() {
-        this.name = "id";
-        super.weights = null;
-    }
 
     public double def(double x) {
         return x;
@@ -22,14 +14,13 @@ public class Activation extends Layer {
         return 1;
     }
 
-    ;
-
     /**
      * every Activation has the same methode but different def and prime function
      *
      * @param input
      * @return
      */
+    @Override
     public double[] forward(double[] input) {
 
         this.input = input;
@@ -42,6 +33,7 @@ public class Activation extends Layer {
         return out;
     }
 
+    @Override
     public double[][] forward(double[][] inputs) {
 
 
@@ -58,7 +50,8 @@ public class Activation extends Layer {
         return out;
     }
 
-    public double[][] backward(double[][] dvalues, double learning_rate) throws Exception {
+    @Override
+    public double[][] backward(double[][] dvalues, double learning_rate) {
 
 
         double[][] outputs = new double[dvalues.length][dvalues[0].length];
@@ -75,7 +68,18 @@ public class Activation extends Layer {
         return outputs;
     }
 
-    public double[][] backward(double[][] dvalues) throws Exception {
+    @Override
+    public double[][] getWeights() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setWeights(double[][] weights) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public double[][] backward(double[][] dvalues) {
 
         double[][] outputs = new double[dvalues.length][dvalues[0].length];
 
@@ -90,9 +94,8 @@ public class Activation extends Layer {
         return outputs;
     }
 
-    ;;
-
-    public double[] backward(double[] dvalue, double learning_rate) throws Exception {
+    @Override
+    public double[] backward(double[] dvalue, double learning_rate) {
 
         double out[] = new double[dvalue.length];
         for (int i = 0; i < dvalue.length; i++) {
@@ -104,7 +107,8 @@ public class Activation extends Layer {
         return out;
     }
 
-    public double[] backward(double[] dvalue) throws Exception {
+    @Override
+    public double[] backward(double[] dvalue) {
         double out[] = new double[dvalue.length];
         for (int i = 0; i < dvalue.length; i++) {
             dvalue[i] = this.prime(dvalue[i]);
@@ -114,8 +118,3 @@ public class Activation extends Layer {
         return out;
     }
 }
-
-
-
-
-

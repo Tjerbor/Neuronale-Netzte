@@ -1,4 +1,4 @@
-package layers;
+package layer;
 
 import utils.Array_utils;
 
@@ -159,7 +159,7 @@ public class CustomActivation extends Activation {
         return out;
     }
 
-    public double[][] backward(double[][] dvalues, double learning_rate) throws Exception {
+    public double[][] backward(double[][] dvalues, double learning_rate) {
 
 
         double[][] outputs = new double[dvalues.length][dvalues[0].length];
@@ -176,7 +176,7 @@ public class CustomActivation extends Activation {
         return outputs;
     }
 
-    public double[][] backward(double[][] dvalues) throws Exception {
+    public double[][] backward(double[][] dvalues) {
 
         double[][] outputs = new double[dvalues.length][dvalues[0].length];
 
@@ -193,7 +193,7 @@ public class CustomActivation extends Activation {
 
     ;;
 
-    public double[] backward(double[] dvalue, double learning_rate) throws Exception {
+    public double[] backward(double[] dvalue, double learning_rate) {
 
         double out[] = new double[dvalue.length];
         for (int i = 0; i < dvalue.length; i++) {
@@ -205,7 +205,7 @@ public class CustomActivation extends Activation {
         return out;
     }
 
-    public double[] backward(double[] dvalue) throws Exception {
+    public double[] backward(double[] dvalue) {
         double out[] = new double[dvalue.length];
         for (int i = 0; i < dvalue.length; i++) {
             dvalue[i] = this.prime(dvalue[i], i);
