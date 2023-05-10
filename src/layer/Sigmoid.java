@@ -1,19 +1,18 @@
 package layer;
 
+/**
+ * This class models a sigmoid function, namely the logistic function.
+ */
 public class Sigmoid extends Activation {
-    public Sigmoid() {
-        this.name = "sigmoid";
-    }
-
-    public double def(double x) {
+    @Override
+    public double definition(double x) {
         return 1 / (1 + Math.exp(-x));
-
     }
 
-    public double prime(double x) {
-        double s = this.def(x);
-        return s * (1 - s);
+    @Override
+    public double derivative(double x) {
+        double y = definition(x);
 
+        return y * (1 - y);
     }
-
 }

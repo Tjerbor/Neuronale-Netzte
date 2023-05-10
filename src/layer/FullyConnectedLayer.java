@@ -13,7 +13,6 @@ import java.util.Arrays;
  * @see main.NeuralNetwork#create(int[], String)
  */
 public class FullyConnectedLayer implements Layer {
-
     private double[][] dweights; // gradients of weights needed if the optimizer is set.
     private double[][] momentum_weights; // gradients of weights needed if the optimizer is set.
     private double[][] momentum_biases; // gradients of weights needed if the optimizer is set.
@@ -26,7 +25,6 @@ public class FullyConnectedLayer implements Layer {
     private double[] biases; //biases of layer.
     private double[] dbiases; //biases of layer.
 
-
     public FullyConnectedLayer(int n_input, int n_neurons) {
         weights = Utils.genRandomWeights(n_input, n_neurons);
         biases = Utils.genRandomWeights(n_neurons);
@@ -36,14 +34,15 @@ public class FullyConnectedLayer implements Layer {
 
     /**
      * returns the biases at the end of the weights.
+     *
      * @return weights+biases
      */
     @Override
     public double[][] getWeights() {
         double[][] w;
 
-        w = Arrays.copyOf(weights, weights.length+1);
-        w[w.length-1] = biases;
+        w = Arrays.copyOf(weights, weights.length + 1);
+        w[w.length - 1] = biases;
         return w;
     }
 
@@ -117,26 +116,6 @@ public class FullyConnectedLayer implements Layer {
     }
 
     /**
-     * computes Vailla SGD
-     * expects delta values and computes the gradient. updates weights.
-     */
-    public double[][] backward(double[][] output_gradient, double learning_rate) {
-
-        double[][] t_inputs = Utils.tranpose(this.inputs);
-        dweights = Utils.matmul2D(t_inputs, output_gradient);
-        //  Gradient on input values.
-        double[][] t_w = Utils.tranpose(this.weights);
-        this.dinputs = Utils.matmul2D((output_gradient), t_w);
-        this.dbiases = Utils.sumBiases(output_gradient);
-
-        updateWeights_self(dweights, learning_rate);
-        updateBiases_self(dbiases, learning_rate);
-        return this.dinputs;
-    }
-
-
-
-    /**
      * backward pass of the Layer.
      *
      * @param output_gradient output gradient
@@ -162,6 +141,12 @@ public class FullyConnectedLayer implements Layer {
 
     }
 
+    // TODO
+    @Override
+    public double[][] backward(double[][] inputs) {
+        return new double[0][];
+    }
+
     /**
      * jsut calculated the delta values.
      * updating weights is done by the optimizer.
@@ -183,7 +168,6 @@ public class FullyConnectedLayer implements Layer {
         updateBiases_self(dbiases, learning_rate);
         return this.dinputs;
     }
-
 
     /**
      * backward pass of the Layer.

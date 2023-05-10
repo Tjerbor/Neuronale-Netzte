@@ -23,8 +23,6 @@ public class CustomActivation extends Activation {
      * @param n_inputs number of inputs expected.
      */
     public CustomActivation(int n_inputs) {
-        super.name = "Custom";
-        super.weights = null;
         acts = new String[n_inputs];
         schwellenwert = new double[n_inputs];
         Arrays.fill(acts, "id");
@@ -33,8 +31,6 @@ public class CustomActivation extends Activation {
 
     public CustomActivation(int n_inputs, double theata) {
         acts = new String[n_inputs];
-        super.name = "Custom";
-        super.weights = null;
         schwellenwert = new double[n_inputs];
         Arrays.fill(acts, "id");
         Arrays.fill(schwellenwert, theata);
@@ -48,8 +44,6 @@ public class CustomActivation extends Activation {
      */
     public CustomActivation(String[] n_inputs) {
         acts = new String[n_inputs.length];
-        super.name = "Custom";
-        super.weights = null;
         Arrays.fill(acts, "id");
         acts = n_inputs;
         for (int i = 0; i < n_inputs.length; i++) {

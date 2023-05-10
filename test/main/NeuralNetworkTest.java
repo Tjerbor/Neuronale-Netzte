@@ -82,9 +82,9 @@ class NeuralNetworkTest {
 
         Activation[] acts = new Activation[3];
 
-        acts[0] = new Tanh();
-        acts[1] = new Tanh();
-        acts[2] = new Tanh();
+        acts[0] = new TanH();
+        acts[1] = new TanH();
+        acts[2] = new TanH();
 
         Losses loss = new MSE();
         int ownSize = Ebenen.length;
@@ -169,9 +169,9 @@ class NeuralNetworkTest {
 
         Activation[] acts = new Activation[3];
 
-        acts[0] = new Tanh();
-        acts[1] = new Tanh();
-        acts[2] = new Tanh();
+        acts[0] = new TanH();
+        acts[1] = new TanH();
+        acts[2] = new TanH();
 
         Losses loss = new MSE();
         int ownSize = Ebenen.length;
@@ -225,8 +225,8 @@ class NeuralNetworkTest {
 
         Activation[] acts = new Activation[2];
 
-        acts[0] = new Tanh();
-        acts[1] = new Tanh();
+        acts[0] = new TanH();
+        acts[1] = new TanH();
 
         double learning_rate = 0.4;
         Losses loss = new MSE();

@@ -305,7 +305,7 @@ public class Utils {
     public static double[][] split_for_weights(double[][] a) {
         double[][] weights;
 
-        weights =  Arrays.copyOf(a, a.length-1);
+        weights = Arrays.copyOf(a, a.length - 1);
         return weights;
     }
 
@@ -497,8 +497,8 @@ public class Utils {
         double[] c = new double[size1];
 
         for (int i = 0; i < size1; i++) {
-                c[i] = genRandomWeight();
-            }
+            c[i] = genRandomWeight();
+        }
         return c;
     }
 
@@ -528,13 +528,13 @@ public class Utils {
         if (name.equals("relu")) {
             a = new ReLu();
         } else if (name.equals("tanh")) {
-            a = new Tanh();
+            a = new TanH();
         } else if (name.equals("sigmoid")) {
             a = new Sigmoid();
         } else if (name.equals("softmax")) {
             a = new Softmax();
         } else if (name.equals("semi")) {
-            a = new Semi_Linear();
+            a = new SemiLinear();
         } else {
             a = new Activation();
         }

@@ -1,28 +1,16 @@
 package layer;
 
+/**
+ * This class models the rectified linear unit function.
+ */
 public class ReLu extends Activation {
-
-    public ReLu() {
-        name = "relu";
+    @Override
+    public double definition(double x) {
+        return x > 0 ? x : 0;
     }
 
-    public double def(double x) {
-
-        if (x > 0) {
-            return x;
-        } else {
-            return 0;
-        }
-
+    @Override
+    public double derivative(double x) {
+        return x > 0 ? 1 : 0;
     }
-
-    public double prime(double x) {
-        if (x > 0) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
-
 }

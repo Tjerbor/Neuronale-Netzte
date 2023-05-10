@@ -1,71 +1,60 @@
 package layer;
 
-import utils.Array_utils;
-
+/**
+ * This class is the superclass for all activation functions and models the identity function.
+ */
 public class Activation implements Layer {
     double[] input;
     double[][] inputs;
 
-    public double def(double x) {
-        return x;
-    }
+    /**
+     * This method multiplies the corresponding elements of the given arrays.
+     * It throws an exception if the arrays do not have the same length.
+     */
+    private static double[] multiply(double[] a, double[] b) {
+        if (a.length != b.length) {
+            throw new ArithmeticException("The arrays must have the same length.");
+        }
 
-    public double prime(double x) {
-        return 1;
+        double[] result = new double[a.length];
+
+        for (int i = 0; i < result.length; i++) {
+            result[i] = a[i] * b[i];
+        }
+
+        return result;
     }
 
     /**
-     * every Activation has the same methode but different def and prime function
-     *
-     * @param input
-     * @return
+     * This method multiplies the corresponding elements of the given arrays.
+     * It throws an exception if the arrays do not have the same length.
      */
-    @Override
-    public double[] forward(double[] input) {
-
-        this.input = input;
-
-        double out[] = new double[input.length];
-
-        for (int i = 0; i < input.length; i++) {
-            out[i] = this.def(input[i]);
+    private static double[][] multiply(double[][] a, double[][] b) {
+        if (a.length != b.length) {
+            throw new ArithmeticException("The arrays must have the same length.");
         }
-        return out;
+
+        double[][] result = new double[a.length][a[0].length];
+
+        for (int i = 0; i < result.length; i++) {
+            result[i] = multiply(a[i], b[i]);
+        }
+
+        return result;
     }
 
-    @Override
-    public double[][] forward(double[][] inputs) {
-
-
-        double[][] out = new double[inputs.length][inputs[0].length];
-
-        for (int i = 0; i < inputs.length; i++) {
-            for (int j = 0; j < inputs[0].length; j++) {
-                out[i][j] = this.def(inputs[i][j]);
-            }
-
-        }
-        this.inputs = inputs;
-
-        return out;
+    /**
+     * This method evaluates the activation function at the given point.
+     */
+    public double definition(double x) {
+        return x;
     }
 
-    @Override
-    public double[][] backward(double[][] dvalues, double learning_rate) {
-
-
-        double[][] outputs = new double[dvalues.length][dvalues[0].length];
-
-
-        for (int i = 0; i < dvalues.length; i++) {
-            for (int j = 0; j < dvalues[0].length; j++) {
-                outputs[i][j] = this.prime(dvalues[i][j]);
-            }
-
-
-            outputs = Array_utils.multiply2D(dvalues, outputs);
-        }
-        return outputs;
+    /**
+     * This method evaluates the derivative of the activation function at the given point.
+     */
+    public double derivative(double x) {
+        return 1;
     }
 
     @Override
@@ -79,42 +68,62 @@ public class Activation implements Layer {
     }
 
     @Override
-    public double[][] backward(double[][] dvalues) {
+    public double[] forward(double[] input) {
+        double[] output = new double[input.length];
 
-        double[][] outputs = new double[dvalues.length][dvalues[0].length];
+        for (int i = 0; i < input.length; i++) {
+            output[i] = definition(input[i]);
+        }
 
-        for (int i = 0; i < dvalues.length; i++) {
-            for (int j = 0; j < dvalues[0].length; j++) {
-                outputs[i][j] = this.prime(dvalues[i][j]);
+        return output;
+    }
+
+    @Override
+    public double[][] forward(double[][] inputs) {
+        double[][] output = new double[inputs.length][inputs[0].length];
+
+        for (int i = 0; i < inputs.length; i++) {
+            for (int j = 0; j < inputs[0].length; j++) {
+                output[i][j] = definition(inputs[i][j]);
+            }
+        }
+
+        return output;
+    }
+
+    @Override
+    public double[] backward(double[] input) {
+        double[] output = new double[input.length];
+
+        for (int i = 0; i < input.length; i++) {
+            output[i] = derivative(input[i]);
+        }
+
+        return multiply(input, output);
+    }
+
+    @Override
+    public double[] backward(double[] input, double learningRate) {
+        return backward(input);
+    }
+
+    @Override
+    public double[][] backward(double[][] inputs) {
+        double[][] outputs = new double[inputs.length][inputs[0].length];
+
+        for (int i = 0; i < inputs.length; i++) {
+            for (int j = 0; j < inputs[0].length; j++) {
+                outputs[i][j] = derivative(inputs[i][j]);
             }
 
-
-            outputs = Array_utils.multiply2D(dvalues, outputs);
+            outputs = multiply(inputs, outputs);
         }
+
         return outputs;
     }
 
     @Override
-    public double[] backward(double[] dvalue, double learning_rate) {
-
-        double out[] = new double[dvalue.length];
-        for (int i = 0; i < dvalue.length; i++) {
-            out[i] = this.prime(dvalue[i]);
-        }
-
-
-        out = Array_utils.multiply1D(dvalue, out);
-        return out;
-    }
-
-    @Override
-    public double[] backward(double[] dvalue) {
-        double out[] = new double[dvalue.length];
-        for (int i = 0; i < dvalue.length; i++) {
-            dvalue[i] = this.prime(dvalue[i]);
-        }
-
-        out = Array_utils.multiply1D(dvalue, out);
-        return out;
+    public double[][] backward(double[][] inputs, double learningRate) {
+        return backward(inputs);
     }
 }
