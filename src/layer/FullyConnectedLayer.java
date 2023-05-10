@@ -37,11 +37,16 @@ public class FullyConnectedLayer implements Layer {
 
     /**
      * This constructor creates a fully connected layer with the given number of neurons of the two layers it models.
+     * It throws an exception if either layer has a length that is less than <code>1</code>.
      */
     public FullyConnectedLayer(int a, int b) {
+        if (a < 1 || b < 1) {
+            throw new IllegalArgumentException("Each layer must contain at least one neuron.");
+        }
+
         weights = new double[a][];
 
-        for (int i = 0; i < b; i++) {
+        for (int i = 0; i < a; i++) {
             weights[i] = random(b);
         }
 
