@@ -5,14 +5,26 @@ import utils.Utils;
 
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * This class models a fully connected layer of the neural network.
- * Each fully connected layer represents two layers of neurons.
+ * Each fully connected layer represents two layers of neurons or one edge layer.
  *
  * @see main.NeuralNetwork#create(int[], String)
  */
 public class FullyConnectedLayer implements Layer {
+    private static final Random random = new Random();
+
+    /**
+     * This variable contains the weights of the layer.
+     */
+    private double[][] weights;
+    /**
+     * This variable contains the biases of the layer.
+     */
+    private double[] biases;
+
     private double[][] dweights; // gradients of weights needed if the optimizer is set.
     private double[][] momentum_weights; // gradients of weights needed if the optimizer is set.
     private double[][] momentum_biases; // gradients of weights needed if the optimizer is set.
@@ -21,35 +33,58 @@ public class FullyConnectedLayer implements Layer {
     private double[][] inputs; //needed for backpropagation with batch input.
     private double[] input; //needed for backpropagation with Single Input.
     private double BIAS_PRIME = 0;
-    private double[][] weights; //weights of layer.
-    private double[] biases; //biases of layer.
     private double[] dbiases; //biases of layer.
 
-    public FullyConnectedLayer(int n_input, int n_neurons) {
-        weights = Utils.genRandomWeights(n_input, n_neurons);
-        biases = Utils.genRandomWeights(n_neurons);
-        input = new double[n_input];
-        inputs = new double[n_input][n_input];
+    /**
+     * This constructor creates a fully connected layer with the given number of neurons of the two layers it models.
+     */
+    public FullyConnectedLayer(int a, int b) {
+        weights = new double[a][];
+
+        for (int i = 0; i < b; i++) {
+            weights[i] = random(b);
+        }
+
+        biases = random(b);
     }
 
     /**
-     * returns the biases at the end of the weights.
-     *
-     * @return weights+biases
+     * This method returns an array of random values between <code>-1</code> and <code>1</code>.
+     */
+    private static double[] random(int length) {
+        return random.doubles(length, -1, 1).toArray();
+    }
+
+    /**
+     * This method returns the weights of the layer, including the bias nodes.
      */
     @Override
     public double[][] getWeights() {
-        double[][] w;
+        double[][] result = Arrays.copyOf(weights, weights.length + 1);
 
-        w = Arrays.copyOf(weights, weights.length + 1);
-        w[w.length - 1] = biases;
-        return w;
+        result[result.length - 1] = biases;
+
+        return result;
+    }
+
+    /**
+     * This method sets the weights of the layer, including the bias nodes.
+     * It throws an exception if the array does not have the correct length.
+     */
+    @Override
+    public void setWeights(double[][] weights) {
+        if (weights.length != this.weights.length + 1) {
+            throw new IllegalArgumentException("The array does not have the correct length.");
+        }
+
+        this.weights = Arrays.copyOf(weights, weights.length - 1);
+
+        biases = weights[weights.length - 1];
     }
 
     @Override
-    public void setWeights(double[][] weights) {
-        this.weights = Utils.split_for_weights(weights);
-        this.biases = Utils.split_for_biases(weights);
+    public int parameters() {
+        return weights.length * weights[0].length + weights[0].length;
     }
 
     public double[][] addPRIME_BIAS(double[][] in) {

@@ -180,7 +180,9 @@ public class NeuralNetwork {
     public int parameters() {
         int parameters = 0;
 
-        // TODO
+        for (int i = 0; i < layers.length; i += 2) {
+            parameters += layers[i].parameters();
+        }
 
         return parameters;
     }

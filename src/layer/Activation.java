@@ -57,14 +57,25 @@ public class Activation implements Layer {
         return 1;
     }
 
+    /**
+     * This method throws an {@link UnsupportedOperationException}.
+     */
     @Override
     public double[][] getWeights() {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * This method throws an {@link UnsupportedOperationException}.
+     */
     @Override
     public void setWeights(double[][] weights) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int parameters() {
+        return 0;
     }
 
     @Override

@@ -287,29 +287,6 @@ public class Utils {
     }
 
     /**
-     * die Biases are on the last index.
-     *
-     * @param a weights as input.
-     * @return Biases
-     */
-    public static double[] split_for_biases(double[][] a) {
-        return a[a.length - 1];
-    }
-
-    /**
-     * takes every dimension but the last one. Because the last dim stores baises.
-     *
-     * @param a input weights.
-     * @return weighst.
-     */
-    public static double[][] split_for_weights(double[][] a) {
-        double[][] weights;
-
-        weights = Arrays.copyOf(a, a.length - 1);
-        return weights;
-    }
-
-    /**
      * Forward Pas for the 1 layer.
      *
      * @param inputs  inputs of the layer.

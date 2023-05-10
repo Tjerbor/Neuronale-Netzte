@@ -7,15 +7,14 @@ package layer;
  * @see layer.Activation
  */
 public interface Layer {
-    /**
-     * This method returns the weights of the layer.
-     */
     double[][] getWeights();
 
-    /**
-     * This method sets the weights of the layer.
-     */
     void setWeights(double[][] weights);
+
+    /**
+     * This method returns the number of parameters of the layer.
+     */
+    int parameters();
 
     /**
      * This method calculates a forward pass with the given input.
