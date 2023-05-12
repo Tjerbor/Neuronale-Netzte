@@ -29,6 +29,60 @@ public class Utils {
         return c;
     }
 
+
+    public static void cal_matrix_mult_scalar(double[][] a, double scalar) {
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                a[i][j] *= scalar;
+            }
+        }
+
+
+    }
+
+    public static void cal_matrix_minus_scalar(double[][] a, double scalar) {
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                a[i][j] -= scalar;
+            }
+        }
+
+
+    }
+
+    public static void addMatrix(double[][] a, double[][] b) {
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                a[i][j] += b[i][j];
+            }
+        }
+    }
+
+
+    public static void cal_baisesMomentum(double[] momentumB, double[] dBiases, double learningRate) {
+
+        for (int i = 0; i < dBiases.length; i++) {
+            momentumB[i] = momentum * momentumB[i] - dBiases[i] * learningRate;
+        }
+
+    }
+
+
+    public static void cal_momentumW_minus_dweights(double[][] MomentumW, double[][] dweights, double learningRate) {
+
+        Utils.cal_matrix_mult_scalar(dweights, learningRate);
+
+        for (int i = 0; i < MomentumW.length; i++) {
+            for (int j = 0; j < MomentumW[0].length; j++) {
+                MomentumW[i][j] -= dweights[i][j];
+            }
+        }
+    }
+
+
     /**
      * adds biases to the output of the NN.
      * used for forward-Pass
