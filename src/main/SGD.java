@@ -62,6 +62,12 @@ public class SGD implements Optimizer {
 
         if (this.momentum != 0) {
 
+
+            if (l.getMomentumWeights() != null) {
+                l.aktivateMomentum();
+
+            }
+
             Utils.cal_matrix_mult_scalar(l.getMomentumWeights(), this.momentum);
             Utils.cal_momentumW_minus_dweights(l.getMomentumWeights(), l.getDeltaWeights(), this.current_learning_rate);
 

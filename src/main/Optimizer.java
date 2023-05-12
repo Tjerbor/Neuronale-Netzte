@@ -4,7 +4,6 @@ import layer.Layer;
 
 public interface Optimizer {
 
-
     default void pre_epoch() {
     }
 

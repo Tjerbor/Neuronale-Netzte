@@ -7,6 +7,11 @@ package layer;
  * @see layer.Activation
  */
 public interface Layer {
+    /**
+     * initialize the Momentum weights and Biases with zeros.
+     */
+    aktivateMomentum();
+
     double[][] getWeights();
 
     void setWeights(double[][] weights);

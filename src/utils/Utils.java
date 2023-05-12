@@ -62,10 +62,18 @@ public class Utils {
     }
 
 
-    public static void cal_baisesMomentum(double[] momentumB, double[] dBiases, double learningRate) {
+    /**
+     * calculates the new momentum Biases to update the weights.
+     *
+     * @param momentumBiases
+     * @param dBiases
+     * @param learningRate
+     * @param momentum
+     */
+    public static void cal_baisesMomentum(double[] momentumBiases, double[] dBiases, double learningRate, double momentum) {
 
         for (int i = 0; i < dBiases.length; i++) {
-            momentumB[i] = momentum * momentumB[i] - dBiases[i] * learningRate;
+            momentumBiases[i] = momentum * momentumBiases[i] - dBiases[i] * learningRate;
         }
 
     }
@@ -98,25 +106,6 @@ public class Utils {
         for (int i = 0; i < inputs.length; i++) {
             for (int j = 0; j < inputs[0].length; j++) {
                 output[i] += inputs[i][j] * biases[j];
-            }
-        }
-
-        return output;
-
-    }
-
-    /**
-     * function calculates Dot-Produkt. with single Bias value.
-     *
-     * @param inputs -> look up
-     * @param biases -> constant bias
-     * @return
-     */
-    public static double[] dotProdukt_1D(double[][] inputs, double biases) {
-        double[] output = new double[inputs[0].length];
-        for (int i = 0; i < inputs.length; i++) {
-            for (int j = 0; j < inputs[0].length; j++) {
-                output[j] += inputs[i][j] * biases;
             }
         }
 

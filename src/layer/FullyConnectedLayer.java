@@ -26,8 +26,8 @@ public class FullyConnectedLayer implements Layer {
     private double[] biases;
 
     private double[][] dweights; // gradients of weights needed if the optimizer is set.
-    private double[][] momentum_weights; // gradients of weights needed if the optimizer is set.
-    private double[] momentum_biases; // gradients of weights needed if the optimizer is set.
+    private double[][] momentumWeights; // gradients of weights needed if the optimizer is set.
+    private double[] momentumBiases; // gradients of weights needed if the optimizer is set.
     private double[][] dinputs;
     private double[] dinput;
     private double[][] inputs; //needed for backpropagation with batch input.
@@ -61,11 +61,23 @@ public class FullyConnectedLayer implements Layer {
     }
 
 
-    public double[][] getMomentum_weights() {
-        return this.momentum_weights;
+    /**
+     * This method gets no input because the shape of the Momentum weights is the same as weights.
+     * This method is only called to initialize the Momentum-Weights.
+     */
+    public void aktivateMomentum() {
+        this.momentumWeights = new double[this.weights.length][this.weights[0].length];
+        this.momentumBiases = new double[this.biases.length];
+        Arrays.fill(momentumBiases, 0);
+        Arrays.fill(momentumWeights[0], 0);
+
     }
 
-    public double[][] getDeltaweights() {
+    public double[][] getMomentumWeights() {
+        return this.momentumWeights;
+    }
+
+    public double[][] getDeltaWeights() {
         return this.dweights;
     }
 
@@ -73,12 +85,12 @@ public class FullyConnectedLayer implements Layer {
         return this.biases;
     }
 
-    public double[] getDeltabiases() {
+    public double[] getDeltaBiases() {
         return this.dbiases;
     }
 
     public double[] getMomentumBiases() {
-        return this.momentum_biases;
+        return this.momentumBiases;
 
     }
 
@@ -112,32 +124,6 @@ public class FullyConnectedLayer implements Layer {
     @Override
     public int parameters() {
         return weights.length * weights[0].length + weights[0].length;
-    }
-
-    public double[][] addPRIME_BIAS(double[][] in) {
-        double[][] out = new double[in.length][in[0].length + 1];
-        for (int i = 0; i < in.length; i++) {
-            for (int j = 0; j < in[0].length; j++) {
-                out[i][j] = in[i][j];
-            }
-        }
-
-        for (int i = 0; i < in.length; i++) {
-            out[i][in.length] = this.BIAS_PRIME;
-        }
-        return out;
-    }
-
-    public double[] addPRIME_BIAS(double[] in) {
-        double[] out = new double[in.length + 1];
-        for (int i = 0; i < in.length; i++) {
-            out[i] = in[i];
-        }
-
-        for (int i = 0; i < in.length; i++) {
-            out[in.length] = this.BIAS_PRIME;
-        }
-        return out;
     }
 
     @Override
@@ -198,10 +184,17 @@ public class FullyConnectedLayer implements Layer {
 
     }
 
-    // TODO
+
     @Override
-    public double[][] backward(double[][] inputs) {
-        return new double[0][];
+    public double[][] backward(double[][] output_gradient) {
+
+        double[][] t_inputs = Utils.tranpose(this.inputs);
+        dweights = Utils.matmul2D(t_inputs, output_gradient);
+        double[][] t_w = Utils.tranpose(this.weights);
+        this.dinputs = Utils.matmul2D((output_gradient), t_w);
+        this.dbiases = Utils.sumBiases(output_gradient);
+
+        return this.dinputs;
     }
 
     /**
