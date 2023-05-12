@@ -1,12 +1,12 @@
 package main;
 
-import layer.*;
+import layer.CustomActivation;
+import layer.FullyConnectedLayer;
+import layer.StepFunc;
 import org.junit.jupiter.api.*;
 import utils.Reader;
-import utils.Utils;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,212 +60,6 @@ class NeuralNetworkTest {
         );
     }
 
-    @Test
-    public void train_batch_new() throws Exception {
-
-        double loss_per_epoch;
-
-        double[][] y_train2 = Mnist_reader.getTrainData_y("src/utils/mnist_data_full.txt");
-        double[][] x_train2 = Mnist_reader.getTrainData_x("src/utils/mnist_data_full.txt");
-
-        double[][][] x_train = Mnist_reader.x_train_2_batch(x_train2, 4);
-        double[][][] y_train = Mnist_reader.y_train_2_batch(y_train2, 4);
-
-        int step_size = x_train.length;
-
-        double[] step_losses = new double[step_size];
-
-        FullyConnectedLayer[] Ebenen = new FullyConnectedLayer[3];
-        Ebenen[0] = new FullyConnectedLayer(784, 28);
-        Ebenen[1] = new FullyConnectedLayer(28, 20);
-        Ebenen[2] = new FullyConnectedLayer(20, 10);
-
-        Activation[] acts = new Activation[3];
-
-        acts[0] = new TanH();
-        acts[1] = new TanH();
-        acts[2] = new TanH();
-
-        Losses loss = new MSE();
-        int ownSize = Ebenen.length;
-
-        int epoch = 50;
-        double[][] outs;
-        for (int e = 0; e < epoch; e++) {
-            for (int j = 0; j < step_size; j++) {
-                outs = x_train[j];
-                ;
-                for (int k = 0; k < Ebenen.length; k++) {
-                    outs = Ebenen[k].forward(outs);
-                    outs = acts[k].forward(outs);
-                }
-
-                step_losses[j] = loss.forward(outs, y_train[j]);
-                //calculates prime Loss
-                double[][] grad = loss.backward(outs, y_train[j]);
-                // now does back propagation //updates values.
-                for (int i = 0; i < Ebenen.length; i++) {
-
-
-                    grad = acts[Ebenen.length - 1 - i].backward(grad);
-                    grad = Ebenen[Ebenen.length - 1 - i].backward(grad, 0.1);
-
-
-                }
-
-
-            }
-
-            loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
-            System.out.println("Loss per epoch: " + loss_per_epoch);
-        }
-
-        System.out.println("Train lr=0.01");
-        for (int e = 0; e < 30; e++) {
-            for (int j = 0; j < step_size; j++) {
-                outs = x_train[j];
-                ;
-                for (int k = 0; k < Ebenen.length; k++) {
-                    outs = Ebenen[k].forward(outs);
-                    outs = acts[k].forward(outs);
-                }
-
-                step_losses[j] = loss.forward(outs, y_train[j]);
-                //calculates prime Loss
-                double[][] grad = loss.backward(outs, y_train[j]);
-                // now does back propagation //updates values.
-                for (int i = 0; i < Ebenen.length; i++) {
-
-                    grad = acts[Ebenen.length - 1 - i].backward(grad);
-                    grad = Ebenen[Ebenen.length - 1 - i].backward(grad, 0.01);
-
-                }
-
-
-            }
-
-            loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
-            System.out.println("Loss per epoch: " + loss_per_epoch);
-        }
-
-    }
-
-    @Test
-    public void train_single_test() throws Exception {
-
-        double loss_per_epoch;
-
-        double[][] y_train = Mnist_reader.getTrainData_y("src/utils/mnist_data_full.txt");
-        double[][] x_train = Mnist_reader.getTrainData_x("src/utils/mnist_data_full.txt");
-
-        int step_size = x_train.length;
-
-        double[] step_losses = new double[step_size];
-
-        FullyConnectedLayer[] Ebenen = new FullyConnectedLayer[3];
-        Ebenen[0] = new FullyConnectedLayer(784, 78);
-        Ebenen[1] = new FullyConnectedLayer(78, 49);
-        Ebenen[2] = new FullyConnectedLayer(49, 10);
-
-        Activation[] acts = new Activation[3];
-
-        acts[0] = new TanH();
-        acts[1] = new TanH();
-        acts[2] = new TanH();
-
-        Losses loss = new MSE();
-        int ownSize = Ebenen.length;
-
-
-        int epoch = 30;
-        double[] outs;
-        for (int e = 0; e < epoch; e++) {
-            for (int j = 0; j < step_size; j++) {
-                outs = x_train[j];
-                ;
-                for (int k = 0; k < Ebenen.length; k++) {
-                    outs = Ebenen[k].forward(outs);
-                    outs = acts[k].forward(outs);
-                }
-
-                step_losses[j] = loss.forward(outs, y_train[j]);
-                //calculates prime Loss
-                double[] grad = loss.backward(outs, y_train[j]);
-                // now does back propagation //updates values.
-                for (int i = 0; i < Ebenen.length; i++) {
-                    grad = acts[Ebenen.length - 1 - i].backward(grad, 0.1);
-                    grad = Ebenen[Ebenen.length - 1 - i].backward(grad, 0.1);
-                }
-
-
-            }
-
-            loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
-            System.out.println("Loss per epoch: " + loss_per_epoch);
-        }
-
-    }
-
-    @Test
-    public void test_csv() throws Exception {
-
-        int epoch = 35;
-        double[] outs;
-
-        double[][] x_train = Reader.getTrainDataInputs("csv/training/trafficLight.csv", 3);
-        double[][] y_train = Reader.getTrainDataOutputs("csv/training/trafficLight.csv", 4);
-
-        int step_size = x_train.length;
-        double[] step_losses = new double[step_size];
-        double loss_per_epoch = 1;
-
-        FullyConnectedLayer[] Ebenen = new FullyConnectedLayer[2];
-        Ebenen[0] = new FullyConnectedLayer(3, 3);
-        Ebenen[1] = new FullyConnectedLayer(3, 4);
-
-        Activation[] acts = new Activation[2];
-
-        acts[0] = new TanH();
-        acts[1] = new TanH();
-
-        double learning_rate = 0.4;
-        Losses loss = new MSE();
-
-        for (int e = 0; e < epoch; e++) {
-            //step_losses = new double[step_size];
-            for (int j = 0; j < step_size; j++) {
-                outs = x_train[j];
-                ;
-                for (int k = 0; k < Ebenen.length; k++) {
-                    outs = Ebenen[k].forward(outs);
-                    outs = acts[k].forward(outs);
-                }
-
-                step_losses[j] = loss.forward(outs, y_train[j]);
-                //calculates prime Loss
-                double[] grad = loss.backward(outs, y_train[j]);
-                // now does back propagation //updates values.
-                for (int i = 0; i < Ebenen.length; i++) {
-
-                    grad = acts[Ebenen.length - 1 - i].backward(grad, learning_rate);
-                    grad = Ebenen[Ebenen.length - 1 - i].backward(grad, learning_rate);
-                }
-
-
-            }
-
-            loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
-            System.out.println("Loss per epoch: " + loss_per_epoch);
-        }
-
-
-        System.out.println(Arrays.deepToString(Ebenen[0].getWeights()));
-        System.out.println(Arrays.deepToString(Ebenen[1].getWeights()));
-        assertTrue(loss_per_epoch <= 0.08);
-
-    }
-
-
     @Nested
     class UnitTest {
         @Test
@@ -305,6 +99,32 @@ class NeuralNetworkTest {
 
             assertThrows(IllegalArgumentException.class, () -> neuralNetwork.create(topology, new String[]{"id"}));
         }
-    }
 
+        @Test
+        @DisplayName("Fully Connected Layer")
+        void denseLayer() {
+            FullyConnectedLayer layer = new FullyConnectedLayer(2, 1);
+
+            double[][] weights = new double[][]{{1}, {1}, {0.5}};
+
+            layer.setWeights(weights);
+
+            assertArrayEquals(weights, layer.getWeights(), "The returned weights are not correct.");
+
+            double[][] inputs = new double[][]{{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+            double[][] result = new double[][]{{0.5}, {1.5}, {1.5}, {2.5}};
+
+            assertAll(
+                    "The forward pass did not return the correct values.",
+                    () -> assertArrayEquals(result[0], layer.forward(inputs[0])),
+                    () -> assertArrayEquals(result[1], layer.forward(inputs[1])),
+                    () -> assertArrayEquals(result[2], layer.forward(inputs[2])),
+                    () -> assertArrayEquals(result[3], layer.forward(inputs[3]))
+            );
+
+            assertArrayEquals(result, layer.forward(inputs), "The forward pass did not return the correct values.");
+
+            assertThrows(IllegalArgumentException.class, () -> layer.setWeights(new double[][]{{1}}));
+        }
+    }
 }

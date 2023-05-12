@@ -339,10 +339,6 @@ public class NeuralNetwork {
                 // now does back propagation
                 this.computeAllBackward(outs);
 
-                //updates values.
-                for (int k = 0; k < size(); k += 2) {
-                    this.optimizer.calculate(layers[k]);
-                }
 
             }
             loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
@@ -469,12 +465,16 @@ public class NeuralNetwork {
      */
     @Override
     public String toString() {
-        String s = "";
+        StringBuilder s = new StringBuilder();
 
-        s += "Topology: " + Arrays.toString(topology()) + "\n";
+        s.append("Topology: ").append(Arrays.toString(topology())).append("\n");
 
-        s += "Parameters: " + parameters() + "\n";
+        for (int i = 0; i < layers.length; i += 2) {
+            s.append("Weights of Layer ").append(i / 2).append(":\n").append(layers[i]).append("\n");
+        }
 
-        return s;
+        s.append("Parameters: ").append(parameters()).append("\n");
+
+        return s.toString();
     }
 }

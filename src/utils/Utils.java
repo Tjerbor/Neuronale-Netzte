@@ -2,81 +2,11 @@ package utils;
 
 import layer.*;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.Arrays;
 import java.util.Random;
 
 public class Utils {
-
-
     static Random r = new Random(); //random to generate missing weights.
-
-
-    /**
-     * add biases to teh batch output.
-     *
-     * @param inputs output from calculated weights x batch_input.
-     * @param bias   biases of layer
-     * @return gibt die inputs plus addierten bias zurück.
-     */
-    public static double[][] add_biases(double[][] inputs, double[] bias) {
-        double[][] out = new double[inputs.length][inputs[0].length];
-
-
-        for (int i = 0; i < inputs.length; i++) {
-            for (int j = 0; j < inputs[0].length; j++) {
-                out[i][j] += inputs[i][j] + bias[j];
-            }
-
-        }
-
-        return out;
-
-    }
-
-    /**
-     * add biases to teh batch output.
-     *
-     * @param inputs output from calculated weights x batch_input.
-     * @param bias   constant bias.
-     * @return
-     */
-    public static double[][] add_biases(double[][] inputs, double bias) {
-        double[][] out = new double[inputs.length][inputs[0].length];
-
-        for (int i = 0; i < inputs.length; i++) {
-            for (int j = 0; j < inputs[0].length; j++) {
-                out[i][j] += inputs[i][j] + bias;
-            }
-
-        }
-
-        return out;
-
-    }
-
-    /**
-     * added bias for single computed input.
-     *
-     * @param inputs input -> calculated through weights x input
-     * @param bias   biases of layer.
-     * @return
-     */
-    public static double[] add_bias(double[] inputs, double[] bias) {
-
-        for (int i = 0; i < bias.length; i++) {
-            inputs[i] += bias[i];
-        }
-        return inputs;
-    }
-
-    public static double[] add_bias(double[] inputs, double bias) {
-        for (int i = 0; i < inputs.length; i++) {
-            inputs[i] += bias;
-        }
-        return inputs;
-    }
 
     /**
      * Tranpose a given 2D array.
@@ -107,8 +37,6 @@ public class Utils {
      * @param biases -> Biases of Layer.
      * @return
      */
-
-
     public static double[] dotProdukt_1D(double[][] inputs, double[] biases) {
 
 
@@ -123,25 +51,6 @@ public class Utils {
 
     }
 
-    public static double[] matmul2d_1d(double[][] wT, double[] input) {
-
-        //System.out.println(Arrays.deepToString(wT));
-        //System.out.println(wT.length);
-
-        double[] out = new double[wT.length];
-        //System.out.println(Arrays.toString(input));
-        for (int e = 0; e < wT.length; e++) {
-            for (int x = 0; x < wT[0].length; x++) {
-                for (int j = 0; j < 1; j++) {
-                    out[e] += wT[e][x] * input[x];
-                }
-            }
-        }
-        //System.out.println(Arrays.toString(out));
-        return out;
-    }
-
-
     /**
      * function calculates Dot-Produkt. with single Bias value.
      *
@@ -149,7 +58,6 @@ public class Utils {
      * @param biases -> constant bias
      * @return
      */
-
     public static double[] dotProdukt_1D(double[][] inputs, double biases) {
         double[] output = new double[inputs[0].length];
         for (int i = 0; i < inputs.length; i++) {
@@ -189,25 +97,6 @@ public class Utils {
     }
 
     /**
-     * Berechnet die neuen Biases werte.
-     *
-     * @param biases          -> Biases at the time.
-     * @param output_gradient -> calculates gradient of Biases. (Sum of delta-Inputs)
-     * @param learning_rate   -> paramtere decides how strong the Network learnt.
-     * @return the new biases value.
-     */
-    public static double[] updateBiases(double[] biases, double[] output_gradient, double learning_rate) {
-
-
-        for (int i = 0; i < biases.length; i++) {
-            biases[i] = biases[i] - (learning_rate * output_gradient[i]);
-        }
-
-
-        return biases;
-    }
-
-    /**
      * calculates 2 1D-Arrays with each other.
      * normal matrix-multiplikation
      *
@@ -242,30 +131,6 @@ public class Utils {
     }
 
     /**
-     * updates the weight of the NN.
-     *
-     * @param weights         actuell weights of the layer.
-     * @param output_gradient -> output gradient of the layer.
-     * @param learning_rate   -> paramter decides how strong the NN learns. or layer, could change
-     *                        for every layer.
-     * @return
-     */
-
-    public static double[][] updateWeights(double[][] weights, double[][] output_gradient, double learning_rate) {
-
-
-        for (int i = 0; i < weights.length; i++) {
-            for (int j = 0; j < weights[1].length; j++) {
-                weights[i][j] = weights[i][j] - (learning_rate * output_gradient[i][j]);
-            }
-
-        }
-
-
-        return weights;
-    }
-
-    /**
      * needed for Backpropagation to update the biases.
      * sum up delat values.
      *
@@ -284,165 +149,6 @@ public class Utils {
         }
 
         return a;
-    }
-
-    /**
-     * Forward Pas for the 1 layer.
-     *
-     * @param inputs  inputs of the layer.
-     * @param weights weights of the layer.
-     * @param biases  biases of the layer
-     * @return computed output
-     * @throws Exception if matmul got a mismatching Shape.
-     */
-    public static double[][] doForward(double[][] inputs, double[][] weights, double[] biases) {
-
-        double[][] outputs;
-        outputs = Utils.matmul2D(inputs, weights);
-        outputs = Utils.add_biases(outputs, biases);
-        return outputs;
-
-
-    }
-
-    /**
-     * Forward Pas for the 1 layer.
-     *
-     * @param inputs  inputs of the layer.
-     * @param weights weights of the layer.
-     * @param biases  constant biases of the layer
-     * @return computed output
-     * @throws Exception if matmul got a mismatching Shape.
-     */
-    public static double[][] doForward(double[][] inputs, double[][] weights, double biases) {
-
-
-        double[][] outputs;
-        outputs = Utils.matmul2D(inputs, weights);
-        outputs = Utils.add_biases(outputs, biases);
-        return outputs;
-
-
-    }
-
-    /**
-     * Forward Pas for the 1 layer.
-     *
-     * @param input   Single input of the layer.
-     * @param weights weights of the layer.
-     * @param biases  constant biases of the layer
-     * @return computed output
-     * @throws Exception if matmul got a mismatching Shape.
-     */
-    public static double[] doForward(double[] input, double[][] weights, double[] biases) {
-        double[] output = new double[input.length];
-        output = Utils.dotProdukt_1D(Utils.tranpose(weights), input);
-        output = Utils.add_bias(output, biases);
-
-        return output;
-
-    }
-
-    /**
-     * Forward Pas for the 1 layer.
-     *
-     * @param input   Single input of the layer.
-     * @param weights weights of the layer.
-     * @param biases  constant biases of the layer
-     * @return computed output
-     * @throws Exception if matmul got a mismatching Shape.
-     */
-    public static double[] doForward(double[] input, double[][] weights, double biases) {
-        double[] output = new double[input.length];
-        output = Utils.dotProdukt_1D(Utils.tranpose(weights), input);
-        output = Utils.add_bias(output, biases);
-
-        return output;
-
-    }
-
-    /**
-     * creates a string of the weights and biases
-     *
-     * @param w weights of the layer.
-     * @param b biases of the layer.
-     * @return the String
-     */
-    public static String weightsAndBiases_toString(double[][] w, double[] b) {
-        String s_out = "Biases: [";
-        for (int k = 0; k < b.length; k++) {
-            s_out += String.valueOf(b[k]);
-        }
-        s_out += "]\n";
-
-
-        s_out += "weights:\n[";
-        for (int i = 0; i < w.length; i++) {
-            s_out += "[";
-            for (int j = 0; j < w[0].length; j++) {
-                s_out += String.valueOf(w[i][j]);
-                if (j < w[0].length - 1) {
-                    s_out += ", ";
-                }
-
-            }
-            if (i < w.length - 1) {
-                s_out += "],\n";
-            } else {
-                s_out += "]";
-            }
-
-
-        }
-        return s_out + "]\n";
-    }
-
-    /**
-     * creates a string of the weights and biases
-     *
-     * @param w       weights of the layer.
-     * @param b       biases of the layer.
-     * @param oneBias has only One bias value so do not need to print other values of layer.
-     * @return the String
-     */
-    public static String weightsAndBiases_toString(double[][] w, double[] b, boolean oneBias) {
-        String s_out;
-        if (oneBias) {
-            s_out = "Biases: [" + String.valueOf(b[0]) + "]\n";
-        } else {
-            s_out = "Biases: [";
-            for (int k = 0; k < b.length; k++) {
-                if (k < b.length - 1) {
-                    s_out += String.valueOf(b[k]) + ", ";
-                } else {
-                    s_out += String.valueOf(b[k]);
-                }
-
-            }
-            s_out += "]\n";
-        }
-
-
-        s_out += "weights:\n[";
-        for (int i = 0; i < w.length; i++) {
-            s_out += "[";
-            for (int j = 0; j < w[0].length; j++) {
-                s_out += String.valueOf(w[i][j]);
-                if (j < w[0].length - 1) {
-                    s_out += ", ";
-                }
-
-            }
-            if (i < w.length - 1) {
-                s_out += "],\n";
-            } else {
-                s_out += "]";
-            }
-
-
-        }
-
-        return s_out + "]\n";
     }
 
     /**
@@ -468,17 +174,6 @@ public class Utils {
 
         return c;
     }
-
-    public static double[] genRandomWeights(int size1) {
-
-        double[] c = new double[size1];
-
-        for (int i = 0; i < size1; i++) {
-            c[i] = genRandomWeight();
-        }
-        return c;
-    }
-
 
     public static double sumUpLoss(double[][] losses) {
         double l_out = 0;
@@ -712,64 +407,4 @@ public class Utils {
 
         return w;
     }
-
-    public static void printMatrix(double[][] a) {
-
-        for (int i = 0; i < a.length; i++) {
-            for (int k = 0; k < a[0].length; k++) {
-                System.out.print(String.valueOf(a[i][k] + " "));
-                if (k == a[0].length - 1) {
-                    System.out.print("\n");
-                }
-            }
-        }
-    }
-
-    public static double[][][] read_own_weights(String fpath) {
-
-        try {
-            String line;
-            BufferedReader br = new BufferedReader(new FileReader(fpath));
-
-            // Condition holds true till
-            // there is character in a string
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split("\t");
-                values = values[1].split(";");
-
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-
-
-        return null;
-    }
-
-    public static String weightsAndBiases_export(double[][] w, double[] b) {
-        String s_out = "";
-        for (int i = 0; i < w.length; i++) {
-            for (int j = 0; j < w[0].length; j++) {
-                s_out += String.valueOf(w[i][j]);
-                if (j < w[0].length - 1) {
-                    s_out += ";";
-                }
-            }
-            s_out += "\n";
-        }
-        for (int k = 0; k < b.length; k++) {
-            if (k < b.length - 1) {
-                s_out += String.valueOf(b[k]) + ";";
-            } else {
-                s_out += String.valueOf(b[k]);
-            }
-
-        }
-        return s_out + "\n";
-    }
-
-
 }
-
-
-

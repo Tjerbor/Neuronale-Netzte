@@ -37,6 +37,7 @@ public class FullyConnectedLayer implements Layer {
 
     /**
      * This constructor creates a fully connected layer with the given number of neurons of the two layers it models.
+     * It adds a bias neuron and initializes the weights with random values between <code>-1</code> and <code>1</code>.
      * It throws an exception if either layer has a length that is less than <code>1</code>.
      */
     public FullyConnectedLayer(int a, int b) {
@@ -79,7 +80,7 @@ public class FullyConnectedLayer implements Layer {
     @Override
     public void setWeights(double[][] weights) {
         if (weights.length != this.weights.length + 1) {
-            throw new IllegalArgumentException("The array does not have the correct length.");
+            throw new IllegalArgumentException("The array must have the correct length.");
         }
 
         this.weights = Arrays.copyOf(weights, weights.length - 1);
@@ -118,41 +119,36 @@ public class FullyConnectedLayer implements Layer {
         return out;
     }
 
-    /**
-     * Forward Pas for the layer.
-     *
-     * @param inputs inputs of the layer.
-     * @return computed output
-     */
-    @Override
-    public double[][] forward(double[][] inputs) {
-        this.inputs = inputs;
-        double[][] outputs;
-        outputs = Utils.matmul2D(inputs, this.weights);
-        outputs = Utils.add_biases(outputs, biases);
-        return outputs;
-
-    }
-
-    /**
-     * Forward Pas for the 1 layer.
-     *
-     * @param input Single input of the layer.
-     * @return computed output
-     */
     @Override
     public double[] forward(double[] input) {
-        this.input = input;
+        double[] result = new double[weights[0].length];
 
-        double[] output;
-        double[][] weightsT = this.weights;
+        for (int i = 0; i < weights[0].length; i++) {
+            for (int j = 0; j < weights.length; j++) {
+                result[i] += input[j] * weights[j][i];
+            }
 
-        weightsT = Utils.tranpose(weightsT);
+            result[i] += biases[i];
+        }
 
-        output = Utils.matmul2d_1d(weightsT, input);
-        output = Utils.add_bias(output, biases);
-        return output;
+        return result;
+    }
 
+    @Override
+    public double[][] forward(double[][] inputs) {
+        double[][] result = new double[inputs.length][weights[0].length];
+
+        for (int i = 0; i < inputs.length; i++) {
+            for (int j = 0; j < weights[0].length; j++) {
+                for (int k = 0; k < weights.length; k++) {
+                    result[i][j] += inputs[i][k] * weights[k][j];
+                }
+
+                result[i][j] += biases[j];
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -264,5 +260,19 @@ public class FullyConnectedLayer implements Layer {
         }
 
 
+    }
+
+    /**
+     * This method returns a string containing the weights of the fully connected layer.
+     */
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder(Arrays.toString(weights[0]));
+
+        for (int i = 1; i < weights.length; i++) {
+            s.append("\n").append(Arrays.toString(weights[i]));
+        }
+
+        return s.toString();
     }
 }

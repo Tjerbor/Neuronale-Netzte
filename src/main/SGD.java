@@ -1,17 +1,11 @@
 package main;
 
-import layer.Layer;
-import utils.Utils;
-
-
 /**
  * is not really implemented. Shall be in the future.
  * He calculates the updated Weights with either options such as decay and momentum
  * or uses vanilla gradient. which is just learning rate.
  */
 public class SGD {
-
-
     double learning_rate;
     double current_learning_rate;
     double momentum;
@@ -35,7 +29,6 @@ public class SGD {
         this.current_learning_rate = learning_rate;
     }
 
-
     // sets new learning_rate if decay is activ.
     public void pre_epoch() {
         if (this.decay != 0) {
@@ -45,31 +38,8 @@ public class SGD {
 
     }
 
-    ;
-
-    public void calculate(Layer layer) {
-
-        try {
-            if (momentum == 0) {
-                layer.weights = Utils.updateWeights(layer.weights, layer.dweights, this.current_learning_rate);
-                layer.biases = Utils.updateBiases(layer.biases, layer.dbiases, this.current_learning_rate);
-
-            } else if (layer.momemtum_weights != null) {
-                throw new RuntimeException("must be implemented");
-
-            } else if (momentum != 0 && layer.momemtum_weights != null) {
-                throw new RuntimeException("must be implemented");
-            }
-
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-    }
-
-
     public void past_epoch() {
         this.iterations += 1;
     }
-
 }
 
