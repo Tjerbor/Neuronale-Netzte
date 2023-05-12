@@ -64,14 +64,14 @@ public class SGD implements Optimizer {
 
 
             if (l.getMomentumWeights() != null) {
-                l.aktivateMomentum();
+                l.activateMomentum();
 
             }
 
             Utils.cal_matrix_mult_scalar(l.getMomentumWeights(), this.momentum);
             Utils.cal_momentumW_minus_dweights(l.getMomentumWeights(), l.getDeltaWeights(), this.current_learning_rate);
 
-            Utils.cal_baisesMomentum(l.getBiases(), l.getMomentumBiases(), -this.current_learning_rate);
+            Utils.cal_baisesMomentum(l.getBiases(), l.getMomentumBiases(), -this.current_learning_rate, momentum);
 
             Utils.addMatrix(l.getWeights(), l.getMomentumWeights());
             Utils.addMatrix(l.getBiases(), l.getMomentumBiases());

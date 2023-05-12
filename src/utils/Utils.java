@@ -52,6 +52,7 @@ public class Utils {
 
     }
 
+
     public static void addMatrix(double[][] a, double[][] b) {
 
         for (int i = 0; i < a.length; i++) {
@@ -61,6 +62,15 @@ public class Utils {
         }
     }
 
+    /**
+     * the first array will be overwritten.
+     */
+    public static void addMatrix(double[] a, double[] b) {
+        for (int i = 0; i < a.length; i++) {
+            a[i] += b[i];
+        }
+
+    }
 
     /**
      * calculates the new momentum Biases to update the weights.

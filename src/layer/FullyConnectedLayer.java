@@ -65,7 +65,7 @@ public class FullyConnectedLayer implements Layer {
      * This method gets no input because the shape of the Momentum weights is the same as weights.
      * This method is only called to initialize the Momentum-Weights.
      */
-    public void aktivateMomentum() {
+    public void activateMomentum() {
         this.momentumWeights = new double[this.weights.length][this.weights[0].length];
         this.momentumBiases = new double[this.biases.length];
         Arrays.fill(momentumBiases, 0);

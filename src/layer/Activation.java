@@ -7,6 +7,7 @@ public class Activation implements Layer {
     double[] input;
     double[][] inputs;
 
+
     /**
      * This method multiplies the corresponding elements of the given arrays.
      * It throws an exception if the arrays do not have the same length.
@@ -71,6 +72,31 @@ public class Activation implements Layer {
     @Override
     public void setWeights(double[][] weights) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public double[][] getMomentumWeights() {
+        return null;
+    }
+
+    @Override
+    public double[][] getDeltaWeights() {
+        return null;
+    }
+
+    @Override
+    public double[] getBiases() {
+        return null;
+    }
+
+    @Override
+    public double[] getDeltaBiases() {
+        return null;
+    }
+
+    @Override
+    public double[] getMomentumBiases() {
+        return null;
     }
 
     @Override

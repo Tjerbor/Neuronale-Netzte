@@ -10,7 +10,10 @@ public interface Layer {
     /**
      * initialize the Momentum weights and Biases with zeros.
      */
-    aktivateMomentum();
+    default void activateMomentum() {
+    }
+
+    ;
 
     double[][] getWeights();
 
