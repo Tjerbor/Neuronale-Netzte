@@ -27,12 +27,11 @@ public class FullyConnectedLayer implements Layer {
 
     private double[][] dweights; // gradients of weights needed if the optimizer is set.
     private double[][] momentum_weights; // gradients of weights needed if the optimizer is set.
-    private double[][] momentum_biases; // gradients of weights needed if the optimizer is set.
+    private double[] momentum_biases; // gradients of weights needed if the optimizer is set.
     private double[][] dinputs;
     private double[] dinput;
     private double[][] inputs; //needed for backpropagation with batch input.
     private double[] input; //needed for backpropagation with Single Input.
-    private double BIAS_PRIME = 0;
     private double[] dbiases; //biases of layer.
 
     /**
@@ -59,6 +58,28 @@ public class FullyConnectedLayer implements Layer {
      */
     private static double[] random(int length) {
         return random.doubles(length, -1, 1).toArray();
+    }
+
+
+    public double[][] getMomentum_weights() {
+        return this.momentum_weights;
+    }
+
+    public double[][] getDeltaweights() {
+        return this.dweights;
+    }
+
+    public double[] getBiases() {
+        return this.biases;
+    }
+
+    public double[] getDeltabiases() {
+        return this.dbiases;
+    }
+
+    public double[] getMomentumBiases() {
+        return this.momentum_biases;
+
     }
 
     /**

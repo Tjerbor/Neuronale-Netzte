@@ -11,6 +11,16 @@ public interface Layer {
 
     void setWeights(double[][] weights);
 
+    double[][] getMomentumWeights();
+
+    double[][] getDeltaWeights();
+
+    double[] getBiases();
+
+    double[] getDeltaBiases();
+
+    double[] getMomentumBiases();
+
     /**
      * This method returns the number of parameters of the layer.
      */
