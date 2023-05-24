@@ -9,6 +9,48 @@ import java.util.Arrays;
  */
 public class Array_utils {
 
+    public static double[] flatten(double[][] a){
+       double[] b = new double[a.length * a[0].length];
+
+        int c = 0;
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                b[c] = a[i][j];
+                c += 1;
+            }
+        }
+       return b;
+    }
+
+    public static double[] flatten(double[][][] a){
+        double[] b = new double[a.length * a[0].length * a[0][0].length];
+        int c = 0;
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    b[c] = a[i][j][k];
+                    c += 1;
+                }
+
+
+            }
+        }
+        return b;
+    }
+
+
+
+    public static double[][] getSubmatrix(double[][] in, int h_st, int h_end, int w_st, int w_end) {
+
+        double[][] out = new double[h_end - h_st][w_end - w_st];
+
+        for (int i = 0; i < h_end - h_st; i++) {
+            for (int j = 0; j < w_end - w_st; j++) {
+                out[i][j] = in[h_st + i][w_st + j];
+            }
+        }
+        return out;
+    }
 
     public static double roundDec(double value, int size) {
 

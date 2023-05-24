@@ -228,6 +228,22 @@ public class Utils {
         return c;
     }
 
+    public static double[][][] genRandomWeights(int size1, int size2, int size3) {
+
+        double[][][] c = new double[size1][size2][size3];
+
+        for (int i = 0; i < size1; i++) {
+            for (int j = 0; j < size2; j++) {
+                for (int k = 0; k < size3; k++) {
+                    c[i][j][k] = genRandomWeight();
+                }
+            }
+        }
+
+
+        return c;
+    }
+
     public static double sumUpLoss(double[][] losses) {
         double l_out = 0;
 
