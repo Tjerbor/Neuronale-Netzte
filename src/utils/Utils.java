@@ -8,6 +8,31 @@ import java.util.Random;
 public class Utils {
     static Random r = new Random(); //random to generate missing weights.
 
+
+
+    public static double[] var_axis_0(double[][] a){
+
+
+    }
+
+    public static double[] mean_axis_0(double[][] a) {
+
+        double[] out = new double[a[0].length];
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+               out[j] = a[i][j];
+
+            }
+        }
+
+        for (int i = 0; i < out.length; i++) {
+            out[i] /= a.length;
+        }
+
+        return out;
+
+    }
+
     /**
      * Tranpose a given 2D array.
      *
@@ -52,6 +77,14 @@ public class Utils {
 
     }
 
+    public static void addMatrix(double[][] a, double[] b) {
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                a[i][j] += b[j];
+            }
+        }
+    }
 
     public static void addMatrix(double[][] a, double[][] b) {
 

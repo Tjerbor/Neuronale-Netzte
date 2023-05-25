@@ -9,6 +9,38 @@ import java.util.Arrays;
  */
 public class Array_utils {
 
+
+
+    public static double[] mean_axis_0(double[][] x) {
+        double[] out = sum_axis_0(x);
+
+        for (int i = 0; i < out.length; i++) {
+            out[i] /= x.length;
+        }
+
+        return out;
+    }
+
+    public static double[] neg_sum_axis_0(double[][] x) {
+        double[] out = new double[x[0].length];
+        for (int j = 0; j < x.length; j++) {
+            for (int i = 0; i < x[0].length; i++) {
+                out[i] += -x[j][i];
+            }}
+
+        return out;
+    }
+
+    public static double[] sum_axis_0(double[][] x) {
+        double[] out = new double[x[0].length];
+        for (int j = 0; j < x.length; j++) {
+            for (int i = 0; i < x[0].length; i++) {
+                out[i] += x[j][i];
+            }}
+
+        return out;
+    }
+
     public static double[] flatten(double[][] a){
        double[] b = new double[a.length * a[0].length];
 
