@@ -5,11 +5,9 @@ import utils.Utils;
 
 /**
  * Now only supports the same Kernel size but is easily changeable.
- *
  */
 
-public class Conv implements Layer {
-
+public class Conv {
 
     int kernel_size = 3;
     double[][][] filters;
@@ -44,7 +42,8 @@ public class Conv implements Layer {
             }
         }
         return out;
-}
+    }
+
 
     /*
     uses Valid Method.
@@ -55,18 +54,18 @@ public class Conv implements Layer {
         int h = inputs.length;
         int w = inputs[0].length;
 
-        int h_ = (h-this.kernel_size) + 1;
-        int w_ = (w-this.kernel_size) + 1;
+        int h_ = (h - this.kernel_size) + 1;
+        int w_ = (w - this.kernel_size) + 1;
 
         double[][][] output_2D = new double[h_][w_][num_filters];
-        if (useBiases){
+        if (useBiases) {
             output_2D = this.biases.clone();
         }
 
         double[][] imgRegion;
         for (int i = 0; i < h_; i++) {
             for (int j = 0; j < w_; j++) {
-                imgRegion = Array_utils.getSubmatrix(inputs, i, i+kernel_size, j, j+kernel_size);
+                imgRegion = Array_utils.getSubmatrix(inputs, i, i + kernel_size, j, j + kernel_size);
                 output_2D[i][j] = this.sum_axis_1_2(imgRegion);
 
 
@@ -82,15 +81,15 @@ public class Conv implements Layer {
         int h = inputs[0].length;
         int w = inputs[0][0].length;
 
-        int h_ = (h-this.kernel_size) + 1;
-        int w_ = (w-this.kernel_size) + 1;
+        int h_ = (h - this.kernel_size) + 1;
+        int w_ = (w - this.kernel_size) + 1;
 
         double[][][][] outputs_2D = new double[inputs.length][h_][w_][num_filters];
         for (int b = 0; b < inputs.length; b++) {
             double[][] imgRegion;
             for (int i = 0; i < h_; i++) {
                 for (int j = 0; j < w_; j++) {
-                    imgRegion = Array_utils.getSubmatrix(inputs[b], i, i+kernel_size, j, j+kernel_size);
+                    imgRegion = Array_utils.getSubmatrix(inputs[b], i, i + kernel_size, j, j + kernel_size);
                     outputs_2D[b][i][j] = this.sum_axis_1_2(imgRegion);
                 }
             }
@@ -100,13 +99,13 @@ public class Conv implements Layer {
     }
 
 
-    public double[][][] backward(double[][][] delta_out, double learningRate){
+    public double[][][] backward(double[][][] delta_out, double learningRate) {
 
         int h = this.input_2D.length;
         int w = this.input_2D[0].length;
 
-        int h_ = (h-this.kernel_size) + 1;
-        int w_ = (w-this.kernel_size) + 1;
+        int h_ = (h - this.kernel_size) + 1;
+        int w_ = (w - this.kernel_size) + 1;
 
         double[][][] delta_filters = new double[this.num_filters][this.kernel_size][this.kernel_size];
         double[][] imgRegion;
@@ -127,55 +126,55 @@ public class Conv implements Layer {
         return delta_filters;
     }
 
-    public double[][][][] backward(double[][][][] delta_out, double learningRate){
+    public double[][][][] backward(double[][][][] delta_out, double learningRate) {
 
         int h = this.inputs_2D[0].length;
         int w = this.inputs_2D[0][0].length;
 
-        int h_ = (h-this.kernel_size) + 1;
-        int w_ = (w-this.kernel_size) + 1;
+        int h_ = (h - this.kernel_size) + 1;
+        int w_ = (w - this.kernel_size) + 1;
 
         double[][][][] delta_filters = new double[this.inputs_2D.length][this.num_filters][this.kernel_size][this.kernel_size];
         double[][] imgRegion;
 
         for (int b = 0; b < this.inputs_2D.length; b++) {
-        for (int i = 0; i < h_; i++) {
-            for (int j = 0; j < w_; j++) {
-                for (int f = 0; f < this.num_filters; f++) {
-                    imgRegion = Array_utils.getSubmatrix(input_2D, i, i + kernel_size,
-                            j, j + kernel_size);
-                    Utils.cal_matrix_mult_scalar(imgRegion, delta_out[b][i][j][f]);
-                    Utils.addMatrix(delta_filters[b][f], imgRegion);
+            for (int i = 0; i < h_; i++) {
+                for (int j = 0; j < w_; j++) {
+                    for (int f = 0; f < this.num_filters; f++) {
+                        imgRegion = Array_utils.getSubmatrix(input_2D, i, i + kernel_size,
+                                j, j + kernel_size);
+                        Utils.cal_matrix_mult_scalar(imgRegion, delta_out[b][i][j][f]);
+                        Utils.addMatrix(delta_filters[b][f], imgRegion);
+
+                    }
 
                 }
-
             }
-        }
         }
         return delta_filters;
     }
 
-    @Override
+
     public double[][] getWeights() {
         return new double[0][];
     }
 
-    @Override
+
     public void setWeights(double[][] weights) {
 
     }
 
-    @Override
+
     public double[][] getMomentumWeights() {
         return new double[0][];
     }
 
-    @Override
+
     public double[][] getDeltaWeights() {
         return new double[0][];
     }
 
-    @Override
+
     public double[] getBiases() {
         return new double[0];
     }
@@ -185,112 +184,48 @@ public class Conv implements Layer {
      */
     public void setBiases(int[] input_shape) {
         this.biases = Utils.genRandomWeights(input_shape[0], input_shape[0], this.num_filters);
-        this.useBiases =true;
+        this.useBiases = true;
     }
 
     public void setBiases(double[][][] biases) {
         this.biases = biases;
     }
 
-    @Override
+
     public double[] getDeltaBiases() {
         return new double[0];
     }
 
-    @Override
+
     public double[] getMomentumBiases() {
         return new double[0];
     }
 
-    @Override
+
     public int parameters() {
         return 0;
     }
 
-    @Override
-    public double[] forward(double[][] input) {
-        /*
-        automatically uses Flatten.
-         */
-        this.input_2D = input;
-        int h = input.length;
-        int w = input[0].length;
 
-        int h_ = (h-this.kernel_size) + 1;
-        int w_ = (w-this.kernel_size) + 1;
-
-        double[][][] output_2D = new double[h_][w_][num_filters];
-        if (useBiases){
-            output_2D = this.biases.clone();
-        }
-
-        double[][] imgRegion;
-        for (int i = 0; i < h_; i++) {
-            for (int j = 0; j < w_; j++) {
-                imgRegion = Array_utils.getSubmatrix(input, i, i+kernel_size, j, j+kernel_size);
-                output_2D[i][j] = this.sum_axis_1_2(imgRegion);
-
-
-            }
-
-        }
-        return Array_utils.flatten(output_2D);
-    }
-
-
-    @Override
-    public double[][] forward(double[][][] inputs) {
-        /*
-        automatically uses Flatten.
-         */
-        this.inputs_2D = inputs;
-        int h = inputs[0].length;
-        int w = inputs[0][0].length;
-
-        int h_ = (h-this.kernel_size) + 1;
-        int w_ = (w-this.kernel_size) + 1;
-
-        double[][][][] outputs_2D = new double[inputs.length][h_][w_][num_filters];
-        for (int b = 0; b < inputs.length; b++) {
-            double[][] imgRegion;
-            for (int i = 0; i < h_; i++) {
-                for (int j = 0; j < w_; j++) {
-                    imgRegion = Array_utils.getSubmatrix(inputs[b], i, i+kernel_size, j, j+kernel_size);
-                    outputs_2D[b][i][j] = this.sum_axis_1_2(imgRegion);
-                }
-            }
-        }
-
-        double[][] out = new double[outputs_2D.length][];
-        for (int i = 0; i < outputs_2D.length; i++) {
-            out[i] = Array_utils.flatten(outputs_2D[i]);
-        }
-
-        return out;
-    }
-
-    @Override
     public double[] backward(double[] input) {
         return new double[0];
     }
 
-    @Override
+
     public double[] backward(double[] input, double learningRate) {
 
         return new double[0];
     }
 
-    @Override
+
     public double[][] backward(double[][] inputs) {
         return new double[0][];
     }
 
-    @Override
+
     public double[][] backward(double[][] inputs, double learningRate) {
         return new double[0][];
     }
-
-
 
 
 }

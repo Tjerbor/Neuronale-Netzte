@@ -3,12 +3,81 @@ package utils;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
+import static utils.Utils.matmul2D;
+
 /**
  * this class helps with array operations like print or
  * linspace to help simulate thinks.
  */
 public class Array_utils {
 
+    /**
+     * RE functions mean it is required to cearte a new aary and do not overwrite.
+     *
+     * @param a
+     */
+
+    public static double[][] sqrtArrayRE(double[][] a) {
+        double[][] c = new double[a.length][a[0].length];
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                c[i][j] = Math.sqrt(a[i][j]);
+            }
+        }
+        return c;
+    }
+
+    public static double[] sqrtArrayRE(double[] a) {
+        double[] c = new double[a.length];
+
+        for (int i = 0; i < a.length; i++) {
+            c[i] = Math.sqrt(a[i]);
+        }
+        return c;
+    }
+
+    public static double[] var_axis_0(double[][] x) {
+
+
+        double[] mx = Utils.mean_axis_0(x);
+
+        double[][] c = new double[x.length][x[0].length];
+
+        for (int j = 0; j < x.length; j++) {
+            for (int i = 0; i < x[0].length; i++) {
+                c[i][j] = Math.pow((x[i][j] - mx[i]), 2);
+            }
+        }
+
+        return mean_axis_0(c);
+    }
+
+    public static double[] var_axis_1(double[][] x) {
+
+
+        double[] mx = Utils.mean_axis_1(x);
+
+        double[][] c = new double[x.length][x[0].length];
+
+        for (int j = 0; j < x.length; j++) {
+            for (int i = 0; i < x[0].length; i++) {
+                c[i][j] = Math.pow((x[i][j] - mx[j]), 2);
+            }
+        }
+
+        return mean_axis_1(c);
+    }
+
+    public static double[] mean_axis_1(double[][] x) {
+        double[] out = sum_axis_1(x);
+
+        for (int i = 0; i < out.length; i++) {
+            out[i] /= x.length;
+        }
+
+        return out;
+    }
 
 
     public static double[] mean_axis_0(double[][] x) {
@@ -26,7 +95,8 @@ public class Array_utils {
         for (int j = 0; j < x.length; j++) {
             for (int i = 0; i < x[0].length; i++) {
                 out[i] += -x[j][i];
-            }}
+            }
+        }
 
         return out;
     }
@@ -36,13 +106,148 @@ public class Array_utils {
         for (int j = 0; j < x.length; j++) {
             for (int i = 0; i < x[0].length; i++) {
                 out[i] += x[j][i];
-            }}
+            }
+        }
 
         return out;
     }
 
-    public static double[] flatten(double[][] a){
-       double[] b = new double[a.length * a[0].length];
+    public static double[] sum_axis_1(double[][] x) {
+        double[] out = new double[x.length];
+        for (int j = 0; j < x.length; j++) {
+            for (int i = 0; i < x[0].length; i++) {
+                out[j] += x[j][i];
+            }
+        }
+
+        return out;
+    }
+
+    public static double[] addMatrixRE(double[] a, double[] b) {
+        double[] c = new double[a.length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = a[i] + b[i];
+        }
+        return c;
+
+
+    }
+
+    public static void addMatrix(double[] a, double[] b) {
+        for (int i = 0; i < a.length; i++) {
+            a[i] += b[i];
+        }
+    }
+
+    public static void addMatrix(double[][][] a, double[][][] b) {
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    a[i][j][k] += b[i][k][j];
+                }
+            }
+        }
+
+
+    }
+
+    public static double[][][] addMatrixRE(double[][][] a, double[][][] b) {
+        double[][][] c = new double[a.length][a[0].length][a[0][0].length];
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    c[i][j][k] = a[i][j][k] + b[i][k][j];
+                }
+            }
+        }
+        return c;
+
+    }
+
+    public static double[][] subMatrixRE(double[][] a, double[][] b) {
+        double[][] c = new double[a.length][a[0].length];
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a.length; j++) {
+                c[i][j] = a[i][j] - b[i][j];
+            }
+        }
+
+        return c;
+
+
+    }
+
+    public static void subMatrix(double[][] a, double[][] b) {
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a.length; j++) {
+                a[i][j] -= b[i][j];
+            }
+        }
+
+
+    }
+
+
+    public static void mult_matrix_by_scalar(double[][][] a, double scalar) {
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    a[i][j][k] *= scalar;
+                }
+            }
+        }
+
+    }
+
+    public static void div_matrix_by_scalar(double[][] a, double scalar) {
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                a[i][j] /= scalar;
+            }
+        }
+
+
+    }
+
+    public static double[][] div_matrix_by_scalarRE(double[][] a, double scalar) {
+
+        double[][] c = new double[a.length][a[0].length];
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                c[i][j] = a[i][j] / scalar;
+            }
+        }
+
+        return c;
+
+    }
+
+    public static double[] div_matrix_by_scalarRE(double[] a, double scalar) {
+
+        double[] c = new double[a.length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = a[i] / scalar;
+
+        }
+
+        return c;
+
+    }
+
+    public static void div_matrix_by_scalar(double[][][] a, double scalar) {
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    a[i][j][k] /= scalar;
+                }
+            }
+        }
+
+    }
+
+    public static double[] flatten(double[][] a) {
+        double[] b = new double[a.length * a[0].length];
 
         int c = 0;
         for (int i = 0; i < a.length; i++) {
@@ -51,10 +256,10 @@ public class Array_utils {
                 c += 1;
             }
         }
-       return b;
+        return b;
     }
 
-    public static double[] flatten(double[][][] a){
+    public static double[] flatten(double[][][] a) {
         double[] b = new double[a.length * a[0].length * a[0][0].length];
         int c = 0;
         for (int i = 0; i < a.length; i++) {
@@ -69,7 +274,6 @@ public class Array_utils {
         }
         return b;
     }
-
 
 
     public static double[][] getSubmatrix(double[][] in, int h_st, int h_end, int w_st, int w_end) {
@@ -128,6 +332,54 @@ public class Array_utils {
 
 
     }
+
+    public static double[][][] matmul3D(double[][][] a, double[][][] b) throws ArithmeticException {
+
+        if (a.length != b.length || a[0][0].length != b[0].length) {
+            throw new ArithmeticException();
+        }
+
+        double[][][] c = new double[a.length][a[0].length][b[0][0].length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = matmul2D(a[i], b[i]);
+        }
+
+        return c;
+    }
+
+    public static double[][][] matmul3D(double[][][] a, double[][][] b, String tranpose) throws Exception {
+
+        if (a.length != b.length || a[0][0].length != b[0].length) {
+            throw new Exception();
+        } else if (tranpose.equals("b")) {
+            b = reshape3D_last(b);
+        } else if (tranpose.equals("a")) {
+            a = reshape3D_last(a);
+        }
+
+
+        double[][][] c = new double[a.length][a[0].length][b[0][0].length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = matmul2D(a[i], b[i]);
+        }
+
+        return c;
+    }
+
+    public static double[][][] reshape3D_last(double[][][] a) {
+
+        double[][][] c = new double[a.length][a[0][0].length][a[0].length];
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    c[i][k][j] = a[i][j][k];
+                }
+            }
+        }
+        return c;
+    }
+
 
     public static double[] linspace(double start, double end, int size, int round_size) {
 
