@@ -14,8 +14,106 @@ public class Array_utils {
     /**
      * RE functions mean it is required to cearte a new aary and do not overwrite.
      *
-     * @param a
+     * @param
      */
+
+    public static int[] getShape(double[] a) {
+        return new int[]{a.length};
+
+    }
+
+    public static int[] getShape(double[][] a) {
+        return new int[]{a.length, a[0].length};
+
+    }
+
+    public static int[] getShape(double[][][] a) {
+        return new int[]{a.length, a[0].length, a[0][0].length};
+
+    }
+
+    public static double[][] copyArray(double[][] a) {
+        double[][] c = zerosLike(a);
+
+
+        for (int i = 0; i < c.length; i++) {
+            for (int j = 0; j < c[0].length; j++) {
+                c[i][j] = a[i][j];
+            }
+        }
+        return c;
+
+    }
+
+    public static double[][][] Matrix3Ddiv2D(double[][][] a, double[][] b) {
+        double[][][] c = zerosLike(a);
+
+
+        if (b[0].length == c[0][0].length) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    for (int k = 0; k < a[0][0].length; k++) {
+                        c[i][j][k] = a[i][j][k] / b[j][k];
+                    }
+
+                }
+            }
+        } else {
+
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    for (int k = 0; k < a[0][0].length; k++) {
+                        c[i][j][k] = a[i][j][k] / b[i][k];
+                    }
+                }
+            }
+        }
+        return c;
+    }
+
+    public static double[][] Matrix2Ddiv1D(double[][] a, double[] b) {
+        double[][] c = new double[a.length][a[0].length];
+
+
+        if (b.length == c[0].length) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    c[i][j] = a[i][j] / b[j];
+                }
+            }
+        } else {
+
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    c[i][j] = a[i][j] / b[i];
+                }
+            }
+        }
+        return c;
+    }
+
+    public static double[][] addMatrixScalar(double[][] a, double scalar) {
+
+        double[][] c = zerosLike(a);
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                c[i][j] = a[i][j] + scalar;
+            }
+
+        }
+
+        return c;
+    }
+
+    public static double[] addMatrixScalar(double[] a, double scalar) {
+
+        double[] c = zerosLike(a);
+        for (int i = 0; i < a.length; i++) {
+            c[i] = a[i] + scalar;
+        }
+
+        return c;
+    }
 
     public static double[][][] zerosLike(double[][][] a) {
         return new double[a.length][a[0].length][a[0][0].length];
@@ -23,6 +121,10 @@ public class Array_utils {
 
     public static double[][] zerosLike(double[][] a) {
         return new double[a.length][a[0].length];
+    }
+
+    public static double[] zerosLike(double[] a) {
+        return new double[a.length];
     }
 
     public static double[][] sqrtArrayRE(double[][] a) {
@@ -85,12 +187,12 @@ public class Array_utils {
 
     public static double[] var_axis_0(double[][] x) {
 
-        double[] mx = Utils.mean_axis_0(x);
+        double[] mx = mean_axis_0(x);
         double[][] c = new double[x.length][x[0].length];
 
-        for (int j = 0; j < x.length; j++) {
-            for (int i = 0; i < x[0].length; i++) {
-                c[i][j] = Math.pow((x[i][j] - mx[i]), 2);
+        for (int i = 0; i < x.length; i++) {
+            for (int j = 0; j < x[0].length; j++) {
+                c[i][j] = Math.pow((x[i][j] - mx[j]), 2);
             }
         }
 
@@ -100,7 +202,7 @@ public class Array_utils {
     public static double[] var_axis_1(double[][] x) {
 
 
-        double[] mx = Utils.mean_axis_1(x);
+        double[] mx = mean_axis_1(x);
 
         double[][] c = new double[x.length][x[0].length];
 
@@ -127,6 +229,7 @@ public class Array_utils {
     public static double[] mean_axis_0(double[][] x) {
         double[] out = sum_axis_0(x);
 
+        System.out.println(out.length);
         for (int i = 0; i < out.length; i++) {
             out[i] /= x.length;
         }
@@ -187,7 +290,7 @@ public class Array_utils {
     public static double[] sum_axis_0(double[][] x) {
         double[] out = new double[x[0].length];
         for (int i = 0; i < x.length; i++) {
-            for (int j = 0; j < x[0].length; i++) {
+            for (int j = 0; j < x[0].length; j++) {
                 out[j] += x[i][j];
             }
         }

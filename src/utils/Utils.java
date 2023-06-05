@@ -10,6 +10,113 @@ public class Utils {
     static Random r = new Random(); //random to generate missing weights.
 
 
+    public static double[][][] multiply(double[][][] a, double[][][] b) {
+
+        if (a.length != b.length) {
+            throw new ArithmeticException("Mismatching Shape " + Integer.toString(a[0].length) + " " + Integer.toString(b.length));
+        }
+
+        double[][][] c = Array_utils.zerosLike(a);
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    c[i][j][k] += a[i][j][k] * b[i][j][k];
+                }
+
+
+            }
+        }
+
+        return c;
+    }
+
+    public static double[][][] multiply(double[][][] a, double[][] b) {
+
+        double[][][] c = null;
+        if (a[0].length == b.length && b[0].length == a[0][0].length) {
+
+            c = Array_utils.zerosLike(a);
+
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    for (int k = 0; k < a[0][0].length; k++) {
+                        c[i][j][k] += a[i][j][k] * b[j][k];
+                    }
+
+
+                }
+            }
+        } else if (b.length == a.length && b[0].length == a[0][0].length) {
+            c = Array_utils.zerosLike(a);
+
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    for (int k = 0; k < a[0][0].length; k++) {
+                        c[i][j][k] += a[i][j][k] * b[i][k];
+                    }
+                }
+            }
+
+
+        } else {
+            throw new ArithmeticException("Mismatching Shape a: " +
+                    Array_utils.getShape(a) + " b: " + Array_utils.getShape(b));
+        }
+
+        return c;
+    }
+
+    public static double[][] multiply(double[][] a, double[][] b) {
+
+        if (a.length != b.length) {
+            throw new ArithmeticException("Mismatching Shape " + Integer.toString(a[0].length) + " " + Integer.toString(b.length));
+        }
+
+        double[][] c = new double[a.length][a[0].length];
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                c[i][j] += a[i][j] * b[i][j];
+
+            }
+        }
+
+        return c;
+    }
+
+    public static double[][] multiply(double[][] a, double[] b) {
+
+        double[][] c = null;
+        if (a[0].length == b.length) {
+
+            c = Array_utils.zerosLike(a);
+
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    c[i][j] += a[i][j] * b[j];
+                }
+            }
+        } else if (b.length == a.length) {
+            c = Array_utils.zerosLike(a);
+
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+
+                    c[i][j] += a[i][j] * b[i];
+
+                }
+            }
+
+
+        } else {
+            throw new ArithmeticException("Mismatching Shape a: " +
+                    Arrays.toString(Array_utils.getShape(a)) + " b: " + Arrays.toString(Array_utils.getShape(b)));
+        }
+
+        return c;
+    }
+
     public static double[][] matmul2D_1D(double[][] a, double[] b) {
 
         double[][] c = Array_utils.zerosLike(a);
