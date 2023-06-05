@@ -109,7 +109,7 @@ public class BatchNorm2D {
         }
 
         double[][][] out = this.standart_inputs.clone();
-        Utils.dotProdukt_1D(out, gamma);
+        Utils.matmul3D_2D(out, gamma);
         Array_utils.addMatrix(out, biases);
         return out;
     }

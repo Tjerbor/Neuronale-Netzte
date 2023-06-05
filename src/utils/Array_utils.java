@@ -17,6 +17,14 @@ public class Array_utils {
      * @param a
      */
 
+    public static double[][][] zerosLike(double[][][] a) {
+        return new double[a.length][a[0].length][a[0][0].length];
+    }
+
+    public static double[][] zerosLike(double[][] a) {
+        return new double[a.length][a[0].length];
+    }
+
     public static double[][] sqrtArrayRE(double[][] a) {
         double[][] c = new double[a.length][a[0].length];
 
@@ -37,11 +45,47 @@ public class Array_utils {
         return c;
     }
 
+    public static double[][] var_axis_0(double[][][] x) {
+
+
+        double[][] mx = mean_axis_0(x);
+
+        double[][][] c = new double[x.length][x[0].length][x[0][0].length];
+
+        for (int j = 0; j < x.length; j++) {
+            for (int i = 0; i < x[0].length; i++) {
+                for (int k = 0; k < x[0][0].length; k++) {
+
+                    c[i][j][k] = Math.pow((x[i][j][k] - mx[i][k]), 2);
+                }
+
+            }
+        }
+
+        return mean_axis_0(c);
+    }
+
+    public static double[][] var_axis_1(double[][][] x) {
+
+
+        double[][] mx = mean_axis_1(x);
+
+        double[][][] c = new double[x.length][x[0].length][x[0][0].length];
+
+        for (int j = 0; j < x.length; j++) {
+            for (int i = 0; i < x[0].length; i++) {
+                for (int k = 0; k < x[0][0].length; k++) {
+
+                    c[i][j][k] = Math.pow((x[i][j][k] - mx[j][k]), 2);
+                }
+            }
+        }
+        return mean_axis_1(c);
+    }
+
     public static double[] var_axis_0(double[][] x) {
 
-
         double[] mx = Utils.mean_axis_0(x);
-
         double[][] c = new double[x.length][x[0].length];
 
         for (int j = 0; j < x.length; j++) {
@@ -73,7 +117,7 @@ public class Array_utils {
         double[] out = sum_axis_1(x);
 
         for (int i = 0; i < out.length; i++) {
-            out[i] /= x.length;
+            out[i] /= x[0].length;
         }
 
         return out;
@@ -90,6 +134,32 @@ public class Array_utils {
         return out;
     }
 
+    public static double[][] mean_axis_1(double[][][] x) {
+        double[][] out = sum_axis_1(x);
+
+        for (int i = 0; i < out.length; i++) {
+            for (int j = 0; j < out[0].length; j++) {
+                out[i][j] /= x[0].length;
+            }
+
+        }
+        return out;
+    }
+
+
+    public static double[][] mean_axis_0(double[][][] x) {
+        double[][] out = sum_axis_0(x);
+
+        for (int i = 0; i < out.length; i++) {
+            for (int j = 0; j < out[0].length; j++) {
+                out[i][j] /= x.length;
+            }
+
+        }
+
+        return out;
+    }
+
     public static double[] neg_sum_axis_0(double[][] x) {
         double[] out = new double[x[0].length];
         for (int j = 0; j < x.length; j++) {
@@ -101,11 +171,24 @@ public class Array_utils {
         return out;
     }
 
-    public static double[] sum_axis_0(double[][] x) {
-        double[] out = new double[x[0].length];
+    public static double[][] neg_sum_axis_0(double[][][] x) {
+        double[][] out = new double[x[0].length][x[0][0].length];
         for (int j = 0; j < x.length; j++) {
             for (int i = 0; i < x[0].length; i++) {
-                out[i] += x[j][i];
+                for (int k = 0; k < x[0][0].length; k++) {
+                    out[i][k] += -x[j][i][k];
+                }
+            }
+        }
+
+        return out;
+    }
+
+    public static double[] sum_axis_0(double[][] x) {
+        double[] out = new double[x[0].length];
+        for (int i = 0; i < x.length; i++) {
+            for (int j = 0; j < x[0].length; i++) {
+                out[j] += x[i][j];
             }
         }
 
@@ -114,12 +197,39 @@ public class Array_utils {
 
     public static double[] sum_axis_1(double[][] x) {
         double[] out = new double[x.length];
-        for (int j = 0; j < x.length; j++) {
-            for (int i = 0; i < x[0].length; i++) {
-                out[j] += x[j][i];
+        for (int i = 0; i < x.length; i++) {
+            for (int j = 0; j < x[0].length; j++) {
+                out[i] += x[i][j];
             }
         }
 
+        return out;
+    }
+
+    public static double[][] sum_axis_0(double[][][] x) {
+        double[][] out = new double[x[0].length][x[0][0].length];
+        for (int i = 0; i < x.length; i++) {
+            for (int j = 0; j < x[0].length; j++) {
+                for (int k = 0; k < x[0][0].length; k++) {
+                    out[j][k] += x[i][j][k];
+                }
+
+            }
+        }
+
+        return out;
+    }
+
+    public static double[][] sum_axis_1(double[][][] x) {
+        double[][] out = new double[x[0].length][x[0][0].length];
+        for (int i = 0; i < x.length; i++) {
+            for (int j = 0; j < x[0].length; j++) {
+                for (int k = 0; k < x[0][0].length; k++) {
+                    out[i][k] += x[i][j][k];
+                }
+
+            }
+        }
         return out;
     }
 
@@ -139,6 +249,27 @@ public class Array_utils {
         }
     }
 
+    public static void addMatrix(double[][] a, double[][] b) {
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                a[i][j] += b[i][j];
+            }
+        }
+
+
+    }
+
+    public static double[][] addMatrixRE(double[][] a, double[][] b) {
+        double[][] c = zerosLike(a);
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                c[i][j] = a[i][j] + b[i][j];
+            }
+        }
+
+        return c;
+    }
+
     public static void addMatrix(double[][][] a, double[][][] b) {
         for (int i = 0; i < a.length; i++) {
             for (int j = 0; j < a[0].length; j++) {
@@ -150,6 +281,19 @@ public class Array_utils {
 
 
     }
+
+    public static void addMatrix(double[][][] a, double[][] b) {
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    a[i][j][k] += b[i][j];
+                }
+            }
+        }
+
+
+    }
+
 
     public static double[][][] addMatrixRE(double[][][] a, double[][][] b) {
         double[][][] c = new double[a.length][a[0].length][a[0][0].length];
@@ -209,6 +353,23 @@ public class Array_utils {
 
 
     }
+
+    public static double[][][] div_matrix_by_scalarRE(double[][][] a, double scalar) {
+
+        double[][][] c = zerosLike(a);
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    c[i][j][k] = a[i][j][k] / scalar;
+                }
+
+            }
+        }
+
+        return c;
+
+    }
+
 
     public static double[][] div_matrix_by_scalarRE(double[][] a, double scalar) {
 
