@@ -1,5 +1,6 @@
 package utils;
 
+import autograd.Tensor;
 import layer.*;
 
 import java.util.Arrays;
@@ -8,7 +9,7 @@ import java.util.Random;
 public class Utils {
     static Random r = new Random(); //random to generate missing weights.
 
-    
+
     public static double[] mean_axis_1(double[][] a) {
 
         double[] out = new double[a.length];
@@ -32,7 +33,7 @@ public class Utils {
         double[] out = new double[a[0].length];
         for (int i = 0; i < a.length; i++) {
             for (int j = 0; j < a[0].length; j++) {
-                out[j] = a[i][j];
+                out[j] += a[i][j];
 
             }
         }
@@ -170,8 +171,9 @@ public class Utils {
 
     public static double[][][] matmul3D(double[][][] a, double[][][] b) {
 
-        if (a[0].length != b.length) {
-            throw new ArithmeticException("Mismatching Shape " + Integer.toString(a[0].length) + " " + Integer.toString(b.length));
+
+        if (a[0].length != b.length && !(b.length == 1)) {
+            throw new ArithmeticException("Mismatching Shape " + (a[0].length) + " " + (b.length));
         }
 
         double[][][] c = new double[a.length][a[0].length][a[0][0].length];
@@ -179,6 +181,28 @@ public class Utils {
         for (int i = 0; i < a.length; i++) {
             c[i] = matmul2D(a[i], b[i]);
         }
+        return c;
+    }
+
+
+    public static double[][] matmul2D(double[][] a, Tensor[][] b) {
+
+        if (a[0].length != b.length) {
+            throw new ArithmeticException("Mismatching Shape " + Integer.toString(a[0].length) + " " + Integer.toString(b.length));
+        }
+
+        double[][] c = new double[a.length][b[1].length];
+
+        for (int e = 0; e < a.length; e++) {
+            for (int x = 0; x < b[1].length; x++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    c[e][x] += a[e][j] * b[j][x].data;
+
+                }
+            }
+        }
+
+
         return c;
     }
 
