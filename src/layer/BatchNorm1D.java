@@ -9,7 +9,9 @@ public class BatchNorm1D {
 
     double epsilon = 1e-8;
     double[] gamma;
+    double[] gammaGrad;
     double[] biases;
+    double[] biasesGrad;
 
 
     double[] stddev;
@@ -72,9 +74,8 @@ public class BatchNorm1D {
 
     public double[][] backward(double[][] grad_inputs) {
 
-        int size2 = grad_inputs[0].length;
         int batch_size = grad_inputs.length;
-        double[][] standard_grad = new double[][]{Utils.dotProdukt_1D(grad_inputs, gamma)};
+        double[][] standard_grad = Utils.matmul2D_1D(grad_inputs, gamma);
 
         double[] stddev_inv = Array_utils.div_matrix_by_scalarRE(this.stddev, 1);
 
@@ -114,16 +115,12 @@ public class BatchNorm1D {
         }
 
         double[] mean_grad = Array_utils.sum_axis_0(mean_grad_part1);
-
-
         Array_utils.addMatrix(mean_grad, mean_grad_);
-
-
         double[][] gammaGradTmp = Utils.matmul2D(grad_inputs, standart_inputs);
 
 
-        double[] biases_grad = Array_utils.sum_axis_0(grad_inputs);
-        double[] gamma_grad = Array_utils.sum_axis_0(gammaGradTmp);
+        biasesGrad = Array_utils.sum_axis_0(grad_inputs);
+        gammaGrad = Array_utils.sum_axis_0(gammaGradTmp);
 
 
         double[][] out = new double[grad_inputs.length][grad_inputs[0].length];
@@ -134,6 +131,22 @@ public class BatchNorm1D {
             }
         }
         return out;
+
+
+    }
+
+    public double[][] backward(double[][] grad_inputs, double learningRate) {
+
+        double[][] out = this.backward(grad_inputs);
+        this.updateParameter(learningRate);
+        return out;
+
+    }
+
+    public void updateParameter(double learningRate) {
+        // gamma -= gammaGrad * learningRate
+        Utils.updateParameter(this.biases, this.biasesGrad, learningRate);
+        Utils.updateParameter(this.gamma, this.gammaGrad, learningRate);
 
 
     }

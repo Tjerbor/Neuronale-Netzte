@@ -10,6 +10,56 @@ public class Utils {
     static Random r = new Random(); //random to generate missing weights.
 
 
+    public static double[][] matmul2D_1D(double[][] a, double[] b) {
+
+        double[][] c = Array_utils.zerosLike(a);
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                c[i][j] = a[i][j] * b[j];
+            }
+        }
+
+        return c;
+    }
+
+    public static double[][][] matmul3D_2D(double[][][] a, double[][] b) {
+
+        double[][][] c = Array_utils.zerosLike(a);
+        for (int i = 0; i < a.length; i++) {
+            c[i] = matmul2D(a[i], b);
+
+        }
+
+        return c;
+    }
+
+    public static void updateParameter(double[][][] a, double[][][] b, double learningRate) {
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    a[i][j][k] -= learningRate * b[i][j][k];
+                }
+            }
+        }
+    }
+
+    public static void updateParameter(double[][] a, double[][] b, double learningRate) {
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                a[i][j] -= learningRate * b[i][j];
+            }
+        }
+    }
+
+    public static void updateParameter(double[] a, double[] b, double learningRate) {
+
+        for (int i = 0; i < a.length; i++) {
+            a[i] -= learningRate * b[i];
+        }
+    }
+
     public static double[] mean_axis_1(double[][] a) {
 
         double[] out = new double[a.length];
@@ -168,6 +218,7 @@ public class Utils {
         return output;
 
     }
+
 
     public static double[][][] matmul3D(double[][][] a, double[][][] b) {
 
