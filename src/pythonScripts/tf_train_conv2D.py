@@ -10,7 +10,7 @@ from tensorflow.keras import layers
 def preprocess_data(x, y):
     # reshape and normalize input data
     x = x.astype("float32") / 255
-    x = np.reshape((x.shape[0], 28, 28, 1))
+    x = x.reshape((x.shape[0], 28, 28, 1))
     # encode output which is a number in range [0,9] into a vector of size 10
     # e.g. number 3 will become [0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
     y = np_utils.to_categorical(y)
@@ -22,7 +22,7 @@ model = tf.keras.Sequential(
     [
         layers.Input((28, 28, 1)),
         layers.Conv2D(32, kernel_size=3, activation="relu", name="conv"),
-        layers.MaxPooling1D(4),
+        layers.MaxPooling2D(4),
         layers.Flatten(),
         layers.Dense(10, activation="softmax", name="out"),
     ]

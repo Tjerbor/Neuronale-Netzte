@@ -26,7 +26,7 @@ model = tf.keras.Sequential(
     ]
 )
 
-model.compile("Adam", "CategoricalCrossEntropy")
+model.compile("SGD", "CategoricalCrossEntropy")
 
 x_train, y_train = preprocess_data(x_train, y_train)
 x_test, y_test = preprocess_data(x_test, y_test)

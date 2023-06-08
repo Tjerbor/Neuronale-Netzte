@@ -128,6 +128,7 @@ public class FullyConnectedLayer implements Layer {
 
     @Override
     public double[] forward(double[] input) {
+        this.input = input;
         double[] result = new double[weights[0].length];
 
         for (int i = 0; i < weights[0].length; i++) {
@@ -145,6 +146,7 @@ public class FullyConnectedLayer implements Layer {
     public double[][] forward(double[][] inputs) {
         double[][] result = new double[inputs.length][weights[0].length];
 
+        this.inputs = inputs;
         for (int i = 0; i < inputs.length; i++) {
             for (int j = 0; j < weights[0].length; j++) {
                 for (int k = 0; k < weights.length; k++) {
@@ -154,6 +156,7 @@ public class FullyConnectedLayer implements Layer {
                 result[i][j] += biases[j];
             }
         }
+
 
         return result;
     }

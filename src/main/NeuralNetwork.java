@@ -4,6 +4,7 @@ import layer.Activation;
 import layer.FullyConnectedLayer;
 import layer.Layer;
 import layer.Losses;
+import utils.Array_utils;
 import utils.Utils;
 
 import java.io.BufferedWriter;
@@ -87,6 +88,11 @@ public class NeuralNetwork {
         }
 
         return topology;
+    }
+
+
+    public void setLoss(Losses loss) {
+        this.loss = loss;
     }
 
     /**
@@ -333,13 +339,10 @@ public class NeuralNetwork {
                 //one epoch is finished.
                 //calculates Loss
                 step_losses[j] = loss.forward(outs, y_train[j]);
-
                 //calculates prime Loss
                 outs = loss.backward(outs, y_train[j]);
                 // now does back propagation
                 this.computeAllBackward(outs);
-
-
             }
             loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
             System.out.println("Loss per epoch: " + loss_per_epoch);
@@ -362,10 +365,10 @@ public class NeuralNetwork {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
-        } else if (this.topology()[this.topology().length - 1] != y_train[0].length) {
+        } else if (this.topology()[this.topology().length - 1] != y_train[0][0].length) {
             throw new IllegalArgumentException("y has " + y_train[0][0].length + " classes but " +
                     "model output shape is: " + topology()[topology().length - 1]);
-        } else if (topology()[0] != x_train[0].length) {
+        } else if (topology()[0] != x_train[0][0].length) {
             throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
                     "model inputs shape is: " + topology()[0]);
         }
@@ -382,7 +385,7 @@ public class NeuralNetwork {
 
             for (int j = 0; j < step_size; j++) {
                 double[][] outs;
-                outs = computeAll(x_train[j]);
+                outs = computeAll(Array_utils.copyArray(x_train[j]));
                 //one epoch is finished.
                 //calculates Loss
                 step_losses[j] = loss.forward(outs, y_train[j]);
@@ -393,7 +396,6 @@ public class NeuralNetwork {
 
 
             }
-
             loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
             System.out.println("Loss per epoch: " + loss_per_epoch);
         }

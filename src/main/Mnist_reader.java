@@ -6,9 +6,9 @@ import java.io.FileReader;
 public class Mnist_reader {
 
 
-    public static int limit = 300;
+    public static int limit = 50000;
 
-    static double[][] getTrainData_x(String fpath) throws Exception {
+    public static double[][] getTrainData_x(String fpath) throws Exception {
 
         int expectedSize = 784; // num of pixels 28x28 = 784
 
@@ -50,7 +50,7 @@ public class Mnist_reader {
         return x_train;
     }
 
-    static double[][] getTrainData_y(String fpath) throws Exception {
+    public static double[][] getTrainData_y(String fpath) throws Exception {
 
         int expectedSize = 10; // num_classes from 0-9
 

@@ -74,14 +74,14 @@ public class Softmax extends Activation {
         double sum = 0;
         for (int i = 0; i < inputs.length; i++) {
             for (int j = 0; j < inputs[0].length; j++) {
-                exp += this.softmax(inputs[j][i], 1);
+                exp += this.softmax(inputs[i][j], 1);
 
             }
 
         }
         for (int i = 0; i < inputs.length; i++) {
             for (int j = 0; j < inputs[0].length; j++) {
-                inputs[j][i] += this.softmax(inputs[j][i], exp);
+                inputs[i][j] += this.softmax(inputs[i][j], exp);
             }
 
         }

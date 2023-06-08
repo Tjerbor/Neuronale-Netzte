@@ -115,6 +115,11 @@ public class Array_utils {
         return c;
     }
 
+    public static double[][][][] zerosLike(double[][][][] a) {
+        return new double[a.length][a[0].length]
+                [a[0][0].length][a[0][0][0].length];
+    }
+
     public static double[][][] zerosLike(double[][][] a) {
         return new double[a.length][a[0].length][a[0][0].length];
     }

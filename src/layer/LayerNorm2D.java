@@ -52,6 +52,13 @@ public class LayerNorm2D {
     }
 
 
+    public void setTraining(boolean training) {
+        this.training = training;
+        if (!training) {
+            this.useMomentum = false;
+        }
+    }
+
     public double[][] sqrt_array(double[][] a) {
         double[][] out = new double[a.length][a[0].length];
 
@@ -162,7 +169,6 @@ public class LayerNorm2D {
             }
 
         }
-
         double[][][] dx = Array_utils.zerosLike(dx_centered);
 
         for (int i = 0; i < dx.length; i++) {
@@ -174,8 +180,6 @@ public class LayerNorm2D {
 
             }
         }
-
-
         return dx;
 
 
