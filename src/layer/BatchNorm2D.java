@@ -5,6 +5,7 @@ import utils.Utils;
 
 import java.util.Arrays;
 
+import static utils.Array_utils.getShape;
 import static utils.Array_utils.zerosLike;
 
 public class BatchNorm2D {
@@ -32,10 +33,11 @@ public class BatchNorm2D {
         this.biases = new double[inputSize][inputSize2];
         this.runningMean = new double[inputSize][inputSize2];
         this.runningVar = new double[inputSize][inputSize2];
-        Arrays.fill(gamma, 1);
-        Arrays.fill(biases, 0);
-        Arrays.fill(runningMean, 0);
-        Arrays.fill(runningVar, 0);
+        //Arrays.fill(gamma, 1.0);
+        this.gamma = Utils.genRandomWeights(inputSize, inputSize2);
+        // Arrays.fill(biases, 0);
+        //Arrays.fill(runningMean, 0);
+        //Arrays.fill(runningVar, 0);
 
     }
 
@@ -133,7 +135,8 @@ public class BatchNorm2D {
             }
         }
 
-        double[][][] out = this.standart_inputs.clone();
+        double[][][] out = Array_utils.copyArray(this.standart_inputs);
+        System.out.println(Arrays.toString(getShape(out)));
         Utils.matmul3D_2D(out, gamma);
         Array_utils.addMatrix(out, biases);
         return out;

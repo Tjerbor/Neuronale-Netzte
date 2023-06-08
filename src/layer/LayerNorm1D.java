@@ -29,11 +29,12 @@ public class LayerNorm1D {
 
     public LayerNorm1D(int input_size) {
         this.gamma = new double[input_size];
-        this.biases = new double[input_size];
+        this.gamma = new double[input_size];
+        this.runningMean = new double[input_size];
+        this.runningVar = new double[input_size];
         Arrays.fill(gamma, 1);
         Arrays.fill(biases, 1);
-        Arrays.fill(runningMean, 0);
-        Arrays.fill(runningVar, 0);
+
 
     }
 

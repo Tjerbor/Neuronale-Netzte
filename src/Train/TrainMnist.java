@@ -1,69 +1,125 @@
 package Train;
 
-import layer.FullyConnectedLayer;
-import layer.Layer;
 import layer.MSE;
-import layer.TanH;
 import main.Mnist_reader;
 import main.NeuralNetwork;
+import utils.Array_utils;
 
 
 public class TrainMnist {
 
-    public static void computeAllBackward(Layer[] layers, double[][] dinputs, double learning_rate) {
-
-
-        double[][] doutputs = dinputs;
-        for (int i = 0; i < layers.length; i++) {
-            doutputs = layers[layers.length - 1 - i].backward(doutputs, learning_rate);
-        }
-
-    }
-
-    public static double[][] computeAll(Layer[] layers, double[][] inputs) {
-
-        double[][] outputs = inputs;
-        for (Layer layer : layers) {
-            outputs = layer.forward(outputs);
-
-        }
-        return outputs;
-    }
-
-
     public static void main2(String[] args) throws Exception {
 
 
-        FullyConnectedLayer f1 = new FullyConnectedLayer(784, 7 * 7);
-        TanH act = new TanH();
-        FullyConnectedLayer f3 = new FullyConnectedLayer(7 * 7, 10);
-        //SoftmaxCategoricalCrossEntropy act_out_loss = new SoftmaxCategoricalCrossEntropy();
-
-
-        double learning_rate = 1e-4;
-        int epochs = 10;
-
-        String fpath = "/home/dblade/Documents/Neuronale-Netzte/src/train_mnist.txt";
+        double learning_rate = 0.004;
+        int epochs = 20;
+        Mnist_reader.limit = 60000;
+        String fpath = "./src/train_mnist.txt";
         double[][] x_train = Mnist_reader.getTrainData_x(fpath);
         double[][] y_train = Mnist_reader.getTrainData_y(fpath);
 
-        double[][][] x_train_bs = Mnist_reader.x_train_2_batch(x_train, 4);
-        double[][][] y_train_bs = Mnist_reader.y_train_2_batch(y_train, 4);
 
-        x_train = null;
-        y_train = null;
+        String fpath_test = "./src/test_mnist.txt";
+        Mnist_reader.limit = 15000;
+        double[][] x_test = Mnist_reader.getTrainData_x(fpath);
+        double[][] y_test = Mnist_reader.getTrainData_y(fpath);
+
+        //double[][][] x_train_bs = Mnist_reader.x_train_2_batch(x_train, 4);
+        //double[][][] y_train_bs = Mnist_reader.y_train_2_batch(y_train, 4);
+
+        //x_train = null;
+        //y_train = null;
 
         double[][] y_true;
 
-        Layer[] layers = new Layer[]{f1, act, f3, act};
         NeuralNetwork nn = new NeuralNetwork();
-        nn.create(new int[]{784, 7 * 7, 10}, "tanh");
-
+        nn.create(new int[]{784, 14 * 14, 7 * 7, 10}, "tanh");
         nn.setLoss(new MSE());
 
-        nn.train_with_batch(epochs, x_train_bs, y_train_bs, learning_rate);
+        //nn.setLoss(new CategoricalCrossEntropy());
 
+
+        double testLoss = 0;
+
+
+        //to validate after every Epoch.
+        for (int i = 0; i < epochs; i++) {
+            //System.out.println("LearningRate: " + learning_rate);
+            double[][] x_train2 = Array_utils.copyArray(x_train);
+            double[][] y_train2 = Array_utils.copyArray(y_train);
+            nn.train_single(1, x_train2, y_train2, learning_rate);
+            learning_rate -= learning_rate / 10;
+            double[][] x_test2 = Array_utils.copyArray(x_test);
+            double[][] y_test2 = Array_utils.copyArray(y_test);
+            testLoss = nn.test_single(x_test2, y_test2);
+            if (testLoss > 0.90) {
+                nn.exportWeights("weights_test" + i + "_" + ".txt");
+            }
+
+
+        }
+
+        nn.test_single(x_test, y_test);
+        nn.exportWeights("weights_test.txt");
+        System.out.println("Wrote Weights.");
     }
+
+    public static void main3(String[] args) throws Exception {
+
+
+        double learning_rate = 0.01;
+        int epochs = 50;
+        Mnist_reader.limit = 60000;
+        String fpath = "./src/train_mnist.txt";
+        double[][] x_train = Mnist_reader.getTrainData_x(fpath);
+        double[][] y_train = Mnist_reader.getTrainData_y(fpath);
+
+
+        String fpath_test = "./src/test_mnist.txt";
+        Mnist_reader.limit = 15000;
+        double[][] x_test = Mnist_reader.getTrainData_x(fpath);
+        double[][] y_test = Mnist_reader.getTrainData_y(fpath);
+
+
+        double[][][] x_train_bs = Mnist_reader.x_train_2_batch(x_train, 4);
+
+        double[][][] y_train_bs = Mnist_reader.y_train_2_batch(y_train, 4);
+
+        //x_train = null;
+        //y_train = null;
+
+        double[][] y_true;
+
+        NeuralNetwork nn = new NeuralNetwork();
+        nn.create(new int[]{784, 49 * 49, 7 * 7, 10}, "tanh");
+        nn.setLoss(new MSE());
+
+
+        double testLoss = 0;
+
+
+        //to validate after every Epoch.
+        for (int i = 0; i < epochs; i++) {
+            System.out.println("LearningRate: " + learning_rate);
+            double[][][] x_train_bs2 = Array_utils.copyArray(x_train_bs);
+            double[][][] y_train_bs2 = Array_utils.copyArray(y_train_bs);
+            nn.train_with_batch(1, x_train_bs, y_train_bs, learning_rate);
+            learning_rate -= learning_rate / 10;
+            double[][] x_test2 = Array_utils.copyArray(x_test);
+            double[][] y_test2 = Array_utils.copyArray(y_test);
+            testLoss = nn.test_single(x_test2, y_test2);
+            if (testLoss > 0.90) {
+                nn.exportWeights("weights_test" + i + "_" + ".txt");
+            }
+
+
+        }
+
+        nn.test_single(x_test, y_test);
+        nn.exportWeights("weights_test_bs.txt");
+        System.out.println("Wrote Weights.");
+    }
+
 
     public static void main(String[] args) throws Exception {
 

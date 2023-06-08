@@ -32,6 +32,17 @@ public class Array_utils {
 
     }
 
+
+    public static double[] copyArray(double[] a) {
+        double[] c = zerosLike(a);
+
+        for (int i = 0; i < c.length; i++) {
+            c[i] = a[i];
+        }
+        return c;
+
+    }
+
     public static double[][] copyArray(double[][] a) {
         double[][] c = zerosLike(a);
 
@@ -39,6 +50,22 @@ public class Array_utils {
         for (int i = 0; i < c.length; i++) {
             for (int j = 0; j < c[0].length; j++) {
                 c[i][j] = a[i][j];
+            }
+        }
+        return c;
+
+    }
+
+    public static double[][][] copyArray(double[][][] a) {
+        double[][][] c = zerosLike(a);
+
+
+        for (int i = 0; i < c.length; i++) {
+            for (int j = 0; j < c[0].length; j++) {
+                for (int k = 0; k < c[0][0].length; k++) {
+                    c[i][j][k] = a[i][j][k];
+                }
+
             }
         }
         return c;
@@ -122,6 +149,37 @@ public class Array_utils {
 
     public static double[][][] zerosLike(double[][][] a) {
         return new double[a.length][a[0].length][a[0][0].length];
+    }
+
+
+    public static double[][] onesLike(double[][] a) {
+
+
+        double[][] c = new double[a.length][a[0].length];
+
+        for (int i = 0; i < c.length; i++) {
+            for (int j = 0; j < c[0].length; j++) {
+                c[i][j] = 1;
+            }
+        }
+
+
+        return c;
+    }
+
+    public static double[][] onesLike(int size1, int size2) {
+
+
+        double[][] c = new double[size1][size2];
+
+        for (int i = 0; i < c.length; i++) {
+            for (int j = 0; j < c[0].length; j++) {
+                c[i][j] = 1;
+            }
+        }
+
+
+        return c;
     }
 
     public static double[][] zerosLike(double[][] a) {

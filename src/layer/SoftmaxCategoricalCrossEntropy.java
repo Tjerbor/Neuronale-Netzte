@@ -2,12 +2,12 @@ package layer;
 
 import utils.Array_utils;
 
-public class SoftmaxCategoricalCrossEntropy {
+public class SoftmaxCategoricalCrossEntropy extends Losses {
 
     public static Softmax softmax = new Softmax();
     public static CategoricalCrossEntropy loss = new CategoricalCrossEntropy();
 
-    public static double forward(double[][] inputs, double[][] y_true) {
+    public double forward(double[][] inputs, double[][] y_true) {
 
         double[][] out = softmax.forward(inputs);
         return loss.forward(out, y_true);
@@ -15,7 +15,7 @@ public class SoftmaxCategoricalCrossEntropy {
     }
 
 
-    public static double[][] backward(double[][] dvalues, double[][] y_true) {
+    public double[][] backward(double[][] dvalues, double[][] y_true) {
 
         //expects One-Hot-Encoded
         int batch_size = y_true.length;

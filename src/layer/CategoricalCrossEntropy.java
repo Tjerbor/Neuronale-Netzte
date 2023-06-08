@@ -2,7 +2,7 @@ package layer;
 
 import utils.Array_utils;
 
-public class CategoricalCrossEntropy {
+public class CategoricalCrossEntropy extends Losses {
 
     public static void clip(double[] a, double min, double max) {
 
@@ -31,7 +31,25 @@ public class CategoricalCrossEntropy {
 
     }
 
-    public static double forward(double[][] y_true, double[][] y_pred) {
+    public double maxVal(double[] a) {
+
+        double d = 1 - 1e-7;
+        for (int i = 0; i < a.length; i++) {
+            if (a[i] > d && a[i] != 0) {
+                d = a[i];
+            }
+        }
+
+        return d;
+
+    }
+
+
+    public double forward(double[] y_true, double[] y_pred) {
+        return -Math.log(maxVal(y_pred));
+    }
+
+    public double forward(double[][] y_true, double[][] y_pred) {
 
         int batch_size = y_true.length;
         clip(y_pred, 1e-7, 1 - 1e-7);
@@ -51,14 +69,14 @@ public class CategoricalCrossEntropy {
         double neg_log = 0;
 
         for (int i = 0; i < corrrect_confident.length; i++) {
-            neg_log += Math.log(corrrect_confident[i]);
+            neg_log += -Math.log(corrrect_confident[i]);
         }
 
 
         return neg_log / batch_size;
     }
 
-    public static double[][] backward(double[][] y_true, double[][] y_pred) {
+    public double[][] backward(double[][] y_true, double[][] y_pred) {
 
         double[][] output = new double[y_true.length][y_true[0].length];
         for (int i = 0; i < y_true.length; i++) {
@@ -69,7 +87,7 @@ public class CategoricalCrossEntropy {
         return output;
     }
 
-    public static double[] backward(double[] y_true, double[] y_pred) {
+    public double[] backward(double[] y_true, double[] y_pred) {
 
         double[] output = new double[y_true.length];
         for (int i = 0; i < y_true.length; i++) {

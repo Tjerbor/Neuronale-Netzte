@@ -6,7 +6,7 @@ import java.io.FileReader;
 public class Mnist_reader {
 
 
-    public static int limit = 50000;
+    public static int limit = 60000;
 
     public static double[][] getTrainData_x(String fpath) throws Exception {
 
@@ -101,7 +101,7 @@ public class Mnist_reader {
         int data_size = x_train.length;
 
         if (data_size % batch_size != 0) {
-            throw new IllegalArgumentException("Batch size musst be equally dividable");
+            throw new IllegalArgumentException("Batch size must be equally dividable");
         }
 
 

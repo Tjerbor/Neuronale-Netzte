@@ -1,6 +1,7 @@
+import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
 from keras.utils import np_utils
-from matplotlib import pyplot as plt
 from tensorflow.keras import layers
 
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
@@ -19,24 +20,51 @@ def preprocess_data(x, y):
 
 model = tf.keras.Sequential(
     [
-        layers.Dense(784, activation="tanh", name="layer1"),
-        layers.Dense(14 * 14, activation="tanh", name="layer2"),
+        layers.Input((784,)),
+        layers.Dense(784, activation="tanh", name="layer0"),
+        layers.Dense(14 * 14, activation="tanh", name="layer1"),
         layers.Dense(7 * 7, activation="tanh", name="layer2"),
-        layers.Dense(10, activation="softmax", name="layer3"),
+        layers.Dense(10, activation="tanh", name="layer3"),
     ]
 )
 
-model.compile("SGD", "CategoricalCrossEntropy")
+model.compile("SGD", "mse")
 
 x_train, y_train = preprocess_data(x_train, y_train)
 x_test, y_test = preprocess_data(x_test, y_test)
 model.summary()
 
-hist = model.fit(x_train, x_test, epochs=20, batch_size=16)
-model.predict(y_test, y_train)
+hist = model.fit(x_train, y_train, epochs=5, batch_size=16)
+print(model.evaluate(x_test, y_test))
 
+np.zeros((2, 2))
+"""
+f = open("std_weights.txt", "w", encoding="ascii")
+f.write("layer;784;196;49;10\n")
+L = []
+for l in model.layers[1:]:
+    tmp = []
+    w, b = (l.get_weights())
+    print(w.shape)
+    a = np.zeros((w.shape[0] + 1, w.shape[0]))
+    for i in range(w.shape[0]):
+        # tmp.append(w[i])
+        for j, wt in enumerate(w):
+            if (j != w.shape[1] - 1):
+                f.write(str(wt) + ";")
+            else:
+                f.write(str(wt))
+        f.write("\n")
+
+    for j, bt in enumerate(b):
+        if (j != b.shape[0] - 1):
+            f.write(str(bt) + ";")
+        else:
+            f.write(str(wt))
+        f.write("\n")
+"""
 plt.plot(hist.history['accuracy'])
-plt.plot(hist.history['val_accuracy'])
+
 plt.title('model accuracy')
 plt.ylabel('accuracy')
 plt.xlabel('epoch')

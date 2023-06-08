@@ -1,6 +1,5 @@
 package layer;
 
-import utils.Array_utils;
 import utils.Utils;
 
 import java.text.ParseException;
@@ -51,13 +50,16 @@ public class FullyConnectedLayer implements Layer {
         }
 
         biases = random(b);
+        //biases = new double[b];
+        //Arrays.fill(biases, 1);
+
     }
 
     /**
      * This method returns an array of random values between <code>-1</code> and <code>1</code>.
      */
     private static double[] random(int length) {
-        return random.doubles(length, -1, 1).toArray();
+        return random.doubles(length, -0.1, 0.1).toArray();
     }
 
 
@@ -128,7 +130,7 @@ public class FullyConnectedLayer implements Layer {
 
     @Override
     public double[] forward(double[] input) {
-        this.input = input;
+        this.input = (input);
         double[] result = new double[weights[0].length];
 
         for (int i = 0; i < weights[0].length; i++) {
@@ -138,7 +140,6 @@ public class FullyConnectedLayer implements Layer {
 
             result[i] += biases[i];
         }
-
         return result;
     }
 
@@ -146,7 +147,7 @@ public class FullyConnectedLayer implements Layer {
     public double[][] forward(double[][] inputs) {
         double[][] result = new double[inputs.length][weights[0].length];
 
-        this.inputs = inputs;
+        this.inputs = (inputs);
         for (int i = 0; i < inputs.length; i++) {
             for (int j = 0; j < weights[0].length; j++) {
                 for (int k = 0; k < weights.length; k++) {
@@ -269,8 +270,7 @@ public class FullyConnectedLayer implements Layer {
 
         for (int i = 0; i < this.weights.length; i++) {
             for (int j = 0; j < this.weights[0].length; j++) {
-                //this.weights[i][j] += Array_utils.roundDec(-(learning_rate * output_gradient[i][j]), global_variables.decimal_precision);
-                this.weights[i][j] += Array_utils.roundDec(-(learning_rate * output_gradient[i][j]), 16);
+                this.weights[i][j] += (-(learning_rate * output_gradient[i][j]));
 
             }
 

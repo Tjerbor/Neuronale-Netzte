@@ -10,6 +10,24 @@ public class Utils {
     static Random r = new Random(); //random to generate missing weights.
 
 
+    public static double[][][] reshape(double[] b, int[] a) {
+
+        double[][][] c = new double[a[0]][a[1]][a[2]];
+
+        int count = 0;
+        for (int i = 0; i < a[0]; i++) {
+            for (int j = 0; j < a[1]; j++) {
+                for (int k = 0; k < a[2]; k++) {
+                    c[i][j][k] = b[count];
+                    count += 1;
+                }
+            }
+        }
+        return c;
+
+    }
+
+
     public static double[][][] multiply(double[][][] a, double[][][] b) {
 
         if (a.length != b.length) {
@@ -372,7 +390,7 @@ public class Utils {
     public static double[][] matmul2D(double[][] a, double[][] b) {
 
         if (a[0].length != b.length) {
-            throw new ArithmeticException("Mismatching Shape " + Integer.toString(a[0].length) + " " + Integer.toString(b.length));
+            throw new ArithmeticException("Mismatching Shape  a:" + a.length + " " + a[0].length + "b shape: " + b.length + " " + b[0].length);
         }
 
         double[][] c = new double[a.length][b[1].length];
@@ -526,13 +544,32 @@ public class Utils {
 
     }
 
+
+    public static double[][][] genRandomWeight(int[] a) {
+
+        double[][][] c = new double[a[0]][a[1]][a[2]];
+
+        for (int i = 0; i < a[0]; i++) {
+            for (int j = 0; j < a[1]; j++) {
+                for (int k = 0; k < a[2]; k++) {
+                    c[i][j][k] = genRandomWeight();
+                }
+            }
+        }
+
+        return c;
+
+
+    }
+
+
     /**
      * generates Single weight in range -1 to 1.
      *
      * @return the random number.
      */
     public static double genRandomWeight() {
-        return r.nextDouble(-1, 1);
+        return r.nextDouble(-0.1, 0.1);
     }
 
     public static double mean(double[] a) {
@@ -609,11 +646,12 @@ public class Utils {
      * @return
      */
     public static int argmax(double[] a) {
-        int s = a.length;
-        int d = -1;
-        for (int i = 0; i < s; i++) {
-            if (a[i] > d) {
+        int d = 0;
+        double value = -99999;
+        for (int i = 0; i < a.length; i++) {
+            if (a[i] > value) {
                 d = i;
+                value = a[i];
             }
             ;
         }
@@ -622,16 +660,9 @@ public class Utils {
 
     public static int[] argmax(double[][] a) {
 
-        int s = a.length;
-        int s1 = a[1].length;
-        int[] d = new int[s];
-        for (int i = 0; i < s; i++) {
-            for (int j = 0; j < s1; j++) {
-                if (a[i][j] > d[i]) {
-                    d[i] = j;
-                }
-                ;
-            }
+        int[] d = new int[a.length];
+        for (int i = 0; i < a.length; i++) {
+            d[i] = argmax(a[i]);
         }
         return d;
     }

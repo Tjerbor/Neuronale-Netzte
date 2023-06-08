@@ -5,6 +5,8 @@ import utils.Utils;
 
 import java.util.Arrays;
 
+import static utils.Array_utils.getShape;
+
 public class LayerNorm2D {
 
     double epsilon = 1e-8;
@@ -32,10 +34,9 @@ public class LayerNorm2D {
         this.biases = new double[inputSize][inputSize2];
         this.runningMean = new double[inputSize][inputSize2];
         this.runningVar = new double[inputSize][inputSize2];
-        Arrays.fill(gamma, 1);
-        Arrays.fill(biases, 1);
-        Arrays.fill(runningMean, 0);
-        Arrays.fill(runningVar, 0);
+
+        gamma = Array_utils.onesLike(inputSize, inputSize2);
+
 
     }
 
@@ -125,6 +126,7 @@ public class LayerNorm2D {
 
         double[][][] out = this.standart_inputs.clone();
         Utils.matmul3D_2D(out, gamma);
+        System.out.println(Arrays.toString(getShape(out)));
         Array_utils.addMatrix(out, biases);
         return out;
 

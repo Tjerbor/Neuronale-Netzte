@@ -32,9 +32,9 @@ public class BatchNorm1D {
         this.runningMean = new double[input_size];
         this.runningVar = new double[input_size];
         Arrays.fill(gamma, 1);
-        Arrays.fill(biases, 0);
-        Arrays.fill(runningMean, 0);
-        Arrays.fill(runningVar, 0);
+        //Arrays.fill(biases, 0);
+        //Arrays.fill(runningMean, 0);
+        //Arrays.fill(runningVar, 0);
 
 
     }

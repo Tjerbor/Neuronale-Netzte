@@ -128,6 +128,21 @@ public class Activation implements Layer {
         return output;
     }
 
+    public double[][][] forward(double[][][] inputs) {
+        double[][][] output = new double[inputs.length][inputs[0].length][inputs[0][0].length];
+
+        for (int i = 0; i < inputs.length; i++) {
+            for (int j = 0; j < inputs[0].length; j++) {
+                for (int k = 0; k < inputs[0][0].length; k++) {
+                    output[i][j][k] = definition(inputs[i][j][k]);
+                }
+
+            }
+        }
+
+        return output;
+    }
+
     @Override
     public double[] backward(double[] input) {
         double[] output = new double[input.length];

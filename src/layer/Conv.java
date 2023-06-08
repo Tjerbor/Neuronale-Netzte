@@ -122,7 +122,7 @@ public class Conv {
 
             }
         }
-
+        Utils.updateParameter(this.filters, delta_filters, learningRate);
         return delta_filters;
     }
 
@@ -151,6 +151,8 @@ public class Conv {
                 }
             }
         }
+
+
         return delta_filters;
     }
 
