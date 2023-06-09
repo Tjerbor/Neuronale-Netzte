@@ -6,6 +6,8 @@ import layer.*;
 import java.util.Arrays;
 import java.util.Random;
 
+import static utils.Array_utils.getShape;
+
 public class Utils {
     static Random r = new Random(); //random to generate missing weights.
 
@@ -79,7 +81,7 @@ public class Utils {
 
         } else {
             throw new ArithmeticException("Mismatching Shape a: " +
-                    Array_utils.getShape(a) + " b: " + Array_utils.getShape(b));
+                    getShape(a) + " b: " + getShape(b));
         }
 
         return c;
@@ -129,7 +131,7 @@ public class Utils {
 
         } else {
             throw new ArithmeticException("Mismatching Shape a: " +
-                    Arrays.toString(Array_utils.getShape(a)) + " b: " + Arrays.toString(Array_utils.getShape(b)));
+                    Arrays.toString(getShape(a)) + " b: " + Arrays.toString(getShape(b)));
         }
 
         return c;
@@ -540,6 +542,24 @@ public class Utils {
         }
 
         return a;
+
+
+    }
+
+
+    public static void genRandomWeight(double[][][][] d) {
+
+
+        for (int i = 0; i < d.length; i++) {
+            for (int j = 0; j < d[0].length; j++) {
+                for (int k = 0; k < d[0][0].length; k++) {
+                    for (int l = 0; l < d[0][0][0].length; l++) {
+                        d[i][j][k][l] = genRandomWeight();
+                    }
+
+                }
+            }
+        }
 
 
     }

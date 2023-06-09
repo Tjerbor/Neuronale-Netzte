@@ -4,7 +4,8 @@ import utils.Array_utils;
 import utils.Utils;
 
 /**
- * Now only supports the same Kernel size but is easily changeable.
+ * Now only supports the same Kernel size but is easily changeable
+ * This is an Optimized Conv2D beacuse it has not a extra 1 hape for the channels.
  */
 
 public class Conv {

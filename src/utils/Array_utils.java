@@ -17,6 +17,42 @@ public class Array_utils {
      * @param
      */
 
+
+    public static double[][][][] fill(double[][][][] a, double d) {
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        a[i][j][k][l] = d;
+                    }
+                }
+            }
+        }
+
+        return a;
+
+    }
+
+
+    public static double[][][][] fill(int[] shape, double d) {
+
+        double[][][][] a = new double[shape[0]][shape[1]][shape[2]][shape[3]];
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        a[i][j][k][l] = d;
+                    }
+                }
+            }
+        }
+
+        return a;
+
+    }
+
     public static int[] getShape(double[] a) {
         return new int[]{a.length};
 
@@ -29,6 +65,11 @@ public class Array_utils {
 
     public static int[] getShape(double[][][] a) {
         return new int[]{a.length, a[0].length, a[0][0].length};
+
+    }
+
+    public static int[] getShape(double[][][][] a) {
+        return new int[]{a.length, a[0].length, a[0][0].length, a[0][0][0].length};
 
     }
 
@@ -460,7 +501,6 @@ public class Array_utils {
 
     }
 
-
     public static double[][][] addMatrixRE(double[][][] a, double[][][] b) {
         double[][][] c = new double[a.length][a[0].length][a[0][0].length];
         for (int i = 0; i < a.length; i++) {
@@ -496,7 +536,6 @@ public class Array_utils {
 
 
     }
-
 
     public static void mult_matrix_by_scalar(double[][][] a, double scalar) {
         for (int i = 0; i < a.length; i++) {
@@ -535,7 +574,6 @@ public class Array_utils {
         return c;
 
     }
-
 
     public static double[][] div_matrix_by_scalarRE(double[][] a, double scalar) {
 
@@ -602,7 +640,6 @@ public class Array_utils {
         return b;
     }
 
-
     public static double[][] getSubmatrix(double[][] in, int h_st, int h_end, int w_st, int w_end) {
 
         double[][] out = new double[h_end - h_st][w_end - w_st];
@@ -614,6 +651,19 @@ public class Array_utils {
         }
         return out;
     }
+
+    public static double[][][] getSubmatrix(double[][][] in, int h_st, int h_end, int w_st, int w_end, int ci) {
+
+        double[][][] out = new double[h_end - h_st][w_end - w_st][1];
+
+        for (int i = 0; i < h_end - h_st; i++) {
+            for (int j = 0; j < w_end - w_st; j++) {
+                out[i][j][0] = in[h_st + i][w_st + j][ci];
+            }
+        }
+        return out;
+    }
+
 
     public static double roundDec(double value, int size) {
 
@@ -707,7 +757,6 @@ public class Array_utils {
         return c;
     }
 
-
     public static double[] linspace(double start, double end, int size, int round_size) {
 
         double[] out = new double[size];
@@ -734,7 +783,6 @@ public class Array_utils {
 
 
     }
-
 
     /**
      * Linspace without endpoint
@@ -821,7 +869,6 @@ public class Array_utils {
         return c;
     }
 
-
     public static double[][] multiply2D(double[][] a, double[][] b) {
 
         double[][] c = new double[a.length][a[0].length];
@@ -834,4 +881,59 @@ public class Array_utils {
 
         return c;
     }
+
+    public static boolean checkMultiShape(double[][][] a, double[][][] b) {
+
+
+        if (a.length > b.length) {
+            if (!(a.length != 1 && b.length != 1 && a.length % b.length == 0)) {
+                return false;
+            } else if (!(a[0].length != 1 && b[0].length != 1 && a[0].length % b[0].length == 0)) {
+
+                return false;
+            } else if (!(a[0].length != 1 && b[0].length != 1 && a[0].length % b[0].length == 0)) {
+                return false;
+            }
+
+
+        }
+
+
+        return true;
+    }
+
+
+    public static double[][][] multiply3D(double[][][] a, double[][][] b) {
+
+        double[][][] c = new double[a.length][a[0].length][a[0][0].length];
+
+
+        if (getShape(a) == getShape(b)) {
+
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    for (int k = 0; k < a[0][0].length; k++) {
+                        c[i][j][k] += a[i][j][k] * b[i][j][k];
+                    }
+
+                }
+            }
+        } else if (!checkMultiShape(a, b)) {
+            throw new ArithmeticException("Sgape Error Got shaep a: " + Arrays.toString(getShape(a)) + " and shape b: " + Arrays.toString(getShape(b)));
+        } else if (b.length == 1 && b[0].length == a[0].length && a[0][0].length == b[0][0].length) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    for (int k = 0; k < a[0][0].length; k++) {
+                        c[i][j][k] += a[i][j][k] * b[0][j][k];
+                    }
+
+                }
+            }
+        }
+
+        return c;
+    }
+
 }
+
+

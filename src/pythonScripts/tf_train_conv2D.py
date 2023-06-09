@@ -1,4 +1,3 @@
-import numpy as np
 import tensorflow as tf
 from keras.utils import np_utils
 from matplotlib import pyplot as plt
@@ -37,7 +36,14 @@ x_train, y_train = preprocess_data(x_train, y_train)
 x_test, y_test = preprocess_data(x_test, y_test)
 model.summary()
 
-hist = model.fit(x_train, y_train, epochs=10, batch_size=16)
+hist = model.fit(x_train, y_train, epochs=1, batch_size=16)
+
+for l in model.layers:
+    tmp = []
+    print(l.get_weights()[0].shape)
+    print(l.get_weights()[1].shape)
+    print(w.shape)
+
 # model.predict(y_test, y_train)
 
 plt.plot(hist.history['accuracy'])

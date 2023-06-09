@@ -1,94 +1,212 @@
 package layer;
 
 import utils.Array_utils;
+import utils.Utils;
 
-import java.util.Arrays;
+import static utils.Utils.genRandomWeight;
 
 //https://github.com/detkov/Convolution-From-Scratch/blob/main/convolution.py
 public class Conv2D {
 
-    /**
-     * def apply_filter_to_image(image: np.ndarray,
-     * kernel: List[List[float]]) -> np.ndarray:
-     * """Applies filter to the given image.
-     * Args:
-     * image (np.ndarray): 3D matrix to be convolved. Shape must be in HWC format.
-     * kernel (List[List[float]]): 2D odd-shaped matrix (e.g. 3x3, 5x5, 13x9, etc.).
-     * Returns:
-     * np.ndarray: image after applying kernel.
-     * """
-     * kernel = np.asarray(kernel)
-     * b = kernel.shape
-     * return np.dstack([conv2d(image[:, :, z], kernel, padding=(b[0]//2,  b[1]//2))
-     * for z in range(3)]).astype('uint8')
-     **/
+    double[][][][] inputs;
+    double[][][] input;
+    int kernelSize2 = 3;
 
     int kernelSize = 3;
-    Conv c = new Conv(32);
+    int num_filters;
 
-    public double[][][][] forward(double[][][][] inputs) {
+    double[][][][] filters;
 
-        double[][][][] out = Array_utils.zerosLike(inputs);
+    double[] biases;
 
-        for (int i = 0; i < inputs.length; i++) {
-            out[i] = fordward(inputs[i]);
-        }
+    public Conv2D(int num_filters) {
+        this.num_filters = num_filters;
+        this.filters = new double[kernelSize][kernelSize2][1][num_filters];
+        this.biases = Utils.getOnesBiases(num_filters);
+        genRandomWeight(this.filters);
+    }
+
+    public Conv2D(int num_filters, int channels) {
+        this.num_filters = num_filters;
+        this.filters = new double[kernelSize][kernelSize2][channels][num_filters];
+        this.biases = Utils.getOnesBiases(num_filters);
+        genRandomWeight(this.filters);
+    }
 
 
-        return out;
+    public Conv2D(int num_filters, int channels, int kernel_size) {
+        this.num_filters = num_filters;
+        this.kernelSize = kernel_size;
+        this.kernelSize2 = kernel_size;
+        this.filters = new double[kernelSize][kernelSize2][channels][num_filters];
+
+        int[] shape = new int[]{kernel_size, kernel_size, channels, num_filters};
+        genRandomWeight(this.filters);
+        this.biases = Utils.getOnesBiases(num_filters);
+    }
+
+
+    public Conv2D(int num_filters, int channels, int kernelSize, int kernelSize2) {
+        this.num_filters = num_filters;
+        this.filters = new double[kernelSize][kernelSize2][channels][num_filters];
+        this.kernelSize = kernelSize;
+        this.kernelSize2 = kernelSize2;
+        this.biases = Utils.getOnesBiases(num_filters);
+        genRandomWeight(this.filters);
 
     }
 
-    public double[][] cutOffLastDim(double[][][] a, int d) {
+    public static double[][][][] reshapeImg(double[][][][] a) {
 
-        if (d > 3) {
-            System.out.println("A Picture can not have more than " +
-                    "3 Colour Channels");
-        }
-
-        System.out.println(d);
-        System.out.println(Arrays.toString(
-                Array_utils.getShape(a)));
-        double[][] c = new double[a.length][a[0].length];
-        System.out.println(Arrays.toString(
-                Array_utils.getShape(c)));
-        for (int i = 0; i < a.length; i++) {
-            for (int j = 0; j < a[0].length; j++) {
-                c[i][j] = a[i][j][d];
+        double[][][][] c = new double[a.length][a[0][0][0].length][a[0].length][a[0][0].length];
+        for (int b = 0; b < a.length; b++) {
+            for (int ci = 0; ci < a[0][0][0].length; ci++) {
+                for (int i = 0; i < a[0].length; i++) {
+                    for (int j = 0; j < a[0][0].length; j++) {
+                        c[b][ci][i][j] = a[b][i][j][ci];
+                    }
+                }
             }
+
+
         }
 
         return c;
     }
 
-    public double[][][] fordward(double[][][] input) {
+    public static double[][][] reshapeImg(double[][][] a) {
 
+        double[][][] c = new double[a[0][0].length][a.length][a[0].length];
 
-        int count = 0;
-        double[][][] out;
-        double[][][] n = new double[input.length][input.length]
-                [c.num_filters *
-                input[0][0].length];
-        for (int dim = 0; dim < input[0][0].length; dim++) {
-            out = c.forward(cutOffLastDim(input, dim));
-
-            System.out.println(Array_utils.getShape(out));
-            System.out.println(Array_utils.getShape(n));
-            for (int i = 0; i < c.num_filters; i++) {
-                for (int j = 0; j < input.length; j++) {
-                    for (int k = 0; k < input[0].length; k++) {
-                        System.out.println(Array_utils.getShape(out));
-                        System.out.println(Array_utils.getShape(n));
-                        n[j][k][count] = out[j][k][i];
-                    }
+        for (int ci = 0; ci < a[0][0].length; ci++) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    c[ci][i][j] = a[i][j][ci];
                 }
-                count += 1;
             }
+
 
         }
 
+        return c;
+    }
 
-        return n;
+    public static double[][][][] backReshapeImg(double[][][][] a) {
+
+        double[][][][] c = new double[a.length][a[0][0][0].length][a[0][0].length][a[0].length];
+        for (int b = 0; b < a.length; b++) {
+            for (int ci = 0; ci < a[0].length; ci++) {
+                for (int i = 0; i < a[0][0].length; i++) {
+                    for (int j = 0; j < a[0][0][0].length; j++) {
+                        c[b][i][j][ci] = a[b][ci][i][j];
+                    }
+                }
+            }
+        }
+        return c;
+    }
+
+
+    public double sum_axis(double[][] imageRegion) {
+
+        double out = 0;
+
+        for (int ci = 0; ci < this.filters[0][0].length; ci++) {
+            for (int f = 0; f < this.num_filters; f++) {
+                for (int i = 0; i < this.kernelSize; i++) {
+                    for (int j = 0; j < this.kernelSize2; j++) {
+                        out += this.filters[i][j][ci][f];
+                    }
+                }
+            }
+        }
+        return out;
+    }
+
+    public double[][][] getFilter(int ci) {
+
+        double[][][] c = new double[kernelSize][kernelSize2][this.num_filters];
+
+        for (int i = 0; i < kernelSize; i++) {
+            for (int j = 0; j < kernelSize2; j++) {
+                for (int k = 0; k < num_filters; k++) {
+                    c[i][j][k] = this.filters[i][j][ci][k];
+                }
+            }
+        }
+        return c;
+    }
+
+    public double[] sum_axis_1_2(double[][] imageRegion, int ci_in) {
+
+        double[] out = new double[this.num_filters];
+
+        for (int f = 0; f < this.num_filters; f++) {
+            for (int i = 0; i < this.kernelSize; i++) {
+                for (int j = 0; j < this.kernelSize2; j++) {
+                    out[f] += this.filters[i][j][ci_in][f];
+                }
+            }
+            out[f] += this.biases[f];
+        }
+        return out;
+    }
+
+
+    public double[][][][] forward(double[][][][] inputs) {
+
+        this.inputs = inputs;
+        int h = inputs[0].length;
+        int w = inputs[0][0].length;
+        int C = inputs[0][0][0].length;
+
+
+        int h_ = (h - this.kernelSize) + 1;
+        int w_ = (w - this.kernelSize2) + 1;
+
+        inputs = reshapeImg(inputs);
+
+        double[][][][] outputs_2D = new double[inputs.length][h_][w_][num_filters];
+        for (int b = 0; b < inputs.length; b++) {
+
+            for (int ci = 0; ci < C; ci++) {
+                double[][] imgRegion;
+                for (int i = 0; i < h_; i++) {
+                    for (int j = 0; j < w_; j++) {
+                        imgRegion = Array_utils.getSubmatrix(inputs[b][ci], i, i + kernelSize, j, j + kernelSize2);
+                        outputs_2D[b][i][j] = this.sum_axis_1_2(imgRegion, ci);
+                    }
+                }
+            }
+        }
+
+        return outputs_2D;
+    }
+
+    public double[][][] forward(double[][][] input) {
+
+        this.input = input;
+        int h = input[0].length;
+        int w = input[0][0].length;
+
+        int h_ = (h - this.kernelSize) + 1;
+        int w_ = (w - this.kernelSize2) + 1;
+
+        input = reshapeImg(input);
+
+        double[][][] outputs_2D = new double[h_][w_][num_filters];
+
+        for (int ci = 0; ci < input[0][0].length; ci++) {
+            double[][] imgRegion;
+            for (int i = 0; i < h_; i++) {
+                for (int j = 0; j < w_; j++) {
+                    imgRegion = Array_utils.getSubmatrix(input[ci], i, i + kernelSize, j, j + kernelSize2);
+                    outputs_2D[i][j] = this.sum_axis_1_2(imgRegion, ci);
+                }
+            }
+        }
+
+        return outputs_2D;
     }
 
 
