@@ -194,6 +194,32 @@ public class NeuralNetwork {
     }
 
     /**
+     * This method calculates a forward pass through the neural network with the given input.
+     */
+    public double[] compute(double[] input) {
+        double[] result = input.clone();
+
+        for (Layer layer : layers) {
+            result = layer.forward(result);
+        }
+
+        return result;
+    }
+
+    /**
+     * This method calculates a forward pass through the neural network with each of the given inputs.
+     */
+    public double[][] computeAll(double[][] inputs) {
+        double[][] result = Arrays.stream(inputs).map(double[]::clone).toArray(double[][]::new);
+
+        for (Layer layer : layers) {
+            result = layer.forward(result);
+        }
+
+        return result;
+    }
+
+    /**
      * computes the backpropagation
      *
      * @param dinput        delta input of NN.
@@ -262,41 +288,6 @@ public class NeuralNetwork {
 
         }
 
-    }
-
-    /**
-     * forward pass of the NN with a batch.
-     *
-     * @param inputs batch of inputs.
-     * @return the computed Output of the NN.
-     * @throws Exception
-     */
-    public double[][] computeAll(double[][] inputs) throws Exception {
-
-        double[][] outputs = inputs;
-        for (Layer layer : this.layers) {
-            outputs = layer.forward(outputs);
-
-        }
-        return outputs;
-    }
-
-    /**
-     * forward pass of the NN with a single input.
-     *
-     * @param input batch of inputs.
-     * @return the computed Output of the NN.
-     */
-    public double[] compute(double[] input) {
-
-        double[] output = input;
-        for (int i = 0; i < layers.length; i++) {
-            output = this.layers[i].forward(output);
-
-        }
-
-
-        return output;
     }
 
     /**
