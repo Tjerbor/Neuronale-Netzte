@@ -1,7 +1,7 @@
 package Train;
 
 import layer.MSE;
-import main.Mnist_reader;
+import main.MNIST;
 import main.NeuralNetwork;
 import utils.Array_utils;
 
@@ -13,16 +13,16 @@ public class TrainMnist {
 
         double learning_rate = 0.004;
         int epochs = 20;
-        Mnist_reader.limit = 60000;
         String fpath = "./src/train_mnist.txt";
-        double[][] x_train = Mnist_reader.getTrainData_x(fpath);
-        double[][] y_train = Mnist_reader.getTrainData_y(fpath);
+        double[][][] trainingData = MNIST.read(fpath, 60000);
+        double[][] x_train = trainingData[0];
+        double[][] y_train = trainingData[1];
 
 
         String fpath_test = "./src/test_mnist.txt";
-        Mnist_reader.limit = 15000;
-        double[][] x_test = Mnist_reader.getTrainData_x(fpath);
-        double[][] y_test = Mnist_reader.getTrainData_y(fpath);
+        double[][][] testData = MNIST.read(fpath_test, 15000);
+        double[][] x_test = testData[0];
+        double[][] y_test = testData[1];
 
         //double[][][] x_train_bs = Mnist_reader.x_train_2_batch(x_train, 4);
         //double[][][] y_train_bs = Mnist_reader.y_train_2_batch(y_train, 4);
@@ -69,21 +69,21 @@ public class TrainMnist {
 
         double learning_rate = 0.01;
         int epochs = 50;
-        Mnist_reader.limit = 60000;
         String fpath = "./src/train_mnist.txt";
-        double[][] x_train = Mnist_reader.getTrainData_x(fpath);
-        double[][] y_train = Mnist_reader.getTrainData_y(fpath);
+        double[][][] trainingData = MNIST.read(fpath, 60000);
+        double[][] x_train = trainingData[0];
+        double[][] y_train = trainingData[1];
 
 
         String fpath_test = "./src/test_mnist.txt";
-        Mnist_reader.limit = 15000;
-        double[][] x_test = Mnist_reader.getTrainData_x(fpath);
-        double[][] y_test = Mnist_reader.getTrainData_y(fpath);
+        double[][][] testData = MNIST.read(fpath_test, 15000);
+        double[][] x_test = testData[0];
+        double[][] y_test = testData[1];
 
 
-        double[][][] x_train_bs = Mnist_reader.x_train_2_batch(x_train, 4);
+        double[][][] x_train_bs = MNIST.x_train_2_batch(x_train, 4);
 
-        double[][][] y_train_bs = Mnist_reader.y_train_2_batch(y_train, 4);
+        double[][][] y_train_bs = MNIST.y_train_2_batch(y_train, 4);
 
         //x_train = null;
         //y_train = null;

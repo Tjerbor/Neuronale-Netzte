@@ -1,10 +1,10 @@
 package Train;
 
 import layer.*;
-import main.Mnist_reader;
+import main.MNIST;
 
 import static Train.TrainMnistConv.reshape;
-import static main.Mnist_reader.y_train_2_batch;
+import static main.MNIST.y_train_2_batch;
 import static utils.Array_utils.getShape;
 
 public class TrainMnistFull {
@@ -116,16 +116,16 @@ public class TrainMnistFull {
         double step_loss;
         double learning_rate = 0.01;
         int epochs = 20;
-        Mnist_reader.limit = 60000;
         String fpath = "./src/train_mnist.txt";
-        double[][] x_train = Mnist_reader.getTrainData_x(fpath);
-        double[][] y_train = Mnist_reader.getTrainData_y(fpath);
+        double[][][] trainingData = MNIST.read(fpath, 60000);
+        double[][] x_train = trainingData[0];
+        double[][] y_train = trainingData[1];
 
 
         String fpath_test = "./src/test_mnist.txt";
-        Mnist_reader.limit = 15000;
-        double[][] x_test = Mnist_reader.getTrainData_x(fpath);
-        double[][] y_test = Mnist_reader.getTrainData_y(fpath);
+        double[][][] testData = MNIST.read(fpath_test, 15000);
+        double[][] x_test = testData[0];
+        double[][] y_test = testData[1];
 
         double[][][] x_test_bs = reshape(x_test);
 
