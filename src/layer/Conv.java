@@ -3,6 +3,8 @@ package layer;
 import utils.Array_utils;
 import utils.Utils;
 
+import static utils.Utils.genRandomWeight;
+
 /**
  * Now only supports the same Kernel size but is easily changeable
  * This is an Optimized Conv2D beacuse it has not a extra 1 hape for the channels.
@@ -23,12 +25,30 @@ public class Conv {
         this.filters = new double[filters][kernel_size][kernel_size];
         this.num_filters = filters;
         this.biases = new double[input_shape[0]][input_shape[1]][filters];
-
+        genRandomWeight(this.filters);
     }
 
     public Conv(int filters) {
         this.filters = new double[filters][kernel_size][kernel_size];
         this.num_filters = filters;
+        genRandomWeight(this.filters);
+    }
+
+    public static double[][][] reshapeImg(double[][][] a) {
+
+        double[][][] c = new double[a[0][0].length][a.length][a[0].length];
+
+        for (int ci = 0; ci < a[0][0].length; ci++) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    c[ci][i][j] = a[i][j][ci];
+                }
+            }
+
+
+        }
+
+        return c;
     }
 
     public double[] sum_axis_1_2(double[][] imageRegion) {
@@ -45,7 +65,6 @@ public class Conv {
         return out;
     }
 
-
     /*
     uses Valid Method.
      */
@@ -60,14 +79,14 @@ public class Conv {
 
         double[][][] output_2D = new double[h_][w_][num_filters];
         if (useBiases) {
-            output_2D = this.biases.clone();
+            output_2D = Array_utils.copyArray(this.biases);
         }
 
         double[][] imgRegion;
         for (int i = 0; i < h_; i++) {
             for (int j = 0; j < w_; j++) {
                 imgRegion = Array_utils.getSubmatrix(inputs, i, i + kernel_size, j, j + kernel_size);
-                output_2D[i][j] = this.sum_axis_1_2(imgRegion);
+                Array_utils.addMatrix(output_2D[i][j], this.sum_axis_1_2(imgRegion));
 
 
             }
@@ -96,9 +115,9 @@ public class Conv {
             }
         }
 
+
         return outputs_2D;
     }
-
 
     public double[][][] backward(double[][][] delta_out, double learningRate) {
 
@@ -111,12 +130,16 @@ public class Conv {
         double[][][] delta_filters = new double[this.num_filters][this.kernel_size][this.kernel_size];
         double[][] imgRegion;
 
+
+        delta_out = reshapeImg(delta_out);
+
+
         for (int i = 0; i < h_; i++) {
             for (int j = 0; j < w_; j++) {
                 for (int f = 0; f < this.num_filters; f++) {
                     imgRegion = Array_utils.getSubmatrix(input_2D, i, i + kernel_size,
                             j, j + kernel_size);
-                    Utils.cal_matrix_mult_scalar(imgRegion, delta_out[i][j][f]);
+                    Utils.cal_matrix_mult_scalar(imgRegion, delta_out[f][i][j]);
                     Utils.addMatrix(delta_filters[f], imgRegion);
 
                 }

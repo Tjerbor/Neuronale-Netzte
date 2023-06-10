@@ -18,6 +18,8 @@ public class FullyConnectedLayer implements Layer {
     /**
      * This variable contains the weights of the layer.
      */
+
+    boolean useMomentum = false;
     private double[][] weights;
     /**
      * This variable contains the biases of the layer.
@@ -70,8 +72,9 @@ public class FullyConnectedLayer implements Layer {
     public void activateMomentum() {
         this.momentumWeights = new double[this.weights.length][this.weights[0].length];
         this.momentumBiases = new double[this.biases.length];
-        Arrays.fill(momentumBiases, 0);
-        Arrays.fill(momentumWeights[0], 0);
+        this.useMomentum = true;
+        //Arrays.fill(momentumBiases, 0);
+        //Arrays.fill(momentumWeights[0], 0);
 
     }
 

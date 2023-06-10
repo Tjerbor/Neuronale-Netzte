@@ -564,6 +564,22 @@ public class Utils {
 
     }
 
+    public static void genRandomWeight(double[][][] d) {
+
+
+        for (int i = 0; i < d.length; i++) {
+            for (int j = 0; j < d[0].length; j++) {
+                for (int k = 0; k < d[0][0].length; k++) {
+                    d[i][j][k] = genRandomWeight();
+
+
+                }
+            }
+        }
+
+
+    }
+
 
     public static double[][][] genRandomWeight(int[] a) {
 

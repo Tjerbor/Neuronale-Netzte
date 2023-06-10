@@ -188,6 +188,11 @@ public class Array_utils {
                 [a[0][0].length][a[0][0][0].length];
     }
 
+    public static double[][][][] zerosLike(int[] a) {
+        return new double[a[0]][a[1]][a[2]][a[3]];
+
+    }
+
     public static double[][][] zerosLike(double[][][] a) {
         return new double[a.length][a[0].length][a[0][0].length];
     }

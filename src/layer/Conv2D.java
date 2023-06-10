@@ -12,6 +12,8 @@ public class Conv2D {
     double[][][] input;
     int kernelSize2 = 3;
 
+    int channels = 1;
+
     int kernelSize = 3;
     int num_filters;
 
@@ -24,6 +26,7 @@ public class Conv2D {
         this.filters = new double[kernelSize][kernelSize2][1][num_filters];
         this.biases = Utils.getOnesBiases(num_filters);
         genRandomWeight(this.filters);
+        channels = 1;
     }
 
     public Conv2D(int num_filters, int channels) {
@@ -31,6 +34,7 @@ public class Conv2D {
         this.filters = new double[kernelSize][kernelSize2][channels][num_filters];
         this.biases = Utils.getOnesBiases(num_filters);
         genRandomWeight(this.filters);
+        this.channels = channels;
     }
 
 
@@ -43,6 +47,7 @@ public class Conv2D {
         int[] shape = new int[]{kernel_size, kernel_size, channels, num_filters};
         genRandomWeight(this.filters);
         this.biases = Utils.getOnesBiases(num_filters);
+        this.channels = channels;
     }
 
 
@@ -53,6 +58,7 @@ public class Conv2D {
         this.kernelSize2 = kernelSize2;
         this.biases = Utils.getOnesBiases(num_filters);
         genRandomWeight(this.filters);
+        this.channels = channels;
 
     }
 
@@ -210,4 +216,33 @@ public class Conv2D {
     }
 
 
+    public double[][][][] backward(double[][][][] delta_out, double learningRate) {
+
+        int h = this.inputs[0].length;
+        int w = this.inputs[0][0].length;
+
+        int h_ = (h - this.kernelSize) + 1;
+        int w_ = (w - this.kernelSize2) + 1;
+
+        double[][][][] delta_filters = new double[this.inputs.length][this.num_filters][this.kernelSize][this.kernelSize2];
+        double[][] imgRegion;
+
+        for (int b = 0; b < this.inputs.length; b++) {
+            for (int i = 0; i < h_; i++) {
+                for (int j = 0; j < w_; j++) {
+                    for (int f = 0; f < this.num_filters; f++) {
+                        imgRegion = Array_utils.getSubmatrix(inputs[b][f], i, i + kernelSize,
+                                j, j + kernelSize2);
+                        Utils.cal_matrix_mult_scalar(imgRegion, delta_out[b][i][j][f]);
+                        Utils.addMatrix(delta_filters[b][f], imgRegion);
+
+                    }
+
+                }
+            }
+        }
+
+
+        return delta_filters;
+    }
 }

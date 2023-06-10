@@ -2,12 +2,11 @@ package layer;
 
 import utils.Array_utils;
 
-import static utils.Utils.reshape;
-
 public class Flatten<E> {
 
     boolean batch = false;
     int[] shape;
+    int dim;
 
     public Flatten(boolean batch) {
         this.batch = batch;
@@ -107,16 +106,11 @@ public class Flatten<E> {
         if (this.shape.length == 3) {
 
             double[][][] c = new double[shape[0]][shape[1]][shape[2]];
+            return (E) c;
+        } else if (this.shape.length == 2) {
+            double[][] c = new double[shape[0]][shape[1]];
 
-            if (batch) {
-                throw new ArithmeticException("Not  implemented");
-            } else {
-                c = reshape(a, shape);
-
-            }
-
-
-            return (E) shape;
+            return (E) c;
         }
 
         return null;

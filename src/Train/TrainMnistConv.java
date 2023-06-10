@@ -39,6 +39,33 @@ public class TrainMnistConv {
 
     }
 
+    public static double[][][][] reshapeBatch(double[][][] a, int bs) {
+
+
+        if (a.length % bs != 0) {
+            System.out.println("Error batch Size");
+        }
+
+        double[][][][] out = new double[a.length / bs][bs][a[0].length][a[0][0].length];
+
+
+        int count = 0;
+        double[][][] tmp = new double[bs][][];
+        for (int i = 0; i < a.length % bs; i++) {
+
+            for (int j = 0; j < bs; j++) {
+                tmp[j] = a[count + j];
+            }
+
+            out[i] = tmp;
+            count += bs;
+
+        }
+
+        return out;
+    }
+
+
     public static void main(String[] args) throws Exception {
 
 
@@ -58,10 +85,10 @@ public class TrainMnistConv {
         double[][] y_test = Mnist_reader.getTrainData_y(fpath);
 
         double[][][] x_test_bs = reshape(x_test);
-        double[][][] y_test_bs = reshape(y_test);
+
 
         double[][][] x_train_bs = reshape(x_train);
-        double[][][] y_train_bs = reshape(y_train);
+        double[][][][] x_train_bs4 = reshapeBatch(x_train_bs, 4);
 
 
         //x_train = null;
@@ -70,11 +97,11 @@ public class TrainMnistConv {
         double[][] y_true;
 
         NeuralNetwork nn = new NeuralNetwork();
-        Conv conv1D = new Conv(8);
+        Conv conv1D = new Conv(32);
         TanH act = new TanH();
         Conv1DFlatten cF = new Conv1DFlatten(8);
 
-        MaxPooling1D pool = new MaxPooling1D(2, 26, 26);
+        MaxPooling2D pool = new MaxPooling2D();
         FullyConnectedLayer f1 = new FullyConnectedLayer(26 * 26 * 8, 20);
         TanH act2 = new TanH();
 
@@ -117,7 +144,37 @@ public class TrainMnistConv {
             }
             loss_per_epoch = loss_per_epoch / x_train.length;
             System.out.println("Loss per epoch: " + loss_per_epoch);
+
+
+            int ist;
+            int pred;
+            double lossTest = 0;
+            outs = null;
+            for (int j = 0; j < x_test_bs.length; j++) {
+
+                outs = cF.forward(x_test_bs[j]);
+                outs = act.forward(outs);
+                outs = f1.forward(outs);
+                outs = act2.forward(outs);
+
+                outs = f2.forward(outs);
+                outs = act3.forward(outs);
+
+
+                pred = Utils.argmax(outs);
+                ist = Utils.argmax(y_test[j]);
+
+
+                if (pred == ist) {
+                    lossTest += 1;
+                }
+
+            }
+            lossTest = lossTest / x_test_bs.length;
+            System.out.println("Acc ing epoch: " + lossTest);
+
         }
+
     }
 
 
