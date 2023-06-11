@@ -11,13 +11,6 @@ import static utils.Utils.matmul2D;
  */
 public class Array_utils {
 
-    /**
-     * RE functions mean it is required to cearte a new aary and do not overwrite.
-     *
-     * @param
-     */
-
-
     public static double[][][][] fill(double[][][][] a, double d) {
 
         for (int i = 0; i < a.length; i++) {
@@ -33,7 +26,6 @@ public class Array_utils {
         return a;
 
     }
-
 
     public static double[][][][] fill(int[] shape, double d) {
 
@@ -72,7 +64,6 @@ public class Array_utils {
         return new int[]{a.length, a[0].length, a[0][0].length, a[0][0][0].length};
 
     }
-
 
     public static double[] copyArray(double[] a) {
         double[] c = zerosLike(a);
@@ -196,7 +187,6 @@ public class Array_utils {
     public static double[][][] zerosLike(double[][][] a) {
         return new double[a.length][a[0].length][a[0][0].length];
     }
-
 
     public static double[][] onesLike(double[][] a) {
 
@@ -334,7 +324,6 @@ public class Array_utils {
         return out;
     }
 
-
     public static double[] mean_axis_0(double[][] x) {
         double[] out = sum_axis_0(x);
 
@@ -357,7 +346,6 @@ public class Array_utils {
         }
         return out;
     }
-
 
     public static double[][] mean_axis_0(double[][][] x) {
         double[][] out = sum_axis_0(x);
@@ -669,7 +657,6 @@ public class Array_utils {
         return out;
     }
 
-
     public static double roundDec(double value, int size) {
 
         String strFormat = "#.";
@@ -925,7 +912,6 @@ public class Array_utils {
         return true;
     }
 
-
     public static double[][][] multiply3D(double[][][] a, double[][][] b) {
 
         double[][][] c = new double[a.length][a[0].length][a[0][0].length];
@@ -954,6 +940,27 @@ public class Array_utils {
             }
         }
 
+        return c;
+    }
+
+    /**
+     * RE functions mean it is required to cearte a new aary and do not overwrite.
+     *
+     * @param
+     */
+
+
+    public static double[][] flipud_fliplr(double[][] a) {
+
+        int s1 = a.length;
+        int s2 = a[0].length;
+
+        double[][] c = new double[s1][s2];
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                c[i][j] = a[s1 - 1 - i][s1 - 1 - j];
+            }
+        }
         return c;
     }
 
