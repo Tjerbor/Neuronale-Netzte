@@ -335,7 +335,7 @@ public class Utils {
     public static double[] dotProdukt_1D(double[][] inputs, double[] biases) {
 
 
-        double[] output = new double[inputs.length];
+        double[] output = new double[biases.length];
         for (int i = 0; i < inputs.length; i++) {
             for (int j = 0; j < inputs[0].length; j++) {
                 output[i] += inputs[i][j] * biases[j];
@@ -683,8 +683,8 @@ public class Utils {
      */
     public static int argmax(double[] a) {
         int d = 0;
-        double value = -99999;
-        for (int i = 0; i < a.length; i++) {
+        double value = a[0];
+        for (int i = 1; i < a.length; i++) {
             if (a[i] > value) {
                 d = i;
                 value = a[i];

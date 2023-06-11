@@ -1,7 +1,6 @@
 package utils;
 
 import layer.FullyConnectedLayer;
-import layer.Layer;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -39,7 +38,7 @@ public class Reader {
      * This method attempts to read the given CSV file and create a neural network with the values it contains.
      * It throws an exception if the file does not exist or an I/O error occurs.
      */
-    public static Layer[] create(String path) throws IOException {
+    public static FullyConnectedLayer[] create(String path) throws IOException {
         List<String[]> list = read(path);
 
         if (!list.get(0)[0].equals("layers")) {
@@ -48,7 +47,7 @@ public class Reader {
 
         int[] topologie = IntStream.range(1, list.get(0).length).map(i -> Integer.parseInt(list.get(0)[i])).toArray();
 
-        Layer[] structur = new Layer[(topologie.length - 1) * 2];
+        FullyConnectedLayer[] structur = new FullyConnectedLayer[topologie.length - 1];
 
         int count = 0;
         int list_pos = 1; //da die erste Zeile die Topologie bestimmt.
@@ -56,8 +55,7 @@ public class Reader {
         for (int i = 0; i < (topologie.length - 1); i++) {
             double[][] w = Utils.genRandomWeights(topologie[i] + 1, topologie[i + 1]);
 
-            structur[count] = new FullyConnectedLayer(topologie[i], topologie[i + 1]);
-            structur[count + 1] = Utils.getActivation();
+            structur[i] = new FullyConnectedLayer(topologie[i], topologie[i + 1]);
 
             for (int j = 0; j < (topologie[i]) + 1; j++) {
                 for (int wi = 0; wi < list.get(list_pos).length; wi++) {
@@ -70,9 +68,9 @@ public class Reader {
 
             list_pos += 1; //wegen der leerzeile.
             //structur[i + count].weights = Utils.split_for_weights(w);
-            structur[count].setWeights(w);
+            structur[i].setWeights(w);
             //structur[i + count].biases = Utils.split_for_biases(w);
-            count += 2;
+            count += 1;
         }
 
         return structur;

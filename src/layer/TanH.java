@@ -13,4 +13,6 @@ public class TanH extends Activation {
     public double derivative(double x) {
         return 1 - (Math.pow(definition(x), 2));
     }
+
+
 }

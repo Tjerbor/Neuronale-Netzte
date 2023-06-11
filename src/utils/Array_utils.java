@@ -887,6 +887,24 @@ public class Array_utils {
         return c;
     }
 
+    public static double[][][][] multiply4D(double[][][][] a, double[][][][] b) {
+
+        double[][][][] c = new double[a.length][a[0].length][a[0][0].length][a[0][0][0].length];
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        c[i][j][k][l] += a[i][j][k][l] * b[i][j][k][l];
+                    }
+                }
+
+            }
+        }
+
+        return c;
+    }
+
     public static boolean checkMultiShape(double[][][] a, double[][][] b) {
 
 

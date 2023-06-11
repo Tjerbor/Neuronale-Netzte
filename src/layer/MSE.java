@@ -69,7 +69,7 @@ public class MSE extends Losses {
 
         for (int i = 0; i < s; i++) {
             for (int j = 0; j < s1; j++) {
-                out[i][j] = 2 * out[i][j] / size;
+                out[i][j] = 2 * out[i][j] / y_true[0].length;
             }
 
 

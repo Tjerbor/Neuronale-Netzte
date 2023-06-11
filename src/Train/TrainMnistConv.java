@@ -2,7 +2,6 @@ package Train;
 
 import layer.*;
 import main.MNIST;
-import main.NeuralNetwork;
 import utils.Utils;
 
 public class TrainMnistConv {
@@ -71,7 +70,7 @@ public class TrainMnistConv {
 
         double loss_per_epoch;
         double step_loss;
-        double learning_rate = 0.01;
+        double learning_rate = 0.4;
         int epochs = 20;
         String fpath = "./src/train_mnist.txt";
         double[][][] trainingData = MNIST.read(fpath, 60000);
@@ -88,25 +87,14 @@ public class TrainMnistConv {
 
 
         double[][][] x_train_bs = reshape(x_train);
-        double[][][][] x_train_bs4 = reshapeBatch(x_train_bs, 4);
 
-
-        //x_train = null;
-        //y_train = null;
-
-        double[][] y_true;
-
-        NeuralNetwork nn = new NeuralNetwork();
         Conv conv1D = new Conv(32);
-        TanH act = new TanH();
         Conv1DFlatten cF = new Conv1DFlatten(8);
 
         MaxPooling2D pool = new MaxPooling2D();
         FullyConnectedLayer f1 = new FullyConnectedLayer(26 * 26 * 8, 20);
-        TanH act2 = new TanH();
 
         FullyConnectedLayer f2 = new FullyConnectedLayer(20, 10);
-        Softmax act3 = new Softmax();
 
         Losses loss = new MSE();
 
@@ -119,12 +107,8 @@ public class TrainMnistConv {
             for (int j = 0; j < step_size; j++) {
 
                 outs = cF.forward(x_train_bs[j]);
-                outs = act.forward(outs);
-                outs = f1.forward(outs);
-                outs = act2.forward(outs);
-
-                outs = f2.forward(outs);
-                outs = act3.forward(outs);
+                outs = f1.forwardNew(outs);
+                outs = f2.forwardNew(outs);
 
                 outs = Utils.clean_input(outs, y_train[0].length);
                 step_loss = loss.forward(outs, y_train[j]);
@@ -132,12 +116,8 @@ public class TrainMnistConv {
                 //calculates prime Loss
                 outs = loss.backward(outs, y_train[j]);
                 // now does back propagation // an updates the weights.
-                outs = act3.backward(outs);
-                outs = f2.backward(outs, learning_rate);
-
-                outs = act2.backward(outs);
-                outs = f1.backward(outs, learning_rate);
-                outs = act.backward(outs);
+                outs = f2.backwardNew(outs, learning_rate);
+                outs = f1.backwardNew(outs, learning_rate);
                 cF.backward(outs, learning_rate);
 
 
@@ -153,14 +133,8 @@ public class TrainMnistConv {
             for (int j = 0; j < x_test_bs.length; j++) {
 
                 outs = cF.forward(x_test_bs[j]);
-                outs = act.forward(outs);
                 outs = f1.forward(outs);
-                outs = act2.forward(outs);
-
                 outs = f2.forward(outs);
-                outs = act3.forward(outs);
-
-
                 pred = Utils.argmax(outs);
                 ist = Utils.argmax(y_test[j]);
 

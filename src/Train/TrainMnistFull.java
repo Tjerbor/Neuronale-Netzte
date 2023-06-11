@@ -35,7 +35,6 @@ public class TrainMnistFull {
             }
         }
 
-        TrainMnistFull.shape = getShape(a);
 
         return b;
     }
@@ -141,20 +140,18 @@ public class TrainMnistFull {
         double[][] y_true;
 
         Conv conv1D = new Conv(8);
-        TanH act = new TanH();
+        Conv2D conv2D = new Conv2D(8);
         MaxPooling2D poll = new MaxPooling2D();
 
         FullyConnectedLayer f1 = new FullyConnectedLayer(13 * 13 * 8, 20);
-        TanH act2 = new TanH();
 
         FullyConnectedLayer f2 = new FullyConnectedLayer(20, 10);
-        Softmax act3 = new Softmax();
 
         Losses loss = new MSE();
 
         Flatten flatt = new Flatten(false);
 
-        int step_size = x_train.length;
+        int step_size = x_train_bs4.length;
         for (int i = 0; i < epochs; i++) {
             loss_per_epoch = 0;
 
@@ -165,15 +162,12 @@ public class TrainMnistFull {
 
 
                 tmp = conv1D.forward(x_train_bs4[j]);
-                tmp = act.forward(tmp);
                 tmp = poll.forward(tmp);
 
                 outs = flatten(tmp);
                 outs = f1.forward(outs);
-                outs = act2.forward(outs);
 
                 outs = f2.forward(outs);
-                outs = act3.forward(outs);
 
                 //outs = Utils.clean_input(outs, y_train[0].length);
                 step_loss = loss.forward(outs, y_train_bs4[j]);
@@ -182,12 +176,9 @@ public class TrainMnistFull {
 
                 outs = loss.backward(outs, y_train_bs4[j]);
                 // now does back propagation // an updates the weights.
-                outs = act3.backward(outs);
                 outs = f2.backward(outs, learning_rate);
 
-                outs = act2.backward(outs);
                 outs = f1.backward(outs, learning_rate);
-                outs = act.backward(outs);
 
                 tmp = reFlat(outs);
 

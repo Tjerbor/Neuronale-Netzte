@@ -2,7 +2,6 @@ package main;
 
 import layer.Activation;
 import layer.FullyConnectedLayer;
-import layer.Layer;
 import layer.Losses;
 import utils.Array_utils;
 import utils.Utils;
@@ -25,18 +24,17 @@ public class NeuralNetwork {
      *
      * @see NeuralNetwork#create(int[], String)
      */
-    private Layer[] layers;
+    private FullyConnectedLayer[] layers;
 
     /**
      * This method initializes the neural network with the given topology and activation function.
      * For each edge layer, a {@link FullyConnectedLayer} and an {@link Activation} layer are created.
      */
     public void create(int[] topology, String function) {
-        layers = new Layer[(topology.length - 1) * 2];
+        layers = new FullyConnectedLayer[topology.length - 1];
 
         for (int i = 0; i < topology.length - 1; i++) {
-            layers[i * 2] = new FullyConnectedLayer(topology[i], topology[i + 1]);
-            layers[i * 2 + 1] = Utils.getActivation(function);
+            layers[i] = new FullyConnectedLayer(topology[i], topology[i + 1], function);
         }
     }
 
@@ -64,14 +62,12 @@ public class NeuralNetwork {
 
         if (functions.length == 2) {
             create(topology, functions[0]);
-
-            layers[layers.length - 1] = Utils.getActivation(functions[1]);
+            layers[layers.length - 1].setActivation(Utils.getActivation(functions[1]));
         } else {
-            layers = new Layer[(topology.length - 1) * 2];
+            layers = new FullyConnectedLayer[topology.length - 1];
 
             for (int i = 0; i < topology.length - 1; i++) {
-                layers[i * 2] = new FullyConnectedLayer(topology[i], topology[i + 1]);
-                layers[i * 2 + 1] = Utils.getActivation(functions[i]);
+                layers[i] = new FullyConnectedLayer(topology[i], topology[i + 1], functions[i]);
             }
         }
     }
@@ -80,13 +76,12 @@ public class NeuralNetwork {
      * This method returns the topology used to create the neural network.
      */
     protected int[] topology() {
-        int[] topology = new int[size() / 2 + 1];
+        int[] topology = new int[layers.length + 1];
 
         for (int i = 0; i < topology.length - 1; i++) {
-            topology[i] = layers[i * 2].getWeights().length - 1;
-            topology[i + 1] = layers[i * 2].getWeights()[0].length;
+            topology[i] = layers[i].getWeights().length - 1;
+            topology[i + 1] = layers[i].getWeights()[0].length;
         }
-
         return topology;
     }
 
@@ -119,7 +114,7 @@ public class NeuralNetwork {
 
         s.append("\n");
 
-        for (int i = 0; i < size(); i += 2) {
+        for (int i = 0; i < size(); i++) {
             double[][] weights = layers[i].getWeights();
 
             if (i != 0) {
@@ -146,7 +141,7 @@ public class NeuralNetwork {
      * This method sets the {@link NeuralNetwork#layers}.
      * It can be used to initialize a neural network with the return value of {@link utils.Reader#create(String)}.
      */
-    public void setLayers(Layer[] layers) {
+    public void setLayers(FullyConnectedLayer[] layers) {
         this.layers = layers;
     }
 
@@ -162,7 +157,7 @@ public class NeuralNetwork {
             throw new IllegalArgumentException();
         }
 
-        layers[index * 2].setWeights(weights);
+        layers[index].setWeights(weights);
     }
 
     /**
@@ -177,7 +172,7 @@ public class NeuralNetwork {
             throw new IllegalArgumentException();
         }
 
-        layers[index * 2 + 1] = function;
+        layers[index].setActivation(function);
     }
 
     /**
@@ -199,7 +194,7 @@ public class NeuralNetwork {
     public double[] compute(double[] input) {
         double[] result = input.clone();
 
-        for (Layer layer : layers) {
+        for (FullyConnectedLayer layer : layers) {
             result = layer.forward(result);
         }
 
@@ -212,8 +207,8 @@ public class NeuralNetwork {
     public double[][] computeAll(double[][] inputs) {
         double[][] result = Arrays.stream(inputs).map(double[]::clone).toArray(double[][]::new);
 
-        for (Layer layer : layers) {
-            result = layer.forward(result);
+        for (FullyConnectedLayer layer : layers) {
+            result = layer.forwardNew(result);
         }
 
         return result;
@@ -226,12 +221,12 @@ public class NeuralNetwork {
      * @param learning_rate learning rate of the NN. (adjustment weights rate.)
      * @throws Exception shape Errors
      */
-    public void computeBackward(double[] dinput, double learning_rate) throws Exception {
+    public void computeBackward(double[] dinput, double learning_rate) {
 
 
         double[] doutput = dinput;
         for (int i = 1; i < size(); i++) {
-            doutput = this.layers[size() - i].backward(doutput, learning_rate);
+            doutput = this.layers[size() - 1 - i].backwardNew(doutput, learning_rate);
         }
 
 
@@ -244,7 +239,7 @@ public class NeuralNetwork {
      *               has noo learning rate because the optimizer updates the parameter.
      * @throws Exception Shape Errors
      */
-    public void computeBackward(double[] dinput) throws Exception {
+    public void computeBackward(double[] dinput) {
 
         double[] doutput = dinput;
         for (int i = 1; i < layers.length; i++) {
@@ -327,7 +322,6 @@ public class NeuralNetwork {
             for (int j = 0; j < step_size; j++) {
 
                 outs = computeAll(Array_utils.copyArray(x_train[j]));
-
                 //one epoch is finished.
                 //calculates Loss
                 step_losses[j] = loss.forward(outs, y_train[j]);
@@ -354,7 +348,8 @@ public class NeuralNetwork {
      */
     public void train_with_batch(int epoch, double[][][] x_train, double[][][] y_train, double learning_rate) throws Exception {
 
-        System.out.println("Train Data Length: " + x_train[0].length);
+        System.out.println("Train Data Batch Size: " + x_train[0].length);
+        System.out.println("Train Data Length: " + x_train[0][0].length);
         //checks for rxceptions
         if (x_train.length != y_train.length) {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
@@ -433,7 +428,6 @@ public class NeuralNetwork {
 
             for (int j = 0; j < step_size; j++) {
                 outs = compute(x_train[j]);
-                outs = Utils.clean_input(outs, y_train[0].length);
                 step_loss = loss.forward(outs, y_train[j]);
                 loss_per_epoch += step_loss;
                 //calculates prime Loss
@@ -501,15 +495,11 @@ public class NeuralNetwork {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-
         s.append("Topology: ").append(Arrays.toString(topology())).append("\n");
-
-        for (int i = 0; i < layers.length; i += 2) {
-            s.append("Weights of Layer ").append(i / 2).append(":\n").append(layers[i]).append("\n");
+        for (int i = 0; i < layers.length; i++) {
+            s.append("Weights of Layer ").append(i).append(":\n").append(layers[i]).append("\n");
         }
-
         s.append("Parameters: ").append(parameters()).append("\n");
-
         return s.toString();
     }
 }

@@ -16,16 +16,14 @@ public class Conv1DFlatten {
 
     public Conv1DFlatten(int kernel_size, int filters, int[] input_shape) {
         this.kernel_size = kernel_size;
-
         this.filters = Utils.genRandomWeight(new int[]{filters, kernel_size, kernel_size});
-
         this.num_filters = filters;
         this.biases = new double[input_shape[0]][input_shape[1]][filters];
 
     }
 
     public Conv1DFlatten(int filters) {
-        this.filters = new double[filters][kernel_size][kernel_size];
+        this.filters = Utils.genRandomWeight(new int[]{filters, kernel_size, kernel_size});
         this.num_filters = filters;
     }
 
