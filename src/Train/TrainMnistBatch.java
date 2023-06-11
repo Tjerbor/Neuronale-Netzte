@@ -55,9 +55,9 @@ public class TrainMnistBatch {
 
                 out = loss.backward(out, y_train_bs[j]);
 
-                out = f3.backwardNew(out, learning_rate);
-                out = f2.backwardNew(out, learning_rate);
-                out = f1.backwardNew(out, learning_rate);
+                out = f3.backward(out, learning_rate);
+                out = f2.backward(out, learning_rate);
+                out = f1.backward(out, learning_rate);
             }
 
             System.out.println("Loss: " + loss_per_step / x_train.length);
