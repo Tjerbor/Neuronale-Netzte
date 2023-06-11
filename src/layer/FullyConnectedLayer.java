@@ -325,19 +325,24 @@ public class FullyConnectedLayer implements Layer {
 
         for (int i = 0; i < input.length; i++) {
 
-            double dLdX_sum = 0;
+            double grad_sum = 0;
 
             for (int j = 0; j < weights[0].length; j++) {
 
                 d_act_out = act.derivative(act_input[j]);
                 dWeight = grad[j] * d_act_out * this.input[i];
                 weights[i][j] -= dWeight * learningRate;
-                dLdX_sum += grad[j] * d_act_out * weights[i][j];
+                grad_sum += grad[j] * d_act_out * weights[i][j];
             }
 
-            grad_out[i] = dLdX_sum;
+            if (useBiases) {
+                biases[i] -= grad[i] * learningRate;
+
+            }
+            grad_out[i] = grad_sum;
 
         }
+
 
         return grad_out;
     }
@@ -350,16 +355,16 @@ public class FullyConnectedLayer implements Layer {
 
         for (int i = 0; i < input.length; i++) {
 
-            double dLdX_sum = 0;
+            double grad_sum = 0;
 
             for (int j = 0; j < weights[0].length; j++) {
 
                 d_act_out = act.derivative(act_input[j]);
                 dweights[i][j] = grad[j] * d_act_out * this.input[i];
-                dLdX_sum += grad[j] * d_act_out * weights[i][j];
+                grad_sum += grad[j] * d_act_out * weights[i][j];
             }
 
-            grad_out[i] = dLdX_sum;
+            grad_out[i] = grad_sum;
 
         }
 
@@ -377,16 +382,16 @@ public class FullyConnectedLayer implements Layer {
 
             for (int i = 0; i < inputs[0].length; i++) {
 
-                double dLdX_sum = 0;
+                double grad_sum = 0;
 
                 for (int j = 0; j < weights[0].length; j++) {
 
                     d_act_out = act.derivative(act_input[j]);
                     dweights[i][j] += grad[bs][j] * d_act_out * this.input[i];
-                    dLdX_sum += grad[bs][j] * d_act_out * weights[i][j];
+                    grad_sum += grad[bs][j] * d_act_out * weights[i][j];
                 }
 
-                grad_out[bs][i] = dLdX_sum;
+                grad_out[bs][i] = grad_sum;
 
             }
         }
@@ -406,19 +411,25 @@ public class FullyConnectedLayer implements Layer {
 
             for (int i = 0; i < inputs[0].length; i++) {
 
-                double dLdX_sum = 0;
+                double grad_sum = 0;
 
                 for (int j = 0; j < weights[0].length; j++) {
 
                     d_act_out = act.derivative(act_input[j]);
                     dWeight = grad[bs][j] * d_act_out * this.input[i];
                     weights[i][j] -= dWeight * learningRate;
-                    dLdX_sum += grad[bs][j] * d_act_out * weights[i][j];
+                    grad_sum += grad[bs][j] * d_act_out * weights[i][j];
                 }
 
-                grad_out[bs][i] = dLdX_sum;
+                grad_out[bs][i] = grad_sum;
+                if (useBiases) {
+                    biases[i] -= inputs[bs][i] * learningRate;
+
+                }
+
 
             }
+
         }
 
         return grad_out;
