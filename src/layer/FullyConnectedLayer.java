@@ -20,6 +20,8 @@ public class FullyConnectedLayer implements Layer {
      */
 
     boolean useMomentum = false;
+
+    double momentum = 0.9;
     boolean useBiases = false;
     private double[][] weights;
     /**
@@ -90,12 +92,12 @@ public class FullyConnectedLayer implements Layer {
         this.weights = new double[a][];
 
         for (int i = 0; i < a; i++) {
-            this.weights[i] = random(b);
+            this.weights[i] = random(b, 0, 1);
         }
         setActivation(act);
 
         if (useBiases) {
-            biases = random(b);
+            biases = random(b, 0, 1);
         }
 
 
@@ -112,7 +114,7 @@ public class FullyConnectedLayer implements Layer {
 
         double[] a = new double[length];
         for (int i = 0; i < length; i++) {
-            a[i] = random.nextGaussian();
+            a[i] = random.nextGaussian(mean, std);
         }
 
         return a;
@@ -133,10 +135,24 @@ public class FullyConnectedLayer implements Layer {
      */
     public void activateMomentum() {
         this.momentumWeights = new double[this.weights.length][this.weights[0].length];
-        this.momentumBiases = new double[this.biases.length];
+
+        if (useBiases) {
+            this.momentumBiases = new double[this.biases.length];
+        }
+
         this.useMomentum = true;
-        //Arrays.fill(momentumBiases, 0);
-        //Arrays.fill(momentumWeights[0], 0);
+
+
+    }
+
+    public void activateBiases() {
+        this.biases = new double[this.weights[0].length];
+        this.useBiases = true;
+        biases = random(this.weights[0].length);
+
+        if (useMomentum) {
+            this.momentumBiases = new double[this.biases.length];
+        }
 
     }
 
@@ -277,7 +293,10 @@ public class FullyConnectedLayer implements Layer {
                     result[i][j] += inputs[i][k] * weights[k][j];
                 }
 
-                result[i][j] += biases[j];
+                if (useBiases) {
+                    result[i][j] += biases[j];
+                }
+
                 act_inputs[i][j] = result[i][j];
                 result[i][j] = act.definition(result[i][j]);
             }
@@ -333,13 +352,23 @@ public class FullyConnectedLayer implements Layer {
                 dWeight = grad[j] * d_act_out * this.input[i];
                 weights[i][j] -= dWeight * learningRate;
                 grad_sum += grad[j] * d_act_out * weights[i][j];
-            }
-
-            if (useBiases) {
-                biases[i] -= grad[i] * learningRate;
 
             }
+
+
             grad_out[i] = grad_sum;
+
+        }
+
+        if (useBiases && useMomentum) {
+            for (int i = 0; i < grad.length; i++) {
+                momentumBiases[i] = momentum * momentumBiases[i] - grad[i] * learningRate;
+                biases[i] -= momentumBiases[i];
+            }
+        } else if (useBiases) {
+            for (int i = 0; i < grad.length; i++) {
+                biases[i] -= grad[i] * learningRate;
+            }
 
         }
 
@@ -366,6 +395,11 @@ public class FullyConnectedLayer implements Layer {
 
             grad_out[i] = grad_sum;
 
+        }
+        if (useBiases) {
+            for (int i = 0; i < grad.length; i++) {
+                dbiases[i] = grad[i];
+            }
         }
 
         return grad_out;
@@ -394,6 +428,7 @@ public class FullyConnectedLayer implements Layer {
                 grad_out[bs][i] = grad_sum;
 
             }
+
         }
 
         return grad_out;
@@ -404,31 +439,11 @@ public class FullyConnectedLayer implements Layer {
 
         double[][] grad_out = new double[grad.length][inputs.length];
 
-        double d_act_out;
-        double dWeight;
-
         for (int bs = 0; bs < inputs.length; bs++) {
 
-            for (int i = 0; i < inputs[0].length; i++) {
-
-                double grad_sum = 0;
-
-                for (int j = 0; j < weights[0].length; j++) {
-
-                    d_act_out = act.derivative(act_input[j]);
-                    dWeight = grad[bs][j] * d_act_out * this.input[i];
-                    weights[i][j] -= dWeight * learningRate;
-                    grad_sum += grad[bs][j] * d_act_out * weights[i][j];
-                }
-
-                grad_out[bs][i] = grad_sum;
-                if (useBiases) {
-                    biases[i] -= inputs[bs][i] * learningRate;
-
-                }
-
-
-            }
+            this.input = inputs[bs];
+            this.act_input = act_inputs[bs];
+            this.backward(grad[bs], learningRate);
 
         }
 

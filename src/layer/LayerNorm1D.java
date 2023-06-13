@@ -3,8 +3,6 @@ package layer;
 import utils.Array_utils;
 import utils.Utils;
 
-import java.util.Arrays;
-
 public class LayerNorm1D {
 
     double epsilon = 1e-8;
@@ -29,11 +27,10 @@ public class LayerNorm1D {
 
     public LayerNorm1D(int input_size) {
         this.gamma = new double[input_size];
-        this.gamma = new double[input_size];
         this.runningMean = new double[input_size];
         this.runningVar = new double[input_size];
-        Arrays.fill(gamma, 1);
-        Arrays.fill(biases, 1);
+        Utils.fill(this.gamma, 1);
+        Utils.fill(this.biases, 1);
 
 
     }
@@ -160,6 +157,93 @@ public class LayerNorm1D {
         // gamma -= gammaGrad * learningRate
         Utils.updateParameter(this.biases, this.biasesGrad, learningRate);
         Utils.updateParameter(this.gamma, this.gammaGrad, learningRate);
+    }
+
+    public double[] forward(double[] input) {
+
+
+        double mean = Utils.mean(input);
+        this.var[0] = Array_utils.var(input);
+
+
+        if (useMomentum) {
+            for (int i = 0; i < runningMean.length; i++) {
+                runningMean[i] = momentum * runningMean[i] + (1 - momentum) * mean;
+                runningVar[i] = momentum * runningVar[i] + (1 - momentum) * var[i];
+            }
+
+
+        }
+
+        var[0] += epsilon;
+
+        this.stddev[0] = Math.sqrt(var[0]);
+
+        this.minus_mean[0] = new double[input.length];
+
+
+        for (int i = 0; i < input.length; i++) {
+            minus_mean[0][i] = (input[i] - mean);
+        }
+
+
+        standart_inputs[0] = Array_utils.copyArray(minus_mean[0]);
+        for (int i = 0; i < input.length; i++) {
+            standart_inputs[0][i] /= stddev[i];
+        }
+
+        double[] out = Array_utils.copyArray(this.standart_inputs[0]);
+
+        for (int i = 0; i < out.length; i++) {
+            out[i] = out[i] * gamma[i] + biases[i];
+        }
+        return out;
+    }
+
+
+    public double[] backward(double[] grad_inputs) {
+
+        int N = grad_inputs.length;
+        double std = this.stddev[0];
+        double[] x_centered = minus_mean[0];
+        double[] x_norm = standart_inputs[0];
+
+        gammaGrad = Utils.multiply(grad_inputs, x_norm);
+        biasesGrad = grad_inputs;
+
+
+        double[] dx_norm = Utils.multiply(grad_inputs, gamma);
+        double[] dx_centered = Array_utils.div_matrix_by_scalarRE(dx_norm, std);
+
+        double[] dmean = Array_utils.addMatrixScalar(dx_centered, 2 / N);
+        dmean = Array_utils.mult_matrix_by_scalar(dmean, Array_utils.sum(x_centered));
+
+        double[] dstdTmp = Array_utils.zerosLike(dx_norm);
+
+        //(dx_norm * x_centered * -std**(-2))
+        for (int i = 0; i < dx_norm.length; i++) {
+            dstdTmp[i] = dx_norm[i] * x_centered[i] * -Math.pow(std, -2);
+        }
+
+
+        double dstd = Array_utils.sum(dstdTmp);
+        //double[] dvar = dstd / 2 / std;
+        double dvar = dvar = dstd / 2 / std;
+
+
+        double[] dx = Array_utils.zerosLike(dx_centered);
+
+        for (int i = 0; i < dx.length; i++) {
+
+            dx[i] = dx_centered[i] + (dmean[i] +
+                    dvar * 2 * x_centered[i]
+            ) / N;
+        }
+
+
+        return dx;
+
+
     }
 
 

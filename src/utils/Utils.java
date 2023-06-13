@@ -326,6 +326,25 @@ public class Utils {
     }
 
 
+    public static void fill(double[] a, double val) {
+
+        for (int i = 0; i < a.length; i++) {
+            a[i] = val;
+        }
+  
+    }
+
+    public static double[] multiply(double[] a, double[] b) {
+
+        double[] c = new double[a.length];
+        for (int i = 0; i < a.length; i++) {
+
+            c[i] = a[i] * b[i];
+        }
+        return c;
+    }
+
+
     public static void cal_momentumW_minus_dweights(double[][] MomentumW, double[][] dweights, double learningRate) {
 
         Utils.cal_matrix_mult_scalar(dweights, learningRate);
@@ -578,6 +597,23 @@ public class Utils {
 
     }
 
+    public static void genGaussianRandomWeight(double[][][][] d) {
+
+
+        for (int i = 0; i < d.length; i++) {
+            for (int j = 0; j < d[0].length; j++) {
+                for (int k = 0; k < d[0][0].length; k++) {
+                    for (int l = 0; l < d[0][0][0].length; l++) {
+                        d[i][j][k][l] = genGaussianRandomWeight(0, 1);
+                    }
+
+                }
+            }
+        }
+
+
+    }
+
     public static void genRandomWeight(double[][][] d) {
 
 
@@ -614,13 +650,22 @@ public class Utils {
 
 
     /**
-     * generates Single weight in range -1 to 1.
+     * generates Single weight in range -0.1 to 0.1.
      *
      * @return the random number.
      */
     public static double genRandomWeight() {
         return r.nextDouble(-0.1, 0.1);
     }
+
+    public static double genGaussianRandomWeight() {
+        return r.nextGaussian();
+    }
+
+    public static double genGaussianRandomWeight(double mean, double std) {
+        return r.nextGaussian(mean, std);
+    }
+
 
     public static double mean(double[] a) {
         int s = a.length;

@@ -39,7 +39,6 @@ public class TrainMnistBatch {
         int step_size = x_train.length;
 
         //to validate after every Epoch.
-
         for (int i = 0; i < epochs; i++) {
             double[][] out;
             double loss_per_step = 0;

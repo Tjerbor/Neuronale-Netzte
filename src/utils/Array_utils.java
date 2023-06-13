@@ -284,6 +284,20 @@ public class Array_utils {
         return mean_axis_1(c);
     }
 
+    public static double var(double[] x) {
+
+        double mx = Utils.mean(x);
+        double[] c = new double[x.length];
+
+        for (int i = 0; i < x.length; i++) {
+
+            c[i] = Math.pow((x[i] - mx), 2);
+
+        }
+
+        return Utils.mean(c);
+    }
+
     public static double[] var_axis_0(double[][] x) {
 
         double[] mx = mean_axis_0(x);
@@ -530,6 +544,16 @@ public class Array_utils {
 
     }
 
+    public static double[] mult_matrix_by_scalar(double[] a, double scarlar) {
+        double[] c = new double[a.length];
+
+        for (int i = 0; i < a.length; i++) {
+            c[i] = a[i] * scarlar;
+        }
+        return c;
+    }
+
+
     public static void mult_matrix_by_scalar(double[][][] a, double scalar) {
         for (int i = 0; i < a.length; i++) {
             for (int j = 0; j < a[0].length; j++) {
@@ -538,6 +562,27 @@ public class Array_utils {
                 }
             }
         }
+
+    }
+
+    public static double[] div_matrix_by_scalarRe(double[] a, double scalar) {
+
+        double[] c = new double[a.length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = a[i] / scalar;
+
+        }
+
+        return c;
+    }
+
+    public static void div_matrix_by_scalar(double[] a, double scalar) {
+
+        for (int i = 0; i < a.length; i++) {
+            a[i] /= scalar;
+
+        }
+
 
     }
 
@@ -948,6 +993,17 @@ public class Array_utils {
      *
      * @param
      */
+
+
+    public static double sum(double[] a) {
+
+        double sum = 0;
+        for (int i = 0; i < a.length; i++) {
+            sum += a[i];
+        }
+        return sum;
+
+    }
 
 
     public static double[][] flipud_fliplr(double[][] a) {

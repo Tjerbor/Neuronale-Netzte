@@ -22,6 +22,9 @@ public class Conv2D {
     int h_out;
     int w_out;
 
+
+    Activation act;
+
     boolean useBiases = false;
     double[][][][] kernels;
     double[][][] biases;
@@ -44,7 +47,7 @@ public class Conv2D {
         this.w = shape[2];
 
         kernels = new double[num_filters][shape[0]][kernelSize][kernelSize2];
-        Utils.genRandomWeight(kernels);
+        Utils.genGaussianRandomWeight(kernels);
 
         this.h_out = h - kernelSize + 1;
         this.w_out = w - kernelSize2 + 1;
@@ -58,7 +61,7 @@ public class Conv2D {
     public Conv2D(int num_filters, int[] shape) {
         this.num_filters = num_filters;
         kernels = new double[num_filters][shape[0]][kernelSize][kernelSize2];
-        Utils.genRandomWeight(kernels);
+        Utils.genGaussianRandomWeight(kernels);
 
         this.depth = shape[0];
         this.h = shape[1];
@@ -251,6 +254,44 @@ public class Conv2D {
             }
         }
         return output;
+    }
+
+
+    @Override
+    public String toString() {
+        String s = "Conv2D; 8;1,28,28;\n";
+
+        for (int i = 0; i < this.kernels.length; i++) {
+            for (int j = 0; j < kernels[0].length; j++) {
+                for (int k = 0; k < kernels[0][0].length; k++) {
+                    for (int l = 0; l < kernels[0][0][0].length; l++) {
+
+                        if (l == kernels[0][0][0].length - 1) {
+                            s += kernels[i][j][k][l];
+                        } else {
+                            s += kernels[i][j][k][l] + ";";
+                        }
+
+                    }
+                    s += "\n";
+                }
+            }
+        }
+        s += "\n";
+        s += "Biases;\n";
+
+        for (int i = 0; i < this.kernels.length; i++) {
+            for (int j = 0; j < kernels[0].length; j++) {
+                for (int k = 0; k < kernels[0][0].length; k++) {
+                    if (k == kernels[0][0][0].length - 1) {
+                        s += biases[i][j][k];
+                    } else {
+                        s += biases[i][j][k] + ";";
+                    }
+                }
+            }
+        }
+        return s;
     }
 
 
