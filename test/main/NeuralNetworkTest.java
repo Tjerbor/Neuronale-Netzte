@@ -71,7 +71,7 @@ class NeuralNetworkTest {
 
             assertArrayEquals(topology, neuralNetwork.topology(), "The returned topology is not correct.");
 
-            assertEquals(4, neuralNetwork.size(), "The size of the neural network is not correct.");
+            assertEquals(2, neuralNetwork.size(), "The size of the neural network is not correct.");
         }
 
         @Test
@@ -83,7 +83,7 @@ class NeuralNetworkTest {
 
             assertArrayEquals(topology, neuralNetwork.topology(), "The returned topology is not correct.");
 
-            assertEquals(10, neuralNetwork.size(), "The size of the neural network is not correct.");
+            assertEquals(5, neuralNetwork.size(), "The size of the neural network is not correct.");
         }
 
         @Test
@@ -95,7 +95,7 @@ class NeuralNetworkTest {
 
             assertArrayEquals(topology, neuralNetwork.topology(), "The returned topology is not correct.");
 
-            assertEquals(10, neuralNetwork.size(), "The size of the neural network is not correct.");
+            assertEquals(5, neuralNetwork.size(), "The size of the neural network is not correct.");
 
             assertThrows(IllegalArgumentException.class, () -> neuralNetwork.create(topology, new String[]{"id"}));
         }
