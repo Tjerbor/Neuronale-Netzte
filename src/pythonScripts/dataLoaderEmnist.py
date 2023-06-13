@@ -38,7 +38,7 @@ def preprocess_data(x, y):
 
 from emnist import extract_training_samples, extract_test_samples, list_datasets
 
-type_ = "balanced"
+type_ = "bymerge"
 
 print(list_datasets())
 
@@ -47,8 +47,12 @@ test_filepath = f"../test_emnist_{type_}.txt"
 
 x_train, y_train = extract_training_samples(type_)
 x_train, y_train = preprocess_data(x_train, y_train)
-writeData(train_filepath, x_train, y_train)
+# writeData(train_filepath, x_train, y_train)
+print(x_train.shape)
+print(y_train.shape)
 
 x_test, y_test = extract_test_samples(type_)
 x_test, y_test = preprocess_data(x_test, y_test)
-writeData(test_filepath, x_test, y_test)
+# writeData(test_filepath, x_test, y_test)
+print(x_test.shape)
+print(y_test.shape)

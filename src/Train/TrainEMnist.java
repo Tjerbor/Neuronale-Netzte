@@ -3,7 +3,7 @@ package Train;
 import layer.FullyConnectedLayer;
 import layer.Losses;
 import layer.MSE;
-import main.MNIST;
+import main.EMNIST;
 import utils.Array_utils;
 import utils.Utils;
 
@@ -41,37 +41,35 @@ public class TrainEMnist {
     public static void main(String[] args) throws Exception {
 
 
-        String fpath = "./src/train_emnist.txt";
-        double[][][] trainingData = MNIST.read(fpath, 60000);
+        String type_ = "balanced";
+        //bymerge maxSize 697932
+        //balanced maxSize 112800
+        String fpath = "./src/TrainData/train_emnist_" + type_ + ".txt";
+        double[][][] trainingData = EMNIST.read(fpath, 112800);
         double[][] x_train = trainingData[0];
         double[][] y_train = trainingData[1];
 
 
-        String fpath_test = "./src/test_emnist.txt";
-        double[][][] testData = MNIST.read(fpath_test, 15000);
-        double[][] x_test = testData[0];
-        double[][] y_test = testData[1];
+        FullyConnectedLayer f1 = new FullyConnectedLayer(784, 120, "tanh");
+        FullyConnectedLayer f2 = new FullyConnectedLayer(120, 60, "tanh");
+        FullyConnectedLayer f3 = new FullyConnectedLayer(60, 47, "tanh");
 
-        FullyConnectedLayer f1 = new FullyConnectedLayer(784, 49);
-        FullyConnectedLayer f2 = new FullyConnectedLayer(49, 28);
-        FullyConnectedLayer f3 = new FullyConnectedLayer(28, 10);
+        //LayerNorm1D l1 = new LayerNorm1D(120);
 
-        //LayerNorm1D l1 = new LayerNorm1D(28);
+        f1.activateMomentum();
+        f1.activateBiases();
 
-        //f1.activateMomentum();
-        //f1.activateBiases();
+        f2.activateMomentum();
+        f2.activateBiases();
 
-        //f2.activateMomentum();
-        //f2.activateBiases();
-
-        //f2.activateMomentum();
-        //f2.activateBiases();
+        f2.activateMomentum();
+        f2.activateBiases();
 
 
         Losses loss = new MSE();
 
         double learning_rate = 0.4;
-        int epochs = 15;
+        int epochs = 7;
         int step_size = x_train.length;
 
         //to validate after every Epoch.
@@ -106,6 +104,19 @@ public class TrainEMnist {
 
 
         }
+        // bymerge maxSize 116323
+        // balanced maxSize 18800
+        String fpath_test = "./src/TrainData/test_emnist_" + type_ + ".txt";
+
+        int maxSizeTest = 18800;
+        if (type_.equals("bymerge")) {
+            maxSizeTest = 116323;
+        }
+
+
+        double[][][] testData = EMNIST.read(fpath_test, maxSizeTest);
+        double[][] x_test = testData[0];
+        double[][] y_test = testData[1];
 
         double[] out;
         double loss_per_step = 0;

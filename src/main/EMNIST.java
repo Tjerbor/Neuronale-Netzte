@@ -44,7 +44,7 @@ public final class EMNIST {
                 String[] y = data[1].split(";");
 
                 if (x.length != PIXELS || y.length != DIGITS) {
-                    throw new IllegalArgumentException("The file " + path + " does not conform to the MNIST format.");
+                    throw new IllegalArgumentException("The file " + path + " does not conform to the EMNIST format.");
                 }
 
                 pixels[i] = new double[PIXELS];
