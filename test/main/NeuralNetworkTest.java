@@ -49,6 +49,7 @@ class NeuralNetworkTest {
         neuralNetwork.setLayers(Reader.create("csv/weights/trafficLight.csv"));
 
         neuralNetwork.setFunction(0, new CustomActivation(new String[]{"logi", "logi", "logi", "id"}));
+        neuralNetwork.setFunction(1, new CustomActivation(new String[]{"id", "id", "id", "id"}));
 
         double[] result = neuralNetwork.compute(new double[]{1, 0, 0});
 

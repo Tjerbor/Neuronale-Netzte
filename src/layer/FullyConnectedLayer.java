@@ -22,7 +22,7 @@ public class FullyConnectedLayer implements Layer {
     boolean useMomentum = false;
 
     double momentum = 0.9;
-    boolean useBiases = false;
+    boolean useBiases = true;
     private double[][] weights;
     /**
      * This variable contains the biases of the layer.
@@ -38,7 +38,7 @@ public class FullyConnectedLayer implements Layer {
     private double[] input; //needed for backpropagation with Single Input.
     private double[] dbiases; //biases of layer.
 
-    private Activation act = new TanH();
+    private Activation act = new Activation();
 
     private double[][] act_inputs; //needed for backpropagation with batch input.
     private double[] act_input; //needed for backpropagation with Single Input.
@@ -320,7 +320,7 @@ public class FullyConnectedLayer implements Layer {
 
         if (useBiases) {
             for (int j = 0; j < weights[0].length; j++) {
-                z[j] += input[j] * biases[j];
+                z[j] += biases[j];
             }
         }
 
