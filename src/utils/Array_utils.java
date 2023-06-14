@@ -1020,6 +1020,15 @@ public class Array_utils {
         return c;
     }
 
+    public static double[] copyArray(float[] floats) {
+
+        double[] c = new double[floats.length];
+        for (int i = 0; i < floats.length; i++) {
+            c[i] = floats[i];
+        }
+
+        return c;
+    }
 }
 
 

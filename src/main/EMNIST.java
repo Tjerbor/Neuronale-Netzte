@@ -28,9 +28,9 @@ public final class EMNIST {
      * The return value is a three-dimensional array of length two.
      * The two two-dimensional arrays in turn contain the input data and the corresponding classifications.
      */
-    public static double[][][] read(String path, int size) throws IOException {
-        double[][] pixels = new double[size][PIXELS];
-        double[][] digits = new double[size][DIGITS];
+    public static float[][][] read(String path, int size) throws IOException {
+        float[][] pixels = new float[size][PIXELS];
+        float[][] digits = new float[size][DIGITS];
 
         int i = 0;
 
@@ -47,15 +47,15 @@ public final class EMNIST {
                     throw new IllegalArgumentException("The file " + path + " does not conform to the EMNIST format.");
                 }
 
-                pixels[i] = new double[PIXELS];
-                digits[i] = new double[DIGITS];
+                pixels[i] = new float[PIXELS];
+                digits[i] = new float[DIGITS];
 
                 for (int j = 0; j < x.length; j++) {
-                    pixels[i][j] = Double.parseDouble(x[j]);
+                    pixels[i][j] = Float.parseFloat(x[j]);
                 }
 
                 for (int j = 0; j < y.length; j++) {
-                    digits[i][j] = Double.parseDouble(y[j]);
+                    digits[i][j] = Float.parseFloat(y[j]);
                 }
 
                 if (++i == size) {
@@ -64,7 +64,7 @@ public final class EMNIST {
             }
         }
 
-        return new double[][][]{pixels, digits};
+        return new float[][][]{pixels, digits};
     }
 
     public static double[][][] x_train_2_batch(double[][] x_train, int batch_size) throws Exception {

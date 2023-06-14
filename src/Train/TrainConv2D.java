@@ -37,7 +37,7 @@ public class TrainConv2D {
     public static void main(String[] args) throws Exception {
 
 
-        String fpath = "./src/train_mnist.txt";
+        String fpath = "./src/TrainData/train_mnist.txt";
         double[][][] trainingData = MNIST.read(fpath, 60000);
         double[][] x_train = trainingData[0];
         double[][] y_train = trainingData[1];
@@ -46,7 +46,7 @@ public class TrainConv2D {
         double[][][][] x_train_conv = genConvData(x_train);
 
 
-        String fpath_test = "./src/test_mnist.txt";
+        String fpath_test = "./src/TrainData/test_mnist.txt";
         double[][][] testData = MNIST.read(fpath_test, 15000);
         double[][] x_test = testData[0];
         double[][] y_test = testData[1];
@@ -56,8 +56,10 @@ public class TrainConv2D {
         int convFilter = 8;
 
         Conv2D conv2D = new Conv2D(convFilter, new int[]{1, 28, 28});
+        conv2D.setUseBiases(false);
+        conv2D.setActivation("relu");
         MaxPooling2DNew pool = new MaxPooling2DNew();
-        FullyConnectedLayer f1 = new FullyConnectedLayer(26 * 26 * convFilter, 40);
+        FullyConnectedLayer f1 = new FullyConnectedLayer(13 * 13 * convFilter, 40);
         //FullyConnectedLayer f2 = new FullyConnectedLayer(80, 40, "tanh");
         FullyConnectedLayer f3 = new FullyConnectedLayer(40, 10, "tanh");
 
@@ -69,6 +71,8 @@ public class TrainConv2D {
 
         long st;
 
+        System.out.println("Started Training");
+
         for (int i = 0; i < epochs; i++) {
             double[][][] out;
             double[] flatOut;
@@ -78,7 +82,7 @@ public class TrainConv2D {
 
                 out = Array_utils.copyArray(x_train_conv[j]);
                 out = conv2D.forward(out);
-                //out = pool.forward(out);
+                out = pool.forward(out);
                 flatOut = Array_utils.flatten(out);
 
                 flatOut = f1.forward(flatOut);
@@ -95,8 +99,8 @@ public class TrainConv2D {
                 flatOut = f1.backward(flatOut, learning_rate);
 
 
-                out = reFlat(flatOut, new int[]{convFilter, 26, 26});
-                //out = pool.backward(out);
+                out = reFlat(flatOut, new int[]{convFilter, 13, 13});
+                out = pool.backward(out);
                 conv2D.backward(out, learning_rate);
             }
             System.out.println("Loss: " + loss_per_step / x_train.length);
@@ -111,7 +115,7 @@ public class TrainConv2D {
 
             out = Array_utils.copyArray(x_test_conv[ti]);
             out = conv2D.forward(out);
-            //out = pool.forward(out);
+            out = pool.forward(out);
             flatOut = Array_utils.flatten(out);
 
             flatOut = f1.forward(flatOut);

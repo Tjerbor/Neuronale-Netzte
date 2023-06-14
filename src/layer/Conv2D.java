@@ -3,8 +3,6 @@ package layer;
 import utils.Array_utils;
 import utils.Utils;
 
-import java.util.Arrays;
-
 //https://www.youtube.com/watch?v=Lakz2MoHy6o
 //https://github.com/TheIndependentCode/Neural-Network/blob/master/convolutional.py
 
@@ -24,6 +22,10 @@ public class Conv2D {
 
 
     Activation act;
+
+    double[][][] actInputs;
+
+    int filterPos = 0; //postion of the aktuell Filter so the activations knows on which points teh value needs to be added.
 
     boolean useBiases = false;
     double[][][][] kernels;
@@ -56,6 +58,8 @@ public class Conv2D {
             biases = new double[num_filters][h_out][w_out];
             Utils.genRandomWeight(biases);
         }
+
+        this.actInputs = new double[num_filters][h_out][w_out];
     }
 
     public Conv2D(int num_filters, int[] shape) {
@@ -71,32 +75,9 @@ public class Conv2D {
         this.w_out = w - kernelSize2 + 1;
 
 
-    }
-
-    public static void main(String[] args) {
+        this.actInputs = new double[num_filters][h_out][w_out];
 
 
-        Conv2D C = new Conv2D(8, new int[]{1, 6, 6}, 3);
-
-        double[][] a = new double[][]{{0, 1, 2,},
-                {3, 4, 5},
-                {6, 7, 8}};
-
-        double[][] b = new double[6][6];
-
-        int count = 0;
-        for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 6; j++) {
-                b[i][j] = count;
-                count += 1;
-            }
-        }
-
-        System.out.println(Arrays.deepToString(b));
-        double[][] c = C.correlate2D(b, a);
-        System.out.println(Arrays.deepToString(c));
-
-        System.out.println(Arrays.deepToString(convolve2DFull(c, a)));
     }
 
     public static double[][] convolve2DFull(double[][] grad_input, double[][] kernel) {
@@ -148,6 +129,14 @@ public class Conv2D {
         return output;
     }
 
+    public void setActivation(Activation act) {
+        this.act = act;
+    }
+
+    public void setActivation(String act) {
+        this.act = Utils.getActivation(act);
+    }
+
     private void genBiases() {
         biases = new double[num_filters][h_out][w_out];
         Utils.genRandomWeight(biases);
@@ -190,7 +179,7 @@ public class Conv2D {
         Utils.updateParameter(kernels, dkernels, learningRate);
 
         if (useBiases) {
-            Utils.updateParameter(biases, grad_out, learningRate);
+            Utils.updateParameter(biases, grad_input, learningRate);
         }
         return grad_out;
 
@@ -221,7 +210,29 @@ public class Conv2D {
 
                     }
                 }
-                output[i][j] = sum;
+
+                if (useBiases) {
+
+                    if (act != null) {
+                        actInputs[filterPos][i][j] = sum + biases[this.filterPos][i][j];
+                        output[i][j] = act.definition(sum + biases[filterPos][i][j]);
+                    } else {
+                        output[i][j] = sum + biases[filterPos][i][j];
+                    }
+
+
+                } else if (act != null) {
+                    actInputs[filterPos][i][j] = sum;
+                    output[i][j] = act.definition(sum);
+                } else {
+                    output[i][j] = sum;
+
+                }
+                {
+
+
+                }
+
             }
         }
 
@@ -242,7 +253,7 @@ public class Conv2D {
         double[][][] output;
 
         if (useBiases) {
-            output = Array_utils.copyArray(this.biases);
+            output = new double[num_filters][h_][w_];
         } else {
             output = new double[num_filters][h_][w_];
         }
@@ -259,7 +270,7 @@ public class Conv2D {
 
     @Override
     public String toString() {
-        String s = "Conv2D; 8;1,28,28;\n";
+        String s = "Conv2D; " + this.num_filters + ";" + "\n";
 
         for (int i = 0; i < this.kernels.length; i++) {
             for (int j = 0; j < kernels[0].length; j++) {

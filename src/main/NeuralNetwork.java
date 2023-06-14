@@ -87,6 +87,17 @@ public class NeuralNetwork {
         return topology;
     }
 
+    public FullyConnectedLayer[] getLayers() {
+        return layers;
+    }
+
+    /**
+     * This method sets the {@link NeuralNetwork#layers}.
+     * It can be used to initialize a neural network with the return value of {@link utils.Reader#create(String)}.
+     */
+    public void setLayers(FullyConnectedLayer[] layers) {
+        this.layers = layers;
+    }
 
     public void setLoss(Losses loss) {
         this.loss = loss;
@@ -140,14 +151,6 @@ public class NeuralNetwork {
     }
 
     /**
-     * This method sets the {@link NeuralNetwork#layers}.
-     * It can be used to initialize a neural network with the return value of {@link utils.Reader#create(String)}.
-     */
-    public void setLayers(FullyConnectedLayer[] layers) {
-        this.layers = layers;
-    }
-
-    /**
      * This method overwrites the weights of the given edge layer.
      * It throws an exception if the index is out of bounds.
      *
@@ -173,6 +176,29 @@ public class NeuralNetwork {
         }
 
         layers[index].setActivation(function);
+    }
+
+    public void setFunctionAll(Activation function) {
+        for (FullyConnectedLayer f : layers) {
+            f.setActivation(function);
+        }
+    }
+
+    public void setFunctionAll(String function) {
+        for (FullyConnectedLayer f : layers) {
+            f.setActivation(function);
+        }
+    }
+
+
+    public void setActivateMomAll() {
+        for (FullyConnectedLayer f : layers) {
+            f.activateMomentum();
+        }
+    }
+
+    public void setActivateMomentum(int index) {
+        layers[index].activateMomentum();
     }
 
     /**

@@ -10,11 +10,16 @@ public class MaxPooling2DNew {
 
     double[][][][] inputs;
     double[][][] input;
+    double[][][] outBackward;
+    double[][][][] outBackwards;
+
+
+    boolean Training = true;
 
     int stride = 2;
     int poolHeight = 2;
     int poolWidth = 2;
-    
+
 
     public static double[][][][] reshapeImg(double[][][][] a) {
 
@@ -93,18 +98,41 @@ public class MaxPooling2DNew {
         return out;
     }
 
+
     public double getSubmatrixMax(double[][] in, int h_st, int h_end, int w_st, int w_end) {
 
+        double val = Integer.MIN_VALUE;
+
+        for (int i = 0; i < h_end - h_st; i++) {
+            for (int j = 0; j < w_end - w_st; j++) {
+                if (val < in[h_st + i][w_st + j]) {
+                    val = in[h_st + i][w_st + j];
+
+
+                }
+            }
+        }
+
+        return val;
+    }
+
+    public double[] getSubmatrixMaxAndIndex(double[][] in, int h_st, int h_end, int w_st, int w_end) {
+
+        int indexOfMaxValueH = 0;
+        int indexOfMaxValueW = 0;
         double val = Integer.MIN_VALUE;
         for (int i = 0; i < h_end - h_st; i++) {
             for (int j = 0; j < w_end - w_st; j++) {
                 if (val < in[h_st + i][w_st + j]) {
                     val = in[h_st + i][w_st + j];
-                }
+                    indexOfMaxValueH = h_st + i;
+                    indexOfMaxValueW = w_st + j;
 
+
+                }
             }
         }
-        return val;
+        return new double[]{val, indexOfMaxValueH, indexOfMaxValueW};
     }
 
     public void setSubmatrix(double[][] in, int h_st, int h_end, int w_st, int w_end, double[][] tmp) {
@@ -166,13 +194,30 @@ public class MaxPooling2DNew {
         double[][][] out = new double[C][h_out][w_out];
 
         this.input = input;
+
+        double[][] tmpBack = new double[H][W];
+
+        this.outBackward = new double[C][H][W];
+        double[] tmp = new double[3];
+
+        int wb;
+        int hb;
         for (int i = 0; i < C; i++) {
+            tmpBack = new double[H][W];
             for (int hi = 0; hi < h_out; hi++) {
                 for (int wi = 0; wi < w_out; wi++) {
-                    out[i][wi][hi] = getSubmatrixMax(input[i], hi * stride, hi * stride + poolHeight, wi * stride, wi * stride + poolWidth);
+                    tmp = getSubmatrixMaxAndIndex(input[i], hi * stride, hi * stride + poolHeight, wi * stride, wi * stride + poolWidth);
+                    out[i][hi][wi] = tmp[0];
+                    hb = (int) tmp[1];
+                    wb = (int) tmp[2];
+                    tmpBack[hb][wb] = tmp[0];
+
                 }
 
             }
+
+            outBackward[i] = tmpBack;
+
         }
 
         return out;
@@ -181,7 +226,7 @@ public class MaxPooling2DNew {
 
     public double[][][][] forward(double[][][][] inputs) {
 
-
+        int B = inputs.length;
         int C = inputs[0].length;
         int H = inputs[0][0].length;
         int W = inputs[0][0][0].length;
@@ -192,20 +237,32 @@ public class MaxPooling2DNew {
         double[][][][] out = new double[inputs.length][H_out][W_out][C];
 
         double val;
+        double[] tmp;
 
-        this.inputs = inputs;
+        double[][] tmpBack;
 
-        for (int bs = 0; bs < inputs.length; bs++) {
+        int wb;
+        int hb;
+
+        this.outBackwards = new double[B][C][H][W];
+
+        for (int bs = 0; bs < B; bs++) {
             for (int ci = 0; ci < C; ci++) { //channels
+                tmpBack = new double[H][W];
                 for (int hi = 0; hi < H_out; hi++) {
                     for (int wi = 0; wi < W_out; wi++) {
-                        val = getSubmatrixMax(inputs[bs][ci], hi * stride, hi * stride + poolHeight, wi * stride, wi * stride + poolWidth);
-                        out[bs][wi][hi][ci] = val;
+                        tmp = getSubmatrixMaxAndIndex(inputs[bs][ci], hi * stride, hi * stride + poolHeight, wi * stride, wi * stride + poolWidth);
+                        hb = (int) tmp[1];
+                        wb = (int) tmp[2];
+                        tmpBack[hb][wb] = tmp[0];
+                        out[bs][wi][hi][ci] = tmp[0];
                     }
 
                 }
-
+                outBackwards[bs][ci] = tmpBack;
             }
+
+
         }
 
 
@@ -213,8 +270,24 @@ public class MaxPooling2DNew {
 
     }
 
+
     public double[][][] backward(double[][][] delta_inputs) {
 
+        return this.outBackward;
+    }
+
+    public double[][][] backward(double[][][] delta_inputs, double learningRate) {
+
+        return this.outBackward;
+    }
+
+
+    public double[][][] backwardOld(double[][][] delta_inputs) {
+
+
+        if (Training) {
+            return this.outBackward;
+        }
 
         /**
          * needs to find the maximum and the rets is set to zero.
@@ -243,7 +316,7 @@ public class MaxPooling2DNew {
     }
 
 
-    public double[][][][] backward(double[][][][] delta_inputs) {
+    public double[][][][] backwardOld(double[][][][] delta_inputs) {
 
         /**
          * needs to find the maximum and the rets is set to zero.
