@@ -75,6 +75,35 @@ public class Array_utils {
 
     }
 
+    public static double[][] copyArray(float[][] a) {
+
+        double[][] c = new double[a.length][a[0].length];
+
+        for (int i = 0; i < c.length; i++) {
+            for (int j = 0; j < c[0].length; j++) {
+                c[i][j] = a[i][j];
+            }
+        }
+        return c;
+
+    }
+
+    public static double[][][] copyArray(float[][][] a) {
+
+        double[][][] c = new double[a.length][a[0].length][a[0][0].length];
+
+        for (int i = 0; i < c.length; i++) {
+            for (int j = 0; j < c[0].length; j++) {
+                for (int k = 0; k < c[0][0].length; k++) {
+                    c[i][j][k] = a[i][j][k];
+                }
+
+            }
+        }
+        return c;
+
+    }
+
     public static double[][] copyArray(double[][] a) {
         double[][] c = zerosLike(a);
 
@@ -96,6 +125,84 @@ public class Array_utils {
             for (int j = 0; j < c[0].length; j++) {
                 for (int k = 0; k < c[0][0].length; k++) {
                     c[i][j][k] = a[i][j][k];
+                }
+
+            }
+        }
+        return c;
+
+    }
+
+
+    public static double[][] flattenBatch(double[][][][] a) {
+
+        int[] shape = getShape(a);
+
+        double[][] c = new double[shape[0]][shape[1] * shape[2] * shape[3]];
+        int count = 0;
+        for (int fi = 0; fi < shape[0]; fi++) {
+            for (int i = 0; i < shape[1]; i++) {
+                for (int j = 0; j < shape[2]; j++) {
+                    for (int k = 0; k < shape[3]; k++) {
+                        c[fi][count] = a[fi][i][j][k];
+                    }
+                    count += 1;
+                }
+            }
+        }
+
+
+        return c;
+    }
+
+
+    public static double[][][][] reFlat(double[][] a, int[] shape) {
+
+        double[][][][] c = new double[shape[0]][shape[1]][shape[2]][shape[3]];
+        int count = 0;
+        for (int fi = 0; fi < shape[0]; fi++) {
+            for (int i = 0; i < shape[1]; i++) {
+                for (int j = 0; j < shape[2]; j++) {
+                    for (int k = 0; k < shape[3]; k++) {
+                        c[fi][i][j][k] = a[fi][count];
+                    }
+                    count += 1;
+                }
+            }
+        }
+
+
+        return c;
+    }
+
+    public static double[][][] reFlat(double[] a, int[] shape) {
+
+        double[][][] c = new double[shape[0]][shape[1]][shape[2]];
+        int count = 0;
+        for (int fi = 0; fi < shape[0]; fi++) {
+            for (int i = 0; i < shape[1]; i++) {
+                for (int j = 0; j < shape[2]; j++) {
+                    c[fi][i][j] = a[count];
+                    count += 1;
+                }
+            }
+        }
+
+
+        return c;
+    }
+
+    public static double[][][][] copyArray(double[][][][] a) {
+        double[][][][] c = zerosLike(a);
+
+
+        for (int i = 0; i < c.length; i++) {
+            for (int j = 0; j < c[0].length; j++) {
+                for (int k = 0; k < c[0][0].length; k++) {
+                    for (int l = 0; l < c[0][0][0].length; l++) {
+                        c[i][j][k][l] = a[i][j][k][l];
+                    }
+
                 }
 
             }
@@ -553,7 +660,6 @@ public class Array_utils {
         return c;
     }
 
-
     public static void mult_matrix_by_scalar(double[][][] a, double scalar) {
         for (int i = 0; i < a.length; i++) {
             for (int j = 0; j < a[0].length; j++) {
@@ -1005,7 +1111,6 @@ public class Array_utils {
 
     }
 
-
     public static double[][] flipud_fliplr(double[][] a) {
 
         int s1 = a.length;
@@ -1029,6 +1134,59 @@ public class Array_utils {
 
         return c;
     }
+
+    public static void printShape(double[][][] a) {
+
+        System.out.println(Arrays.toString(getShape(a)));
+
+    }
+
+    public static void printShape(double[][] a) {
+
+        System.out.println(Arrays.toString(getShape(a)));
+
+    }
+
+    public static void printShape(double[] a) {
+
+        System.out.println(Arrays.toString(getShape(a)));
+
+    }
+
+    public static void printShape(int[] a) {
+
+        System.out.println(Arrays.toString(a));
+
+    }
+
+    public static int sumUpMult(int[] a) {
+
+        int sum = a[0];
+        for (int i = 1; i < a.length; i++) {
+            sum *= a[i];
+        }
+
+        return sum;
+    }
+
+    public static double sumUpMult(double[] a) {
+
+        double sum = a[0];
+        for (int i = 1; i < a.length; i++) {
+            sum *= a[i];
+        }
+
+        return sum;
+    }
+
+
+    public void printShape(double[][][][] a) {
+
+        System.out.println(Arrays.toString(getShape(a)));
+
+    }
+
+
 }
 
 

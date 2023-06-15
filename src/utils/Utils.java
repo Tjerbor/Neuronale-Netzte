@@ -331,7 +331,7 @@ public class Utils {
         for (int i = 0; i < a.length; i++) {
             a[i] = val;
         }
-  
+
     }
 
     public static double[] multiply(double[] a, double[] b) {
@@ -552,7 +552,6 @@ public class Utils {
 
     public static Activation getActivation() {
         Activation a = new Activation();
-        ;
         return a;
     }
 

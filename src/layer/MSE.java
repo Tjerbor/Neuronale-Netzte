@@ -1,8 +1,6 @@
 package layer;
 
 
-import utils.Utils;
-
 /**
  * only Loss supported right no.
  * more comming in the future.
@@ -14,9 +12,11 @@ public class MSE extends Losses {
 
     public double forward(double[] y_pred, double[] y_true) {
 
-        //java error nees to use always y_true for shape stuff, da array do not change completly.
-        return Utils.mean(Utils.power(y_true, y_pred, 2));
-        //return this.fastClac(y_pred, y_true);
+        int sum = 0;
+        for (int i = 0; i < y_true.length; i++) {
+            sum += Math.pow((y_true[i] - y_pred[i]), 2);
+        }
+        return (double) sum / y_true.length;
 
 
     }
@@ -49,7 +49,6 @@ public class MSE extends Losses {
             out[i] = 2 * (y_pred[i] - y_true[i]) / s;
 
         }
-
         return out;
     }
 

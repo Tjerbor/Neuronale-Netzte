@@ -1,5 +1,6 @@
 package layer;
 
+import main.Optimizer;
 import utils.Array_utils;
 import utils.Utils;
 
@@ -27,15 +28,17 @@ public class Conv2D {
 
     int filterPos = 0; //postion of the aktuell Filter so the activations knows on which points teh value needs to be added.
 
+
+    Optimizer optimizer;
     boolean useBiases = false;
-    double[][][][] kernels;
+    double[][][][] weights;
     double[][][] biases;
     double[][][] input;
 
     int kernelSize = 3;
 
     int kernelSize2 = 3;
-    int num_filters = 1;
+    int num_filters;
 
 
     public Conv2D(int num_filters, int[] shape, int kernelSize) {
@@ -48,8 +51,8 @@ public class Conv2D {
         this.h = shape[1];
         this.w = shape[2];
 
-        kernels = new double[num_filters][shape[0]][kernelSize][kernelSize2];
-        Utils.genGaussianRandomWeight(kernels);
+        weights = new double[num_filters][shape[0]][kernelSize][kernelSize2];
+        Utils.genGaussianRandomWeight(weights);
 
         this.h_out = h - kernelSize + 1;
         this.w_out = w - kernelSize2 + 1;
@@ -64,8 +67,8 @@ public class Conv2D {
 
     public Conv2D(int num_filters, int[] shape) {
         this.num_filters = num_filters;
-        kernels = new double[num_filters][shape[0]][kernelSize][kernelSize2];
-        Utils.genGaussianRandomWeight(kernels);
+        weights = new double[num_filters][shape[0]][kernelSize][kernelSize2];
+        Utils.genRandomWeight(weights);
 
         this.depth = shape[0];
         this.h = shape[1];
@@ -129,6 +132,10 @@ public class Conv2D {
         return output;
     }
 
+    public void setWeights(double[][][][] weights) {
+        this.weights = weights;
+    }
+
     public void setActivation(Activation act) {
         this.act = act;
     }
@@ -162,6 +169,18 @@ public class Conv2D {
 
         int depth = this.input.length;
 
+        if (act != null) {
+            for (int i = 0; i < grad_input.length; i++) {
+                for (int j = 0; j < grad_input[0].length; j++) {
+                    for (int k = 0; k < grad_input[0][0].length; k++) {
+                        grad_input[i][j][k] *= act.derivative(actInputs[i][j][k]);
+                    }
+                }
+            }
+
+        }
+
+
         double[][][] grad_out = Array_utils.zerosLike(this.input);
         double[][] tmp;
 
@@ -169,14 +188,14 @@ public class Conv2D {
         for (int i = 0; i < num_filters; i++) {
             for (int j = 0; j < depth; j++) {
                 dkernels[i][j] = correlate2D(this.input[j], grad_input[j]);
-                tmp = convolve2DFull(this.input[j], kernels[i][j]);
+                tmp = convolve2DFull(this.input[j], weights[i][j]);
                 Array_utils.addMatrix(grad_out[j], tmp);
 
             }
         }
 
 
-        Utils.updateParameter(kernels, dkernels, learningRate);
+        Utils.updateParameter(weights, dkernels, learningRate);
 
         if (useBiases) {
             Utils.updateParameter(biases, grad_input, learningRate);
@@ -184,6 +203,7 @@ public class Conv2D {
         return grad_out;
 
     }
+
 
     public double[][] correlate2D(double[][] img, double[][] kernel) {
 
@@ -210,9 +230,42 @@ public class Conv2D {
 
                     }
                 }
+                output[i][j] = sum;
+            }
+
+        }
+
+
+        return output;
+    }
+
+    public double[][] correlate2DForward(double[][] img, double[][] kernel) {
+
+        int h = img.length;
+        int w = img[0].length;
+
+
+        int kernelSize = kernel.length;
+        int kernelSize2 = kernel[0].length;
+
+        int h_ = (h - kernelSize) + 1;
+        int w_ = (w - kernelSize2) + 1;
+
+
+        double sum;
+        double[][] output = new double[h_][w_];
+        for (int i = 0; i < h_; i++) {
+            for (int j = 0; j < w_; j++) {
+                sum = 0;
+                for (int ki = 0; ki < kernelSize; ki++) {
+                    for (int kj = 0; kj < kernelSize2; kj++) {
+
+                        sum += img[ki + i][j + kj] * kernel[ki][kj];
+
+                    }
+                }
 
                 if (useBiases) {
-
                     if (act != null) {
                         actInputs[filterPos][i][j] = sum + biases[this.filterPos][i][j];
                         output[i][j] = act.definition(sum + biases[filterPos][i][j]);
@@ -260,10 +313,13 @@ public class Conv2D {
 
         for (int i = 0; i < num_filters; i++) {
             for (int j = 0; j < depth; j++) {
-                output[i] = correlate2D(img[j], kernels[i][j]);
+                output[i] = correlate2D(img[j], weights[i][j]);
+                filterPos += 1;
 
             }
+
         }
+        filterPos = 0;
         return output;
     }
 
@@ -272,15 +328,15 @@ public class Conv2D {
     public String toString() {
         String s = "Conv2D; " + this.num_filters + ";" + "\n";
 
-        for (int i = 0; i < this.kernels.length; i++) {
-            for (int j = 0; j < kernels[0].length; j++) {
-                for (int k = 0; k < kernels[0][0].length; k++) {
-                    for (int l = 0; l < kernels[0][0][0].length; l++) {
+        for (int i = 0; i < this.weights.length; i++) {
+            for (int j = 0; j < weights[0].length; j++) {
+                for (int k = 0; k < weights[0][0].length; k++) {
+                    for (int l = 0; l < weights[0][0][0].length; l++) {
 
-                        if (l == kernels[0][0][0].length - 1) {
-                            s += kernels[i][j][k][l];
+                        if (l == weights[0][0][0].length - 1) {
+                            s += weights[i][j][k][l];
                         } else {
-                            s += kernels[i][j][k][l] + ";";
+                            s += weights[i][j][k][l] + ";";
                         }
 
                     }
@@ -288,20 +344,28 @@ public class Conv2D {
                 }
             }
         }
-        s += "\n";
-        s += "Biases;\n";
 
-        for (int i = 0; i < this.kernels.length; i++) {
-            for (int j = 0; j < kernels[0].length; j++) {
-                for (int k = 0; k < kernels[0][0].length; k++) {
-                    if (k == kernels[0][0][0].length - 1) {
-                        s += biases[i][j][k];
-                    } else {
-                        s += biases[i][j][k] + ";";
+
+        if (this.biases != null) {
+
+
+            s += "\n";
+
+            s += "Biases;\n";
+
+            for (int i = 0; i < this.weights.length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+                    for (int k = 0; k < weights[0][0].length; k++) {
+                        if (k == weights[0][0][0].length - 1) {
+                            s += biases[i][j][k];
+                        } else {
+                            s += biases[i][j][k] + ";";
+                        }
                     }
                 }
             }
         }
+
         return s;
     }
 
