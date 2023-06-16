@@ -10,6 +10,7 @@ public class Softmax extends Activation {
             {0.09003057, 0.24472847, 0.66524096}};
     double exp = 0;
     double[][] outputsForward;
+    double[] outputForward;
 
     public static double[][] diagflat(double[] a) {
 
@@ -90,4 +91,59 @@ public class Softmax extends Activation {
         return inputs;
 
     }
+
+    public double[] forward(double[] input) {
+
+        double sum = 0;
+        for (int i = 0; i < input.length; i++) {
+            exp += this.softmax(input[i], 1);
+
+        }
+        for (int i = 0; i < input.length; i++) {
+
+            input[i] += this.softmax(input[i], exp);
+        }
+
+
+        outputForward = Array_utils.copyArray(input);
+        return input;
+
+    }
+
+
+    public double[][] identity(int n) {
+
+
+        double[][] id = new double[n][n];
+
+
+        for (int i = 0; i < n; i++) {
+            id[i][i] = 1;
+        }
+
+        return id;
+
+    }
+
+    public double[] backward(double[] grad) {
+
+
+        int n = grad.length;
+
+        double[][] id = identity(n);
+
+        double[] out = new double[n];
+        for (int i = 0; i < id.length; i++) {
+            for (int j = 0; j < id.length; j++) {
+                id[i][j] = ((id[i][j] - outputForward[i]) * outputForward[i]);
+                out[i] += id[i][j] * grad[j];
+            }
+
+
+        }
+
+        return grad;
+    }
+
+
 }

@@ -13,4 +13,14 @@ public class ReLu extends Activation {
     public double derivative(double x) {
         return x > 0 ? 1 : 0;
     }
+
+    @Override
+    public float definition(float x) {
+        return x > 0 ? x : 0;
+    }
+
+    @Override
+    public float derivative(float x) {
+        return x > 0 ? 1 : 0;
+    }
 }

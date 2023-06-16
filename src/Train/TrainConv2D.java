@@ -34,7 +34,7 @@ public class TrainConv2D {
     public static void main(String[] args) throws Exception {
 
 
-        String fpath = "./src/train_mnist.txt";
+        String fpath = "/home/dblade/Documents/Neuronale-Netzte/src/train_mnist.txt";
         double[][][] trainingData = MNIST.read(fpath, 60000);
         double[][] x_train = trainingData[0];
         double[][] y_train = trainingData[1];
@@ -43,28 +43,32 @@ public class TrainConv2D {
         double[][][][] x_train_conv = genConvData(x_train);
 
 
-        String fpath_test = "./src/test_mnist.txt";
+        String fpath_test = "/home/dblade/Documents/Neuronale-Netzte/src/test_mnist.txt";
         double[][][] testData = MNIST.read(fpath_test, 15000);
         double[][] x_test = testData[0];
         double[][] y_test = testData[1];
 
         double[][][][] x_test_conv = genConvData(x_test);
 
-        int convFilter = 32;
-        int outSize = 24;
+        int convFilter = 8;
+        int outSize = 12;
         Conv2D conv2D = new Conv2D(convFilter, new int[]{1, 28, 28}, 5);
-        //Conv2D conv2D_2 = new Conv2D(convFilter, new int[]{convFilter, 26, 26}, 5);
+        //Conv2D conv2D_2 = new Conv2D(convFilter, conv2D.getOutputShape(), 5);
         Conv2dActivation convAct = new Conv2dActivation(new ReLu());
         //Conv2dActivation convAct2 = new Conv2dActivation(new TanH());
         conv2D.setUseBiases(false);
         //conv2D.setActivation(new ReLu());
-        //MaxPooling2DNew pool = new MaxPooling2DNew(2);
+        MaxPool2D pool = new MaxPool2D(conv2D.getOutputShape(), 2);
 
-        FullyConnectedLayer f1 = new FullyConnectedLayer(outSize * outSize * convFilter, 10, "tanh");
+        int size = Array_utils.sumUpMult(pool.getOutputShape());
+
+        FullyConnectedLayer f1 = new FullyConnectedLayer(size, 10, "tanh");
+
+        f1.setActivation(new TanH());
 
         MSE loss = new MSE();
-        double learning_rate = 0.4;
-        int epochs = 15;
+        double learning_rate = 0.1;
+        int epochs = 5;
         int step_size = x_train_conv.length;
 
         long st;
@@ -77,7 +81,7 @@ public class TrainConv2D {
             double loss_per_step = 0;
             st = System.currentTimeMillis();
 
-            learning_rate -= (learning_rate * 0.05);
+            //learning_rate -= (learning_rate * 0.05);
             for (int j = 0; j < step_size; j++) {
 
                 out = Array_utils.copyArray(x_train_conv[j]);
@@ -86,7 +90,7 @@ public class TrainConv2D {
 
                 //out = conv2D_2.forward(out);
                 //out = convAct2.forward(out);
-                //out = pool.forward(out);
+                out = pool.forward(out);
                 flatOut = Array_utils.flatten(out);
 
                 flatOut = f1.forward(flatOut);
@@ -99,7 +103,9 @@ public class TrainConv2D {
 
 
                 out = Array_utils.reFlat(flatOut, new int[]{convFilter, outSize, outSize});
-                //out = pool.backward(out);
+
+
+                out = pool.backPropagation(out);
                 //out = convAct2.backward(out);
                 //out = conv2D_2.backward(out, learning_rate);
 

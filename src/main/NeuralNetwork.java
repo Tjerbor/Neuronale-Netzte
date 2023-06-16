@@ -251,7 +251,9 @@ public class NeuralNetwork {
 
 
         double[] doutput = dinput;
+
         for (int i = 1; i < size(); i++) {
+
             doutput = this.layers[size() - 1 - i].backward(doutput, learning_rate);
         }
 

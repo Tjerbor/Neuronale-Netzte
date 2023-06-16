@@ -2,9 +2,6 @@ import numpy as np
 import tensorflow as tf
 from keras.utils import np_utils
 
-train_filepath = "../train_mnist.txt"
-test_filepath = "../test_mnist.txt"
-
 
 # f = open()
 
@@ -31,6 +28,8 @@ def writeData(train_filepath, x_train, y_train):
         count += 1
         if (count != len(x_train)):
             f_train.write("\n")
+
+    print("wrote File: " + train_filepath)
 
 
 def preprocess_data(x, y):
@@ -97,6 +96,9 @@ def writeColour():
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 x_train, y_train = preprocess_data(x_train, y_train)
 x_test, y_test = preprocess_data(x_test, y_test)
+
+train_filepath = "../train_mnist.txt"
+test_filepath = "../test_mnist.txt"
 
 writeData(train_filepath, x_train, y_train)
 writeData(test_filepath, x_test, y_test)

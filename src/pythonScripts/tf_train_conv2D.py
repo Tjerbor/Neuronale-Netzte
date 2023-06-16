@@ -20,16 +20,15 @@ def preprocess_data(x, y):
 model = tf.keras.Sequential(
     [
         layers.Input((28, 28, 1)),
-        layers.Conv2D(32, kernel_size=3, activation="relu", name="conv"),
-        layers.MaxPooling2D(4),
+        layers.Conv2D(8, kernel_size=5, activation="tanh", name="conv"),
         layers.Flatten(),
-        layers.Dense(10, activation="softmax", name="out"),
+        layers.Dense(10, activation="tanh", name="out"),
     ]
 )
 
 # optimizer Options: SGD, Adam, rmsprop, AdaGard,
 # loss: mse, CategoricalCrossentropy
-model.compile("SGD", "CategoricalCrossentropy",
+model.compile("SGD", "mse",
               metrics=['accuracy'])
 
 x_train, y_train = preprocess_data(x_train, y_train)

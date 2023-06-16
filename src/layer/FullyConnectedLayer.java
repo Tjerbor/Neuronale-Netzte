@@ -1,5 +1,6 @@
 package layer;
 
+import main.RMSProp;
 import utils.Utils;
 
 import java.text.ParseException;
@@ -19,11 +20,15 @@ public class FullyConnectedLayer implements Layer {
      * This variable contains the weights of the layer.
      */
 
+
+    RMSProp optimizer = new RMSProp();
+
     boolean useMomentum = false;
 
     double momentum = 0.9;
-    boolean useBiases = true;
+    boolean useBiases = false;
     private double[][] weights;
+    private float[][] weightsF;
     /**
      * This variable contains the biases of the layer.
      */
@@ -38,10 +43,13 @@ public class FullyConnectedLayer implements Layer {
     private double[] input; //needed for backpropagation with Single Input.
     private double[] dbiases; //biases of layer.
 
-    private Activation act = new Activation();
+    private Activation act = new TanH();
 
     private double[][] act_inputs; //needed for backpropagation with batch input.
     private double[] act_input; //needed for backpropagation with Single Input.
+
+    private double[] lastZ;
+    private double[] lastX;
 
     /**
      * This constructor creates a fully connected layer with the given number of neurons of the two layers it models.
@@ -54,15 +62,17 @@ public class FullyConnectedLayer implements Layer {
             throw new IllegalArgumentException("Each layer must contain at least one neuron.");
         }
 
-        weights = new double[a][];
+        weights = new double[a][b];
 
         for (int i = 0; i < a; i++) {
-            weights[i] = random(b);
+            weights[i] = random(b, 0, 1);
         }
 
         if (useBiases) {
             biases = random(b);
         }
+
+        setRandomWeights();
 
     }
 
@@ -74,7 +84,7 @@ public class FullyConnectedLayer implements Layer {
         weights = new double[a][];
 
         for (int i = 0; i < a; i++) {
-            weights[i] = random(b);
+            weights[i] = random(b, 0, 1);
         }
 
         this.useBiases = Biases;
@@ -82,6 +92,7 @@ public class FullyConnectedLayer implements Layer {
             biases = random(b);
         }
 
+        setRandomWeights();
     }
 
     public FullyConnectedLayer(int a, int b, String act) {
@@ -100,6 +111,8 @@ public class FullyConnectedLayer implements Layer {
             biases = random(b, 0, 1);
         }
 
+        setRandomWeights();
+
 
     }
 
@@ -107,14 +120,14 @@ public class FullyConnectedLayer implements Layer {
      * This method returns an array of random values between <code>-1</code> and <code>1</code>.
      */
     private static double[] random(int length) {
-        return random.doubles(length, -0.1, 0.1).toArray();
+        return random.doubles(length, -0.01, 0.01).toArray();
     }
 
     private static double[] random(int length, double mean, double std) {
 
         double[] a = new double[length];
         for (int i = 0; i < length; i++) {
-            a[i] = random.nextGaussian(mean, std);
+            a[i] = random.nextGaussian();
         }
 
         return a;
@@ -217,6 +230,11 @@ public class FullyConnectedLayer implements Layer {
     public double[][] forward(double[][] inputs) {
         double[][] result = new double[inputs.length][weights[0].length];
 
+        if (this.act_inputs == null) {
+            act_inputs = new double[inputs.length][weights[0].length];
+        }
+
+
         this.inputs = (inputs);
         for (int i = 0; i < inputs.length; i++) {
             for (int j = 0; j < weights[0].length; j++) {
@@ -225,11 +243,18 @@ public class FullyConnectedLayer implements Layer {
                 }
 
                 result[i][j] += biases[j];
+                act_inputs[i][j] = result[i][j];
+                result[i][j] = act.definition(result[i][j]);
             }
         }
 
 
         return result;
+    }
+
+    @Override
+    public double[] backward(double[] input) {
+        return null;
     }
 
 
@@ -307,107 +332,109 @@ public class FullyConnectedLayer implements Layer {
         return result;
     }
 
+    public void setRandomWeights() {
+        Random random = new Random();
+
+        for (int i = 0; i < weights.length; i++) {
+            for (int j = 0; j < weights[0].length; j++) {
+                weights[i][j] = random.nextDouble(-1, 1);
+            }
+        }
+    }
+
     public double[] forward(double[] input) {
+
+        lastX = input;
+
         double[] z = new double[weights[0].length];
         double[] out = new double[weights[0].length];
-        this.input = input;
 
-        for (int i = 0; i < input.length; i++) {
+        for (int i = 0; i < weights.length; i++) {
             for (int j = 0; j < weights[0].length; j++) {
                 z[j] += input[i] * weights[i][j];
             }
         }
 
-        if (useBiases) {
+        lastZ = z;
+
+        for (int i = 0; i < weights.length; i++) {
             for (int j = 0; j < weights[0].length; j++) {
-                z[j] += biases[j];
+                out[j] = act.definition(z[j]);
             }
         }
-
-
-        act_input = z;
-
-
-        for (int j = 0; j < weights[0].length; j++) {
-            out[j] = act.definition(z[j]);
-        }
-
 
         return out;
     }
 
-    public double[] backward(double[] grad, double learningRate) {
-        double[] grad_out = new double[input.length];
+    public double[] backward(double[] dLdO, double learningRate) {
 
-        double d_act_out;
-        double dWeight;
+        double[] dLdX = new double[weights.length];
 
-        for (int i = 0; i < input.length; i++) {
+        double dOdz;
+        double dzdw;
+        double dLdw;
+        double dzdx;
 
-            double grad_sum = 0;
+        for (int k = 0; k < weights.length; k++) {
+
+            double dLdX_sum = 0;
 
             for (int j = 0; j < weights[0].length; j++) {
 
-                d_act_out = act.derivative(act_input[j]);
-                dWeight = grad[j] * d_act_out * this.input[i];
-                weights[i][j] -= dWeight * learningRate;
-                grad_sum += grad[j] * d_act_out * weights[i][j];
+                dOdz = act.derivative(lastZ[j]);
+                dzdw = lastX[k];
+                dzdx = weights[k][j];
 
+                dLdw = dLdO[j] * dOdz * dzdw;
+
+                weights[k][j] -= dLdw * learningRate;
+
+                dLdX_sum += dLdO[j] * dOdz * dzdx;
             }
 
-
-            grad_out[i] = grad_sum;
-
-        }
-
-        if (useBiases && useMomentum) {
-            for (int i = 0; i < grad.length; i++) {
-                momentumBiases[i] = momentum * momentumBiases[i] - grad[i] * learningRate;
-                biases[i] -= momentumBiases[i];
-            }
-        } else if (useBiases) {
-            for (int i = 0; i < grad.length; i++) {
-                biases[i] -= grad[i] * learningRate;
-            }
-
+            dLdX[k] = dLdX_sum;
         }
 
 
-        return grad_out;
+        return dLdX;
     }
 
-    public double[] backward(double[] grad) {
-        double[] grad_out = new double[input.length];
+    public float[] backward(float[] dLdO, double learningRate) {
 
-        double d_act_out;
-        this.dweights = new double[weights.length][weights[0].length];
+        float[] dLdX = new float[weightsF.length];
 
-        for (int i = 0; i < input.length; i++) {
+        float dOdz;
+        float dzdw;
+        float dLdw;
+        float dzdx;
 
-            double grad_sum = 0;
+        for (int k = 0; k < weights.length; k++) {
+
+            double dLdX_sum = 0;
 
             for (int j = 0; j < weights[0].length; j++) {
 
-                d_act_out = act.derivative(act_input[j]);
-                dweights[i][j] = grad[j] * d_act_out * this.input[i];
-                grad_sum += grad[j] * d_act_out * weights[i][j];
+                dOdz = (float) act.derivative(lastZ[j]);
+                dzdw = (float) lastX[k];
+                dzdx = (float) weights[k][j];
+
+                dLdw = dLdO[j] * dOdz * dzdw;
+
+                weights[k][j] -= dLdw * learningRate;
+
+                dLdX_sum += dLdO[j] * dOdz * dzdx;
             }
 
-            grad_out[i] = grad_sum;
-
-        }
-        if (useBiases) {
-            for (int i = 0; i < grad.length; i++) {
-                dbiases[i] = grad[i];
-            }
+            dLdX[k] = (float) dLdX_sum;
         }
 
-        return grad_out;
+
+        return dLdX;
     }
 
     public double[][] backward(double[][] grad) {
 
-        double[][] grad_out = new double[grad.length][inputs.length];
+        double[][] grad_out = new double[grad.length][inputs[0].length];
 
         double d_act_out;
         this.dweights = new double[weights.length][weights[0].length];
@@ -420,8 +447,8 @@ public class FullyConnectedLayer implements Layer {
 
                 for (int j = 0; j < weights[0].length; j++) {
 
-                    d_act_out = act.derivative(act_input[j]);
-                    dweights[i][j] += grad[bs][j] * d_act_out * this.input[i];
+                    d_act_out = act.derivative(act_inputs[i][j]);
+                    dweights[i][j] += grad[bs][j] * d_act_out * this.inputs[bs][i];
                     grad_sum += grad[bs][j] * d_act_out * weights[i][j];
                 }
 
@@ -431,19 +458,35 @@ public class FullyConnectedLayer implements Layer {
 
         }
 
+
         return grad_out;
 
     }
 
     public double[][] backward(double[][] grad, double learningRate) {
 
-        double[][] grad_out = new double[grad.length][inputs.length];
+        double[][] grad_out = new double[grad.length][inputs[0].length];
+
+        double d_act_out;
+        double dweight = 0;
 
         for (int bs = 0; bs < inputs.length; bs++) {
 
-            this.input = inputs[bs];
-            this.act_input = act_inputs[bs];
-            this.backward(grad[bs], learningRate);
+            for (int i = 0; i < inputs[0].length; i++) {
+
+                double grad_sum = 0;
+
+                for (int j = 0; j < weights[0].length; j++) {
+
+                    d_act_out = act.derivative(act_inputs[bs][j]);
+                    dweight = grad[bs][j] * d_act_out * this.inputs[bs][j];
+                    weights[i][j] -= dweight * learningRate;
+                    grad_sum += grad[bs][j] * d_act_out * weights[i][j];
+                }
+
+                grad_out[bs][i] = grad_sum;
+
+            }
 
         }
 

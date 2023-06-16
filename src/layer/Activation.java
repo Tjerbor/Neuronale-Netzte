@@ -20,4 +20,14 @@ public class Activation {
     }
 
 
+    public float definition(float x) {
+        return x;
+    }
+
+    /**
+     * This method evaluates the derivative of the activation function at the given point.
+     */
+    public float derivative(float x) {
+        return 1;
+    }
 }

@@ -671,6 +671,20 @@ public class Array_utils {
 
     }
 
+    public static double[][] mult_matrix_by_scalarRE(double[][] a, double scalar) {
+
+        double[][] c = new double[a.length][a[0].length];
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+
+                a[i][j] *= scalar;
+            }
+        }
+
+        return c;
+    }
+
     public static double[] div_matrix_by_scalarRe(double[] a, double scalar) {
 
         double[] c = new double[a.length];

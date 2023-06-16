@@ -42,7 +42,7 @@ public class RandomUtils {
             for (int j = 0; j < d[0].length; j++) {
                 for (int k = 0; k < d[0][0].length; k++) {
                     for (int l = 0; l < d[0][0][0].length; l++) {
-                        d[i][j][k][l] = genGaussianRandomWeight(0, 1);
+                        d[i][j][k][l] = genGaussianRandomWeight();
                     }
 
                 }
@@ -77,7 +77,7 @@ public class RandomUtils {
             for (int j = 0; j < d[0].length; j++) {
                 for (int k = 0; k < d[0][0].length; k++) {
                     for (int l = 0; l < d[0][0][0].length; l++) {
-                        d[i][j][k][l] = genGaussianRandomWeight(0, 1);
+                        d[i][j][k][l] = genGaussianRandomWeight(mean, std);
                     }
 
                 }

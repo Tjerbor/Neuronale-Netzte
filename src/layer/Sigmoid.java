@@ -15,4 +15,16 @@ public class Sigmoid extends Activation {
 
         return y * (1 - y);
     }
+
+    @Override
+    public float definition(float x) {
+        return 1 / (1 + (float) Math.exp(-x));
+    }
+
+    @Override
+    public float derivative(float x) {
+        float y = definition(x);
+
+        return y * (1 - y);
+    }
 }

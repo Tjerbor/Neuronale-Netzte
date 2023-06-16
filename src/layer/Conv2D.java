@@ -1,7 +1,8 @@
 package layer;
 
-import main.Optimizer;
+import main.RMSPropNew;
 import utils.Array_utils;
+import utils.RandomUtils;
 import utils.Utils;
 
 //https://www.youtube.com/watch?v=Lakz2MoHy6o
@@ -29,7 +30,7 @@ public class Conv2D {
     int filterPos = 0; //postion of the aktuell Filter so the activations knows on which points teh value needs to be added.
 
 
-    Optimizer optimizer;
+    RMSPropNew optimizer = null;
     boolean useBiases = false;
     double[][][][] weights;
     double[][][] biases;
@@ -52,7 +53,7 @@ public class Conv2D {
         this.w = shape[2];
 
         weights = new double[num_filters][shape[0]][kernelSize][kernelSize2];
-        Utils.genGaussianRandomWeight(weights);
+        RandomUtils.genGaussianRandomWeight(weights, 0, 1);
 
         this.h_out = h - kernelSize + 1;
         this.w_out = w - kernelSize2 + 1;
@@ -132,6 +133,13 @@ public class Conv2D {
         return output;
     }
 
+
+    public int[] getOutputShape() {
+
+        return new int[]{this.num_filters, this.h_out, this.w_out};
+
+    }
+
     public void setWeights(double[][][][] weights) {
         this.weights = weights;
     }
@@ -195,7 +203,15 @@ public class Conv2D {
         }
 
 
-        Utils.updateParameter(weights, dkernels, learningRate);
+        if (this.optimizer != null) {
+            optimizer.setAlpha(learningRate);
+            optimizer.updateParameter(weights, dkernels);
+
+
+        } else {
+            Utils.updateParameter(weights, dkernels, learningRate);
+        }
+
 
         if (useBiases) {
             Utils.updateParameter(biases, grad_input, learningRate);
