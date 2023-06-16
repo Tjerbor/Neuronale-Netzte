@@ -119,7 +119,7 @@ public class NeuralNetwork {
      * The method throws an exception if an I/O error occurs.
      */
     public void exportWeights(String fileName) throws IOException {
-        StringBuilder s = new StringBuilder("layer");
+        StringBuilder s = new StringBuilder("layers");
 
         for (int i : topology()) {
             s.append(";").append(i);
