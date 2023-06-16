@@ -4,7 +4,8 @@ import utils.Array_utils;
 
 public class SoftmaxCategoricalCrossEntropy extends Losses {
 
-    public static Softmax softmax = new Softmax();
+    
+    public static NewSoftmax softmax = new NewSoftmax();
     public static CategoricalCrossEntropy loss = new CategoricalCrossEntropy();
 
     public double forward(double[][] inputs, double[][] y_true) {

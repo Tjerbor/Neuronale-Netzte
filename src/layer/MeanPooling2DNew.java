@@ -1,11 +1,13 @@
 package layer;
 
 
+import utils.Array_utils;
+
 /**
  * Excpets the deepth of the imgae being one the frist dimension.
  * Image: 1 ´,28, 28
  */
-public class MaxPooling2DNew {
+public class MeanPooling2DNew {
 
 
     double[][][][] inputs;
@@ -21,19 +23,19 @@ public class MaxPooling2DNew {
     int poolWidth = 2;
 
 
-    public MaxPooling2DNew(int stride) {
+    public MeanPooling2DNew(int stride) {
         this.stride = stride;
 
     }
 
-    public MaxPooling2DNew(int stride, int poolSize) {
+    public MeanPooling2DNew(int stride, int poolSize) {
         this.stride = stride;
         this.poolHeight = poolSize;
         this.poolWidth = poolSize;
 
     }
 
-    public MaxPooling2DNew() {
+    public MeanPooling2DNew() {
 
     }
 
@@ -115,21 +117,20 @@ public class MaxPooling2DNew {
     }
 
 
-    public double getSubmatrixMax(double[][] in, int h_st, int h_end, int w_st, int w_end) {
+    public double getSubmatrixMean(double[][] in, int h_st, int h_end, int w_st, int w_end) {
 
-        double val = Integer.MIN_VALUE;
+        double val = 0;
 
         for (int i = 0; i < h_end - h_st; i++) {
             for (int j = 0; j < w_end - w_st; j++) {
-                if (val < in[h_st + i][w_st + j]) {
-                    val = in[h_st + i][w_st + j];
+
+                val += in[h_st + i][w_st + j];
 
 
-                }
             }
         }
 
-        return val;
+        return val / poolHeight * poolWidth;
     }
 
     public double[] getSubmatrixMaxAndIndex(double[][] in, int h_st, int h_end, int w_st, int w_end) {
@@ -209,30 +210,14 @@ public class MaxPooling2DNew {
 
         double[][][] out = new double[C][h_out][w_out];
 
-        this.input = input;
-
-        double[][] tmpBack = new double[H][W];
-
-        this.outBackward = new double[C][H][W];
-        double[] tmp = new double[3];
-
-        int wb;
-        int hb;
+        this.input = Array_utils.copyArray(input);
         for (int i = 0; i < C; i++) {
-            tmpBack = new double[H][W];
             for (int hi = 0; hi < h_out; hi++) {
                 for (int wi = 0; wi < w_out; wi++) {
-                    tmp = getSubmatrixMaxAndIndex(input[i], hi * stride, hi * stride + poolHeight, wi * stride, wi * stride + poolWidth);
-                    out[i][hi][wi] = tmp[0];
-                    hb = (int) tmp[1];
-                    wb = (int) tmp[2];
-                    tmpBack[hb][wb] = tmp[0];
-
+                    out[i][hi][wi] = getSubmatrixMean(input[i], hi * stride, hi * stride + poolHeight, wi * stride, wi * stride + poolWidth);
                 }
 
             }
-
-            outBackward[i] = tmpBack;
 
         }
 
@@ -252,30 +237,16 @@ public class MaxPooling2DNew {
 
         double[][][][] out = new double[inputs.length][H_out][W_out][C];
 
-        double val;
-        double[] tmp;
-
-        double[][] tmpBack;
-
-        int wb;
-        int hb;
-
         this.outBackwards = new double[B][C][H][W];
 
         for (int bs = 0; bs < B; bs++) {
             for (int ci = 0; ci < C; ci++) { //channels
-                tmpBack = new double[H][W];
                 for (int hi = 0; hi < H_out; hi++) {
                     for (int wi = 0; wi < W_out; wi++) {
-                        tmp = getSubmatrixMaxAndIndex(inputs[bs][ci], hi * stride, hi * stride + poolHeight, wi * stride, wi * stride + poolWidth);
-                        hb = (int) tmp[1];
-                        wb = (int) tmp[2];
-                        tmpBack[hb][wb] += tmp[0];
-                        out[bs][wi][hi][ci] = tmp[0];
+                        out[bs][ci][hi][wi] = getSubmatrixMean(inputs[bs][ci], hi * stride, hi * stride + poolHeight, wi * stride, wi * stride + poolWidth);
                     }
 
                 }
-                outBackwards[bs][ci] = tmpBack;
             }
 
 
@@ -285,18 +256,7 @@ public class MaxPooling2DNew {
         return out;
 
     }
-
-
-    public double[][][] backward(double[][][] delta_inputs) {
-
-        return this.outBackward;
-    }
-
-    public double[][][] backward(double[][][] delta_inputs, double learningRate) {
-
-        return this.outBackward;
-    }
-
+    
 
     public double[][][] backwardOld(double[][][] delta_inputs) {
 

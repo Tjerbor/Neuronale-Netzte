@@ -24,7 +24,7 @@ public class LoadOwn {
         double[] pixels;
         double[] digits;
         List<String> files = load(dirFpath);
-        System.out.println(files);
+        System.out.println("files: " + files);
 
         double[][] X = new double[files.size()][];
         double[][] Y = new double[files.size()][];
@@ -87,6 +87,46 @@ public class LoadOwn {
         }
 
         return l;
+    }
+
+    public static double[][] loadSingle(String fpath) {
+
+        double[][] out;
+        double[] pixels = new double[PIXELS];
+        double[] digits = new double[DIGITS];
+
+        try (BufferedReader in = new BufferedReader(new FileReader(fpath))) {
+            String line;
+
+            while ((line = in.readLine()) != null) {
+                String[] data = line.split(";");
+
+                if (data.length != PIXELS) {
+                    throw new IllegalArgumentException("The file " + fpath + " does not conform to the MNIST format.");
+                }
+
+
+                for (int j = 0; j < data.length; j++) {
+                    pixels[j] = Double.parseDouble(data[j]);
+                }
+
+
+                String filename = fpath;
+                String[] p = filename.split("_");
+                filename = p[1].replace(".txt", "");
+
+                digits[Integer.parseInt(filename)] = 1;
+
+            }
+
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        out = new double[][]{pixels, digits};
+        return out;
     }
 
 }

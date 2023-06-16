@@ -1,6 +1,6 @@
 package layer;
 
-import main.RMSProp;
+import main.RMSPropNew;
 import utils.Utils;
 
 import java.text.ParseException;
@@ -21,12 +21,14 @@ public class FullyConnectedLayer implements Layer {
      */
 
 
-    RMSProp optimizer = new RMSProp();
+    RMSPropNew optimizer = null;
 
     boolean useMomentum = false;
 
     double momentum = 0.9;
-    boolean useBiases = false;
+
+    NewSoftmax softmax = null;
+    boolean useBiases = true;
     private double[][] weights;
     private float[][] weightsF;
     /**
@@ -51,6 +53,7 @@ public class FullyConnectedLayer implements Layer {
     private double[] lastZ;
     private double[] lastX;
 
+
     /**
      * This constructor creates a fully connected layer with the given number of neurons of the two layers it models.
      * It adds a bias neuron and initializes the weights with random values between <code>-1</code> and <code>1</code>.
@@ -65,14 +68,14 @@ public class FullyConnectedLayer implements Layer {
         weights = new double[a][b];
 
         for (int i = 0; i < a; i++) {
-            weights[i] = random(b, 0, 1);
+            weights[i] = random(b);
         }
 
         if (useBiases) {
             biases = random(b);
         }
 
-        setRandomWeights();
+        //setRandomWeights();
 
     }
 
@@ -84,7 +87,7 @@ public class FullyConnectedLayer implements Layer {
         weights = new double[a][];
 
         for (int i = 0; i < a; i++) {
-            weights[i] = random(b, 0, 1);
+            weights[i] = random(b);
         }
 
         this.useBiases = Biases;
@@ -103,12 +106,12 @@ public class FullyConnectedLayer implements Layer {
         this.weights = new double[a][];
 
         for (int i = 0; i < a; i++) {
-            this.weights[i] = random(b, 0, 1);
+            this.weights[i] = random(b);
         }
         setActivation(act);
 
         if (useBiases) {
-            biases = random(b, 0, 1);
+            biases = random(b);
         }
 
         setRandomWeights();
@@ -120,7 +123,7 @@ public class FullyConnectedLayer implements Layer {
      * This method returns an array of random values between <code>-1</code> and <code>1</code>.
      */
     private static double[] random(int length) {
-        return random.doubles(length, -0.01, 0.01).toArray();
+        return random.doubles(length, -0.1, 0.1).toArray();
     }
 
     private static double[] random(int length, double mean, double std) {
@@ -133,6 +136,9 @@ public class FullyConnectedLayer implements Layer {
         return a;
     }
 
+    public void setOptimizer(RMSPropNew optimizer) {
+        this.optimizer = optimizer;
+    }
 
     public void setActivation(Activation act) {
         this.act = act;
@@ -357,11 +363,17 @@ public class FullyConnectedLayer implements Layer {
 
         lastZ = z;
 
-        for (int i = 0; i < weights.length; i++) {
-            for (int j = 0; j < weights[0].length; j++) {
-                out[j] = act.definition(z[j]);
+        if (this.softmax != null) {
+            out = softmax.forward(lastZ);
+        } else {
+            for (int i = 0; i < weights.length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+                    out[j] = act.definition(z[j]);
+                }
             }
+
         }
+
 
         return out;
     }
@@ -375,13 +387,24 @@ public class FullyConnectedLayer implements Layer {
         double dLdw;
         double dzdx;
 
+
+        if (softmax != null) {
+            lastZ = softmax.backward(lastZ);
+        }
+
         for (int k = 0; k < weights.length; k++) {
 
             double dLdX_sum = 0;
 
             for (int j = 0; j < weights[0].length; j++) {
 
-                dOdz = act.derivative(lastZ[j]);
+                if (softmax != null) {
+                    dOdz = lastZ[j];
+
+                } else {
+                    dOdz = act.derivative(lastZ[j]);
+                }
+
                 dzdw = lastX[k];
                 dzdx = weights[k][j];
 
@@ -399,38 +422,6 @@ public class FullyConnectedLayer implements Layer {
         return dLdX;
     }
 
-    public float[] backward(float[] dLdO, double learningRate) {
-
-        float[] dLdX = new float[weightsF.length];
-
-        float dOdz;
-        float dzdw;
-        float dLdw;
-        float dzdx;
-
-        for (int k = 0; k < weights.length; k++) {
-
-            double dLdX_sum = 0;
-
-            for (int j = 0; j < weights[0].length; j++) {
-
-                dOdz = (float) act.derivative(lastZ[j]);
-                dzdw = (float) lastX[k];
-                dzdx = (float) weights[k][j];
-
-                dLdw = dLdO[j] * dOdz * dzdw;
-
-                weights[k][j] -= dLdw * learningRate;
-
-                dLdX_sum += dLdO[j] * dOdz * dzdx;
-            }
-
-            dLdX[k] = (float) dLdX_sum;
-        }
-
-
-        return dLdX;
-    }
 
     public double[][] backward(double[][] grad) {
 

@@ -181,7 +181,6 @@ public class MaxPooling2D {
 
         double val;
 
-        inputs = reshapeImg(inputs);
         this.inputs = inputs;
 
 
@@ -230,7 +229,7 @@ public class MaxPooling2D {
             }
         }
 
-        return reshapeImgBack(out);
+        return out;
     }
 
 
@@ -268,7 +267,7 @@ public class MaxPooling2D {
             }
         }
 
-        return reshapeImgBack(out);
+        return out;
     }
 
 }

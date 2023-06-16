@@ -47,6 +47,7 @@ public class Reader {
 
         int[] topologie = IntStream.range(1, list.get(0).length).map(i -> Integer.parseInt(list.get(0)[i])).toArray();
 
+        System.out.println(Arrays.toString(topologie));
         FullyConnectedLayer[] structur = new FullyConnectedLayer[topologie.length - 1];
 
         int count = 0;
