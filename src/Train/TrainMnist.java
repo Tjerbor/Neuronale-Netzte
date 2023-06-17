@@ -44,13 +44,13 @@ public class TrainMnist {
     public static void main(String[] args) throws Exception {
 
 
-        String fpath = "/home/dblade/Documents/Neuronale-Netzte/src/train_mnist.txt";
+        String fpath = "./src/train_mnist.txt";
         double[][][] trainingData = MNIST.read(fpath, 60000);
         double[][] x_train = trainingData[0];
         double[][] y_train = trainingData[1];
 
 
-        String fpath_test = "/home/dblade/Documents/Neuronale-Netzte/src/test_mnist.txt";
+        String fpath_test = "./src/test_mnist.txt";
         double[][][] testData = MNIST.read(fpath_test, 15000);
         double[][] x_test = testData[0];
         double[][] y_test = testData[1];
@@ -58,6 +58,9 @@ public class TrainMnist {
         FullyConnectedLayer f1 = new FullyConnectedLayer(784, 49);
         FullyConnectedLayer f3 = new FullyConnectedLayer(49, 10);
 
+
+        f1.genWeights(2);
+        f3.genWeights(2);
 
         System.out.println(getTop(new FullyConnectedLayer[]{f1, f3}));
 

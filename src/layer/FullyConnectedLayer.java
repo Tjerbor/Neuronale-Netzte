@@ -19,16 +19,13 @@ public class FullyConnectedLayer implements Layer {
     /**
      * This variable contains the weights of the layer.
      */
-
-
-    RMSPropNew optimizer = null;
-
-    boolean useMomentum = false;
-
-    double momentum = 0.9;
-
+    Activation act = new TanH();
     NewSoftmax softmax = null;
+    RMSPropNew optimizer = null;
+    boolean useMomentum = false;
+    double momentum = 0.9;
     boolean useBiases = true;
+
     private double[][] weights;
     private float[][] weightsF;
     /**
@@ -45,7 +42,6 @@ public class FullyConnectedLayer implements Layer {
     private double[] input; //needed for backpropagation with Single Input.
     private double[] dbiases; //biases of layer.
 
-    private Activation act = new TanH();
 
     private double[][] act_inputs; //needed for backpropagation with batch input.
     private double[] act_input; //needed for backpropagation with Single Input.
@@ -75,7 +71,7 @@ public class FullyConnectedLayer implements Layer {
             biases = random(b);
         }
 
-        //setRandomWeights();
+        genWeights(2);
 
     }
 
@@ -95,7 +91,7 @@ public class FullyConnectedLayer implements Layer {
             biases = random(b);
         }
 
-        setRandomWeights();
+        genWeights(2);
     }
 
     public FullyConnectedLayer(int a, int b, String act) {
@@ -114,7 +110,7 @@ public class FullyConnectedLayer implements Layer {
             biases = random(b);
         }
 
-        setRandomWeights();
+        genWeights(2);
 
 
     }
@@ -134,6 +130,52 @@ public class FullyConnectedLayer implements Layer {
         }
 
         return a;
+    }
+
+    public void setSoftmax() {
+        this.act = null;
+        this.softmax = new NewSoftmax();
+    }
+
+    public void genWeights(int type) {
+
+        Random rand = new Random();
+        if (type == 0) {
+
+
+            for (int i = 0; i < weights[0].length; i++) {
+                for (int j = 0; j < weights.length; j++) {
+                    weights[j][i] = rand.nextGaussian();
+                }
+                biases[i] = rand.nextGaussian();
+            }
+
+
+        } else if (type == 1) {
+            for (int i = 0; i < weights[0].length; i++) {
+                for (int j = 0; j < weights.length; j++) {
+                    weights[j][i] = rand.nextGaussian(0, 1);
+                }
+                biases[i] = rand.nextGaussian(0, 1);
+            }
+
+        } else if (type == 2) {
+            for (int i = 0; i < weights[0].length; i++) {
+                for (int j = 0; j < weights.length; j++) {
+                    weights[j][i] = rand.nextDouble(-0.1, 0.1);
+                }
+                biases[i] = rand.nextDouble(-0.1, 0.1);
+            }
+
+        } else if (type == 3) {
+            for (int i = 0; i < weights[0].length; i++) {
+                for (int j = 0; j < weights.length; j++) {
+                    weights[j][i] = rand.nextDouble(-1, 1);
+                }
+                biases[i] = rand.nextDouble(-1, 1);
+            }
+        }
+
     }
 
     public void setOptimizer(RMSPropNew optimizer) {
@@ -262,7 +304,6 @@ public class FullyConnectedLayer implements Layer {
     public double[] backward(double[] input) {
         return null;
     }
-
 
     /**
      * only used if learning rate is set.
@@ -422,7 +463,6 @@ public class FullyConnectedLayer implements Layer {
         return dLdX;
     }
 
-
     public double[][] backward(double[][] grad) {
 
         double[][] grad_out = new double[grad.length][inputs[0].length];
@@ -448,8 +488,6 @@ public class FullyConnectedLayer implements Layer {
             }
 
         }
-
-
         return grad_out;
 
     }

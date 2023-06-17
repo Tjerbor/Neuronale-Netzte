@@ -26,7 +26,12 @@ image = image.astype(np.float32)
 
 flatt = image.flatten()
 
-flatt /= 255
+image /= 255
+
+a = np.ones((28, 28))
+
+a = a - image
+
 flatt = flatt.tolist()
 
 flatt = np.array(flatt)
