@@ -1,12 +1,19 @@
 package main;
 
+
+/**
+ * Dies ist ein weitere Optimizer, um die Weights noch effizienter zu aktualisieren.
+ * ähnlich wie bei Momentum werden hier die vorherigen weighs
+ * genau wie bei Adam ist diese Klasse zur demonstration und nicht für einen gezielten layer
+ * gestalt.
+ */
 public class RMSProp implements Optimizer {
 
 
-    double alpha = 0.001;
+    double alpha = 0.001; //is the learning Rate
 
-    double beta2 = 0.9;
-    double epsilon = 1e-8;
+    double beta2 = 0.9; //
+    double epsilon = 1e-8; //normalize Value
 
 
     public void setAlpha(double alpha) {
@@ -22,11 +29,11 @@ public class RMSProp implements Optimizer {
     }
 
     /**
-     * retuens the new weights an the new delta prev
+     * returns the new weights the new delta prev
      *
-     * @param w
-     * @param dw
-     * @param dw_prev
+     * @param w       the weights of the given Layer
+     * @param dw      the deltaWeights/gradientWeight of the Layer.
+     * @param dw_prev the previous deltaWeights of the Layer.
      * @return
      */
 

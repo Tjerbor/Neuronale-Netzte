@@ -6,6 +6,7 @@ package autograd;
  * Andrej Karpathy
  * https://github.com/karpathy/micrograd
  * https://github.com/karpathy/nn-zero-to-hero/blob/master/lectures/micrograd/micrograd_lecture_second_half_roughly.ipynb
+ * this code should show a simple implementation of an Automatic-Gradient script.
  */
 
 

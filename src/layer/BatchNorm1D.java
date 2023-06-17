@@ -5,7 +5,15 @@ import utils.Utils;
 
 import java.util.Arrays;
 
+/**
+ * normalize the data of a batch a cross that batch.
+ * this is commonly used and older than the idea of Layer normalization.
+ * often used with images and convolution layers.
+ * braucht mehrere Input daten. Ein Beispiel kommt noch.
+ */
+
 public class BatchNorm1D {
+
 
     double epsilon = 1e-8;
     double momentum = 0.9;

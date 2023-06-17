@@ -1,5 +1,20 @@
 package main;
 
+
+/**
+ * Ist ein Optimizer, um die weights noch besser zu verbessern. Hat extra Parameter die
+ * beeinflussen wie stark die werte aktuell beeinflusst werden und wie stark bei
+ * der Aktualisierung die alten werde berücksichtigt werden.
+ * ähnlich wie Momentum nur noch ein paar Parameter mehr.
+ */
+
+/**
+ * Diese Klasse ist als Standard Klasse gesehnt, sie ist ein beispiel.
+ * Diese Klasse kann ohne einen Zustand des Layers benutzt werden, wenn der Optimizer im Layer
+ * verwendet werden soll, benutzt man die AdamNew Klasse.
+ */
+
+
 public class Adam implements Optimizer {
 
 

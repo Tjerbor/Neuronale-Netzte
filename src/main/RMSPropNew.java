@@ -2,6 +2,11 @@ package main;
 
 import utils.Array_utils;
 
+
+/**
+ * mithilfe dieser Klasse kann man den Optimizer in einen Layer einbinden.
+ */
+
 public class RMSPropNew implements Optimizer {
 
 

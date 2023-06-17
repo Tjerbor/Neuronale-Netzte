@@ -38,12 +38,16 @@ public class TestOwnData {
         }
 
 
-        double[] out = null;
+        double[] out;
         double loss_per_step = 0;
         for (int ti = 0; ti < x_test.length; ti++) {
 
 
             out = test[ti];
+
+            for (FullyConnectedLayer l : layers) {
+
+            }
             for (int i = 0; i < layers.length; i++) {
                 out = layers[i].forward(out);
             }

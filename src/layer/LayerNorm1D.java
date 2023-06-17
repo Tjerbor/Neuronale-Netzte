@@ -3,6 +3,12 @@ package layer;
 import utils.Array_utils;
 import utils.Utils;
 
+/**
+ * normalizes the Data from One Layer. this is why the data
+ * can have a singe sample, because that sample  data is normalized.
+ * is used in modern Architektur like Transformer (Multi-head-Attention).
+ * Ein Beispiel kommt noch.
+ */
 public class LayerNorm1D {
 
     double epsilon = 1e-8;
