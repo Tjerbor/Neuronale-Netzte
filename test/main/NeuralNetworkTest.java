@@ -30,7 +30,7 @@ class NeuralNetworkTest {
 
     @Test
     void logicalConjunction() throws Exception {
-        neuralNetwork.setLayers(Reader.create("csv/weights/logicalConjunction.csv"));
+        neuralNetwork.setLayers(Reader.create("data/weights/logicalConjunction.csv"));
 
         neuralNetwork.setFunction(0, new StepFunc(1.5));
 
@@ -46,7 +46,7 @@ class NeuralNetworkTest {
 
     @Test
     void trafficLight() throws IOException {
-        neuralNetwork.setLayers(Reader.create("csv/weights/trafficLight.csv"));
+        neuralNetwork.setLayers(Reader.create("data/weights/trafficLight.csv"));
 
         neuralNetwork.setFunction(0, new CustomActivation(new String[]{"logi", "logi", "logi", "id"}));
         neuralNetwork.setFunction(1, new CustomActivation(new String[]{"id", "id", "id", "id"}));

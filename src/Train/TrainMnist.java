@@ -44,14 +44,12 @@ public class TrainMnist {
     public static void main(String[] args) throws Exception {
 
 
-        String fpath = "./src/train_mnist.txt";
-        double[][][] trainingData = MNIST.read(fpath, 60000);
+        double[][][] trainingData = MNIST.read("data/mnist/train-images-idx3-ubyte.gz", "data/mnist/train-labels-idx1-ubyte.gz");
         double[][] x_train = trainingData[0];
         double[][] y_train = trainingData[1];
 
 
-        String fpath_test = "./src/test_mnist.txt";
-        double[][][] testData = MNIST.read(fpath_test, 15000);
+        double[][][] testData = MNIST.read("data/mnist/t10k-images-idx3-ubyte.gz", "data/mnist/t10k-labels-idx1-ubyte.gz");
         double[][] x_test = testData[0];
         double[][] y_test = testData[1];
 
