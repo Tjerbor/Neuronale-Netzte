@@ -1,7 +1,6 @@
 package layer;
 
 import main.Optimizer;
-import utils.Array_utils;
 import utils.Utils;
 
 import java.text.ParseException;
@@ -202,7 +201,10 @@ public class FullyConnectedLayer implements Layer {
 
     public void setOptimizer(Optimizer optimizer) {
         this.optimizer = optimizer;
-        this.dweights = Array_utils.zerosLike(weights);
+        this.dweights = new double[weights.length][weights[0].length];
+        if (useBiases) {
+            this.dbiases = new double[biases.length];
+        }
     }
 
     public void setActivation(Activation act) {
@@ -456,7 +458,7 @@ public class FullyConnectedLayer implements Layer {
             dbiases = new double[biases.length];
         }
 
-
+        dweights = new double[weights.length][weights[0].length];
         double[] gradAct = new double[lastActInput.length];
 
         if (softmax != null) {

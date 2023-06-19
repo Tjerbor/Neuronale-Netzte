@@ -68,7 +68,7 @@ public class TrainMnist {
         f1.setOptimizer(new AdamNew());
         f1.setUseBiases(false);
         //f2.setActivation(new TanH());
-        //f_out.setOptimizer(new RMSPropNew());
+        f_out.setOptimizer(new AdamNew());
         f_out.setActivation(new TanH());
         f_out.setUseBiases(false);
 
@@ -98,9 +98,9 @@ public class TrainMnist {
                 out = loss.backward(out, y_train[j]);
 
                 //out = act.backward(out);
-                out = f_out.backward(out, learning_rate);
+                out = f_out.backward(out, learning_rate, i);
                 //out = f2.backward(out, learning_rate);
-                out = f1.backward(out, learning_rate);
+                out = f1.backward(out, learning_rate, i);
             }
 
             System.out.println("Loss: " + loss_per_step / x_train.length);
