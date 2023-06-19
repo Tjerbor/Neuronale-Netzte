@@ -16,9 +16,9 @@ public class TestOwnData {
     public static void main(String[] args) throws IOException {
 
 
-        String weights = "/home/dblade/Documents/Neuronale-Netzte/weights_0.9605333_.txt";
+        String weights = "weights_0.9605333_.txt";
         FullyConnectedLayer[] layers = Reader.create(weights);
-        String dirFpath = "/home/dblade/Documents/Neuronale-Netzte/src/Train/OwnData";
+        String dirFpath = "src/Train/OwnData";
         double[][][] testData = getTestData(dirFpath);
 
         for (int i = 0; i < layers.length; i++) {
@@ -63,7 +63,7 @@ public class TestOwnData {
         }
         System.out.println("Acc: " + loss_per_step / x_test.length);
 
-        double[][] data = loadSingle("/home/dblade/Documents/Neuronale-Netzte/src/pythonScripts/test_0.txt");
+        double[][] data = loadSingle("src/pythonScripts/test_0.txt");
 
         out = data[0];
         for (int i = 0; i < layers.length; i++) {
