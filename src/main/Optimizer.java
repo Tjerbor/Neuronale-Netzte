@@ -13,5 +13,32 @@ public interface Optimizer {
     default void update(Layer l) {
     }
 
+    default void updateParameter(double[][][][] weights, double[][][][] deltaWeights) {
+    }
+
+    default void updateParameter(double[][][] weights, double[][][] deltaWeights) {
+    }
+
+    default void updateParameter(double[][] weights, double[][] deltaWeights) {
+    }
+
+    default void updateParameter(double[] biases, double[] deltaBiases) {
+    }
+
+    default void setLearningRate(double learningRate) {
+    }
+
+    default void updateParameter(double[][][][] weights, double[][][][] deltaWeights, int iteration) {
+    }
+
+    default void updateParameter(double[][][] weights, double[][][] deltaWeights, int iteration) {
+    }
+
+    default void updateParameter(double[][] weights, double[][] deltaWeights, int iteration) {
+    }
+
+    default void updateParameter(double[] biases, double[] deltaBiases, int iteration) {
+    }
+
 
 }

@@ -37,7 +37,7 @@ public class SGD implements Optimizer {
         this.decay = decay;
     }
 
-    public void setMomentum(double decay) {
+    public void setMomentum(double momentum) {
         this.momentum = momentum;
     }
 
@@ -57,9 +57,6 @@ public class SGD implements Optimizer {
 
     @Override
     public void update(Layer l) {
-        double[][] w = l.getWeights();
-        double[] b = l.getBiases();
-
         if (this.momentum != 0) {
 
 

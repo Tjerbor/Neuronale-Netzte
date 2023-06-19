@@ -4,6 +4,7 @@ import layer.FullyConnectedLayer;
 import layer.MSE;
 import layer.NewSoftmax;
 import layer.TanH;
+import main.AdamNew;
 import main.MNIST;
 import main.NeuralNetwork;
 import utils.Array_utils;
@@ -54,25 +55,28 @@ public class TrainMnist {
         double[][] y_test = testData[1];
 
         FullyConnectedLayer f1 = new FullyConnectedLayer(784, 49);
-        FullyConnectedLayer f3 = new FullyConnectedLayer(49, 10);
+        FullyConnectedLayer f_out = new FullyConnectedLayer(49, 10);
 
 
         f1.genWeights(2);
-        f3.genWeights(2);
+        f_out.genWeights(2);
 
-        System.out.println(getTop(new FullyConnectedLayer[]{f1, f3}));
+        System.out.println(getTop(new FullyConnectedLayer[]{f1, f_out}));
+
 
         f1.setActivation(new TanH());
-        //f1.setOptimizer(new RMSPropNew());
+        f1.setOptimizer(new AdamNew());
+        f1.setUseBiases(false);
         //f2.setActivation(new TanH());
-        //f3.setOptimizer(new RMSPropNew());
-        f3.setActivation(new TanH());
+        //f_out.setOptimizer(new RMSPropNew());
+        f_out.setActivation(new TanH());
+        f_out.setUseBiases(false);
 
         NewSoftmax act = new NewSoftmax();
 
         MSE loss = new MSE();
 
-        double learning_rate = 0.1;
+        double learning_rate = 1e-4;
         int epochs = 7;
         int step_size = x_train.length;
 
@@ -87,14 +91,14 @@ public class TrainMnist {
             for (int j = 0; j < step_size; j++) {
 
                 out = Array_utils.copyArray(x_train[j]);
-                out = f3.forward(f1.forward(out));
+                out = f_out.forward(f1.forward(out));
                 //out = act.forward(out);
 
                 loss_per_step += loss.forward(out, y_train[j]);
                 out = loss.backward(out, y_train[j]);
 
                 //out = act.backward(out);
-                out = f3.backward(out, learning_rate);
+                out = f_out.backward(out, learning_rate);
                 //out = f2.backward(out, learning_rate);
                 out = f1.backward(out, learning_rate);
             }
@@ -109,7 +113,7 @@ public class TrainMnist {
                 out = Array_utils.copyArray(x_test[ti]);
                 out = f1.forward(out);
                 //out = f2.forward(out);
-                out = f3.forward(out);
+                out = f_out.forward(out);
 
 
                 if (Utils.argmax(out) == Utils.argmax(y_test[ti])) {
@@ -130,7 +134,7 @@ public class TrainMnist {
             out = x_test[ti];
             out = f1.forward(out);
             //out = f2.forward(out);
-            out = f3.forward(out);
+            out = f_out.forward(out);
 
 
             if (Utils.argmax(out) == Utils.argmax(y_test[ti])) {
@@ -142,7 +146,7 @@ public class TrainMnist {
 
         float acc = (float) loss_per_step / x_test.length;
         NeuralNetwork nn = new NeuralNetwork();
-        FullyConnectedLayer[] layers = new FullyConnectedLayer[]{f1, f3};
+        FullyConnectedLayer[] layers = new FullyConnectedLayer[]{f1, f_out};
         nn.setLayers(layers);
         nn.exportWeights("weights_" + acc + "_.txt");
         String outFPath = "weights_" + loss_per_step / x_test.length + ".txt";
@@ -150,7 +154,7 @@ public class TrainMnist {
 
 
         //test own Data
-        String dirFpath = "/home/dblade/Documents/Neuronale-Netzte/src/Train/OwnData";
+        String dirFpath = "./src/Train/OwnData";
         testData = getTestData(dirFpath);
 
         for (int i = 0; i < layers.length; i++) {

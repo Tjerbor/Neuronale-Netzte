@@ -207,7 +207,7 @@ public class NeuralNetwork {
     public int parameters() {
         int parameters = 0;
 
-        for (int i = 0; i < layers.length; i += 2) {
+        for (int i = 0; i < layers.length; i++) {
             parameters += layers[i].parameters();
         }
 
@@ -218,12 +218,12 @@ public class NeuralNetwork {
      * This method calculates a forward pass through the neural network with the given input.
      */
     public double[] compute(double[] input) {
-        double[] result = input.clone();
+        double[] result = Array_utils.copyArray(input);
 
         for (FullyConnectedLayer layer : layers) {
             result = layer.forward(result);
-        }
 
+        }
         return result;
     }
 
@@ -234,7 +234,7 @@ public class NeuralNetwork {
         double[][] result = Arrays.stream(inputs).map(double[]::clone).toArray(double[][]::new);
 
         for (FullyConnectedLayer layer : layers) {
-            result = layer.forwardNew(result);
+            result = layer.forward(result);
         }
 
         return result;

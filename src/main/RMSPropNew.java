@@ -5,16 +5,14 @@ import utils.Array_utils;
 
 /**
  * mithilfe dieser Klasse kann man den Optimizer in einen Layer einbinden.
+ * Bessere Dokumentation ist in der @RMSprop Klasse und im ProjektBericht.
  */
 
 public class RMSPropNew implements Optimizer {
 
-
     double alpha = 0.001;
-
     double beta2 = 0.9;
     double epsilon = 1e-8;
-
 
     double[][][][] dw_prev4D;
     double[][][] dw_prev3D;
@@ -23,6 +21,11 @@ public class RMSPropNew implements Optimizer {
 
     double[][] dw_prev2D;
 
+
+    @Override
+    public void setLearningRate(double learningRate) {
+        this.alpha = learningRate;
+    }
 
     public void setAlpha(double alpha) {
         this.alpha = alpha;
@@ -37,11 +40,9 @@ public class RMSPropNew implements Optimizer {
     }
 
     /**
-     * retuens the new weights an the new delta prev
-     *
-     * @param w
-     * @param dw
-     * @return
+     * @param w  weights of the given Layer
+     * @param dw deltaWeights of the given layer
+     *           updates the Weights automatically.
      */
 
 
@@ -87,7 +88,7 @@ public class RMSPropNew implements Optimizer {
         if (this.dw_prev4D == null) {
             this.dw_prev4D = Array_utils.zerosLike(w);
         }
-        ;
+
         for (int i = 0; i < w.length; i++) {
             for (int j = 0; j < w[0].length; j++) {
                 for (int k = 0; k < w[0][0].length; k++) {

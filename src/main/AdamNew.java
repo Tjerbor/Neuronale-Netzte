@@ -23,6 +23,10 @@ import utils.Array_utils;
  */
 
 
+/**
+ * added one to Iteration.
+ */
+
 public class AdamNew implements Optimizer {
 
     double[][][][] dw_prev1_4d;
@@ -36,27 +40,29 @@ public class AdamNew implements Optimizer {
     double[] dw_prev1_1d;
     double[] dw_prev2_1d;
 
-    double alpha = 0.001;
+    double alpha = 0.001; //1e-4 is the standard Value
 
     double beta1 = 0.9;
-    double beta2 = 0.9;
-    double epsilon = 1e-8;
+    double beta2 = 0.999;
+    double epsilon = 1e-7;
 
+
+    @Override
+    public void setLearningRate(double learningRate) {
+        this.alpha = learningRate;
+    }
 
     public void setAlpha(double alpha) {
         this.alpha = alpha;
     }
 
-    public void setLearningRate(double alpha) {
-        this.alpha = alpha;
-    }
 
     /**
-     * @param w
-     * @param dw
-     * @param t  time in the iteraton of the trainings Loop.
+     * @param w         weights to be updated
+     * @param dw        deltaWeights to updated with.
+     * @param iteration time in the iteration of the trainings Loop.
      */
-    public void updateParameter(double[][] w, double[][] dw, int t) {
+    public void updateParameter(double[][] w, double[][] dw, int iteration) {
 
 
         //has to only check for one because then teh other one is also null
@@ -71,14 +77,13 @@ public class AdamNew implements Optimizer {
         double dw_prev1New_corrected;
         double dw_prev2New_corrected;
 
-
         for (int i = 0; i < w.length; i++) {
             for (int j = 0; j < w[0].length; j++) {
                 dw_prev1_2d[i][j] = (beta1 * dw_prev1_2d[i][j]) + ((1 - beta1) * dw[i][j]);
-                dw_prev1New_corrected = dw_prev1_2d[i][j] / (1 - Math.pow(beta1, t));
+                dw_prev1New_corrected = dw_prev1_2d[i][j] / (1 - Math.pow(beta1, iteration + 1));
 
                 dw_prev2_2d[i][j] = (beta2 * dw_prev2_2d[i][j]) + ((1 - beta2) * Math.pow(dw[i][j], 2));
-                dw_prev2New_corrected = dw_prev2_2d[i][j] / (1 - Math.pow(beta2, t));
+                dw_prev2New_corrected = dw_prev2_2d[i][j] / (1 - Math.pow(beta2, iteration + 1));
 
                 w[i][j] = w[i][j] - alpha * (dw_prev1New_corrected / ((Math.pow(dw_prev2New_corrected, 0.5)) + epsilon));
 
@@ -99,7 +104,6 @@ public class AdamNew implements Optimizer {
 
         double dw_prev1New_corrected;
         double dw_prev2New_corrected;
-
 
         double[] wNew = new double[w.length];
         for (int i = 0; i < w.length; i++) {
@@ -125,11 +129,8 @@ public class AdamNew implements Optimizer {
 
         }
 
-
-        ;
         double dw_prev1New_corrected;
         double dw_prev2New_corrected;
-
 
         for (int i = 0; i < w.length; i++) {
             for (int j = 0; j < w[0].length; j++) {
@@ -163,8 +164,6 @@ public class AdamNew implements Optimizer {
 
         }
 
-
-        ;
         double dw_prev1New_corrected;
         double dw_prev2New_corrected;
 

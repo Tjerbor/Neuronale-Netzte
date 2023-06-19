@@ -1,5 +1,6 @@
 package main;
 
+import layer.Activation;
 import layer.CustomActivation;
 import layer.FullyConnectedLayer;
 import layer.StepFunc;
@@ -32,6 +33,7 @@ class NeuralNetworkTest {
     void logicalConjunction() throws Exception {
         neuralNetwork.setLayers(Reader.create("data/weights/logicalConjunction.csv"));
 
+
         neuralNetwork.setFunction(0, new StepFunc(1.5));
 
         double[][] result = neuralNetwork.computeAll(new double[][]{{0, 0}, {0, 1}, {1, 0}, {1, 1}});
@@ -47,6 +49,7 @@ class NeuralNetworkTest {
     @Test
     void trafficLight() throws IOException {
         neuralNetwork.setLayers(Reader.create("data/weights/trafficLight.csv"));
+
 
         neuralNetwork.setFunction(0, new CustomActivation(new String[]{"logi", "logi", "logi", "id"}));
         neuralNetwork.setFunction(1, new CustomActivation(new String[]{"id", "id", "id", "id"}));
@@ -105,10 +108,12 @@ class NeuralNetworkTest {
         @DisplayName("Fully Connected Layer")
         void denseLayer() {
             FullyConnectedLayer layer = new FullyConnectedLayer(2, 1);
-
+            layer.activateBiases();
             double[][] weights = new double[][]{{1}, {1}, {0.5}};
 
             layer.setWeights(weights);
+
+            layer.setActivation(new Activation());
 
             assertArrayEquals(weights, layer.getWeights(), "The returned weights are not correct.");
 

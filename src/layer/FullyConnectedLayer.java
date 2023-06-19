@@ -1,6 +1,7 @@
 package layer;
 
-import main.RMSPropNew;
+import main.Optimizer;
+import utils.Array_utils;
 import utils.Utils;
 
 import java.text.ParseException;
@@ -19,15 +20,14 @@ public class FullyConnectedLayer implements Layer {
     /**
      * This variable contains the weights of the layer.
      */
-    Activation act = new TanH();
-    NewSoftmax softmax = null;
-    RMSPropNew optimizer = null;
+    Activation act = new Activation(); //set to Tanh because is in most cases the desired Activation-function.
+    NewSoftmax softmax = null; //needs to be handled differently
+    Optimizer optimizer = null; //can be set in the layer so that every Optimizer can save one previous deltaWeights.
     boolean useMomentum = false;
-    double momentum = 0.9;
+    double momentum = 0.9; //was replaced through optimizer deprecated in the future.
     boolean useBiases = true;
 
     private double[][] weights;
-    private float[][] weightsF;
     /**
      * This variable contains the biases of the layer.
      */
@@ -36,8 +36,8 @@ public class FullyConnectedLayer implements Layer {
     private double[][] dweights; // gradients of weights needed if the optimizer is set.
     private double[][] momentumWeights; // gradients of weights needed if the optimizer is set.
     private double[] momentumBiases; // gradients of weights needed if the optimizer is set.
-    private double[][] dinputs;
-    private double[] dinput;
+    private double[][] dinputs; //needed if a build-System is created to get the output of the backpropagation.
+    private double[] dinput; //needed if a build-System is created to get the output of the backpropagation.
     private double[][] inputs; //needed for backpropagation with batch input.
     private double[] input; //needed for backpropagation with Single Input.
     private double[] dbiases; //biases of layer.
@@ -46,8 +46,8 @@ public class FullyConnectedLayer implements Layer {
     private double[][] act_inputs; //needed for backpropagation with batch input.
     private double[] act_input; //needed for backpropagation with Single Input.
 
-    private double[] lastZ;
-    private double[] lastX;
+    private double[] lastActInput;
+    private double[] lastInput;
 
 
     /**
@@ -67,9 +67,11 @@ public class FullyConnectedLayer implements Layer {
             weights[i] = random(b);
         }
 
+        biases = new double[b];
         if (useBiases) {
             biases = random(b);
         }
+
 
         genWeights(2);
 
@@ -132,9 +134,16 @@ public class FullyConnectedLayer implements Layer {
         return a;
     }
 
+    public void setUseBiases(boolean useBiases) {
+        this.useBiases = useBiases;
+        this.biases = null;
+        this.dbiases = null;
+    }
+
     public void setSoftmax() {
         this.act = null;
-        this.softmax = new NewSoftmax();
+        this.softmax = new NewSoftmax(); //needs to be an extra class because it is a global function.
+        //it means considers all inputData and not x itself.
     }
 
     public void genWeights(int type) {
@@ -147,7 +156,10 @@ public class FullyConnectedLayer implements Layer {
                 for (int j = 0; j < weights.length; j++) {
                     weights[j][i] = rand.nextGaussian();
                 }
-                biases[i] = rand.nextGaussian();
+                if (useBiases) {
+                    biases[i] = rand.nextGaussian();
+                }
+
             }
 
 
@@ -156,7 +168,11 @@ public class FullyConnectedLayer implements Layer {
                 for (int j = 0; j < weights.length; j++) {
                     weights[j][i] = rand.nextGaussian(0, 1);
                 }
-                biases[i] = rand.nextGaussian(0, 1);
+
+                if (useBiases) {
+                    biases[i] = rand.nextGaussian(0, 1);
+                }
+
             }
 
         } else if (type == 2) {
@@ -164,7 +180,10 @@ public class FullyConnectedLayer implements Layer {
                 for (int j = 0; j < weights.length; j++) {
                     weights[j][i] = rand.nextDouble(-0.1, 0.1);
                 }
-                biases[i] = rand.nextDouble(-0.1, 0.1);
+                if (useBiases) {
+                    biases[i] = rand.nextDouble(-0.1, 0.1);
+                }
+
             }
 
         } else if (type == 3) {
@@ -172,14 +191,18 @@ public class FullyConnectedLayer implements Layer {
                 for (int j = 0; j < weights.length; j++) {
                     weights[j][i] = rand.nextDouble(-1, 1);
                 }
-                biases[i] = rand.nextDouble(-1, 1);
+                if (useBiases) {
+                    biases[i] = rand.nextDouble(-1, 1);
+                }
+
             }
         }
 
     }
 
-    public void setOptimizer(RMSPropNew optimizer) {
+    public void setOptimizer(Optimizer optimizer) {
         this.optimizer = optimizer;
+        this.dweights = Array_utils.zerosLike(weights);
     }
 
     public void setActivation(Activation act) {
@@ -209,7 +232,7 @@ public class FullyConnectedLayer implements Layer {
     public void activateBiases() {
         this.biases = new double[this.weights[0].length];
         this.useBiases = true;
-        biases = random(this.weights[0].length);
+        //biases = random(this.weights[0].length);
 
         if (useMomentum) {
             this.momentumBiases = new double[this.biases.length];
@@ -274,36 +297,6 @@ public class FullyConnectedLayer implements Layer {
 
     }
 
-    @Override
-    public double[][] forward(double[][] inputs) {
-        double[][] result = new double[inputs.length][weights[0].length];
-
-        if (this.act_inputs == null) {
-            act_inputs = new double[inputs.length][weights[0].length];
-        }
-
-
-        this.inputs = (inputs);
-        for (int i = 0; i < inputs.length; i++) {
-            for (int j = 0; j < weights[0].length; j++) {
-                for (int k = 0; k < weights.length; k++) {
-                    result[i][j] += inputs[i][k] * weights[k][j];
-                }
-
-                result[i][j] += biases[j];
-                act_inputs[i][j] = result[i][j];
-                result[i][j] = act.definition(result[i][j]);
-            }
-        }
-
-
-        return result;
-    }
-
-    @Override
-    public double[] backward(double[] input) {
-        return null;
-    }
 
     /**
      * only used if learning rate is set.
@@ -349,12 +342,26 @@ public class FullyConnectedLayer implements Layer {
         for (int i = 1; i < weights.length; i++) {
             s.append("\n").append(Arrays.toString(weights[i]));
         }
+        if (useBiases) {
+            s.append("\n").append("[");
+            for (int i = 0; i < biases.length; i++) {
+                if (i != biases.length - 1) {
+                    s.append(biases[i]).append(", ");
+                } else {
+                    s.append(biases[i]);
+                }
+            }
+            s.append("]");
+        }
+
+        s.append("\n");
+
 
         return s.toString();
     }
 
 
-    public double[][] forwardNew(double[][] inputs) {
+    public double[][] forward(double[][] inputs) {
         double[][] result = new double[inputs.length][weights[0].length];
         act_inputs = new double[inputs.length][weights[0].length];
 
@@ -391,76 +398,273 @@ public class FullyConnectedLayer implements Layer {
 
     public double[] forward(double[] input) {
 
-        lastX = input;
+        lastInput = input;
 
         double[] z = new double[weights[0].length];
         double[] out = new double[weights[0].length];
+        for (int j = 0; j < weights[0].length; j++) {
+            for (int i = 0; i < weights.length; i++) {
 
-        for (int i = 0; i < weights.length; i++) {
-            for (int j = 0; j < weights[0].length; j++) {
                 z[j] += input[i] * weights[i][j];
             }
+
+            if (useBiases) {
+                z[j] += biases[j];
+            }
         }
 
-        lastZ = z;
+
+        lastActInput = z;
 
         if (this.softmax != null) {
-            out = softmax.forward(lastZ);
+            out = softmax.forward(lastActInput);
         } else {
-            for (int i = 0; i < weights.length; i++) {
-                for (int j = 0; j < weights[0].length; j++) {
-                    out[j] = act.definition(z[j]);
-                }
+            for (int j = 0; j < weights[0].length; j++) {
+                out[j] = act.definition(z[j]);
             }
 
         }
-
 
         return out;
     }
 
-    public double[] backward(double[] dLdO, double learningRate) {
 
-        double[] dLdX = new double[weights.length];
+    public double[] backward(double[] gradientInput, double learningRate) {
+        if (optimizer == null) {
+            return backwardWithoutOptimizer(gradientInput, learningRate);
+        }
+        return backwardWithOptimizer(gradientInput, learningRate);
 
-        double dOdz;
-        double dzdw;
-        double dLdw;
-        double dzdx;
+    }
 
+    /**
+     * automatically expects to use AdamOptimizer. Only Optimizer which requires to set iteration Count.
+     *
+     * @param gradientInput gradientInput
+     * @param learningRate  Learning Rate.
+     * @param iteration     epoche of the Training Step.
+     * @return
+     */
+    public double[] backward(double[] gradientInput, double learningRate, int iteration) {
 
-        if (softmax != null) {
-            lastZ = softmax.backward(lastZ);
+        double[] gradientOutput = new double[weights.length];
+
+        double gardientAct;
+        double deltaWeight;
+        double tmpW;
+        if (useBiases) {
+            dbiases = new double[biases.length];
         }
 
-        for (int k = 0; k < weights.length; k++) {
 
-            double dLdX_sum = 0;
+        double[] gradAct = new double[lastActInput.length];
+
+        if (softmax != null) {
+            lastActInput = softmax.backward(lastActInput);
+            //handles the softmax activation.
+            gradAct = lastActInput;
+        }
+
+        for (int i = 0; i < weights.length; i++) {
+
+            double gradientOutSum = 0;
 
             for (int j = 0; j < weights[0].length; j++) {
 
                 if (softmax != null) {
-                    dOdz = lastZ[j];
+                    gardientAct = lastActInput[j];
 
                 } else {
-                    dOdz = act.derivative(lastZ[j]);
+                    gardientAct = act.derivative(lastActInput[j]);
                 }
 
-                dzdw = lastX[k];
-                dzdx = weights[k][j];
+                tmpW = weights[i][j];
 
-                dLdw = dLdO[j] * dOdz * dzdw;
+                deltaWeight = gradientInput[j] * gardientAct * lastInput[i];
 
-                weights[k][j] -= dLdw * learningRate;
+                dweights[i][j] += deltaWeight;
 
-                dLdX_sum += dLdO[j] * dOdz * dzdx;
+                gradientOutSum += gradientInput[j] * gardientAct * tmpW;
             }
 
-            dLdX[k] = dLdX_sum;
+            gradientOutput[i] = gradientOutSum;
         }
 
 
-        return dLdX;
+        if (useBiases) {
+            for (int i = 0; i < biases.length; i++) {
+                dbiases[i] = gradAct[i] * gradientInput[i];
+            }
+            optimizer.setLearningRate(learningRate);
+            optimizer.updateParameter(biases, dbiases);
+        }
+
+        optimizer.updateParameter(weights, dweights, iteration);
+
+
+        return gradientOutput;
+
+    }
+
+    public double[] backwardWithOptimizer(double[] gradientInput, double learningRate) {
+
+        double[] gradientOutput = new double[weights.length];
+
+        double gardientAct;
+        double deltaWeight;
+        double tmpW;
+        if (useBiases) {
+            dbiases = new double[biases.length];
+        }
+
+
+        double[] gradAct = new double[lastActInput.length];
+
+        if (softmax != null) {
+            lastActInput = softmax.backward(lastActInput);
+            //handles the softmax activation.
+            gradAct = lastActInput;
+        }
+
+        for (int i = 0; i < weights.length; i++) {
+
+            double gradientOutSum = 0;
+
+            for (int j = 0; j < weights[0].length; j++) {
+
+                if (softmax != null) {
+                    gardientAct = lastActInput[j];
+
+                } else {
+                    gardientAct = act.derivative(lastActInput[j]);
+                }
+
+                tmpW = weights[i][j];
+
+                deltaWeight = gradientInput[j] * gardientAct * lastInput[i];
+
+                dweights[i][j] += deltaWeight;
+
+                gradientOutSum += gradientInput[j] * gardientAct * tmpW;
+            }
+
+            gradientOutput[i] = gradientOutSum;
+        }
+
+
+        if (useBiases) {
+            for (int i = 0; i < biases.length; i++) {
+                dbiases[i] = gradAct[i] * gradientInput[i];
+            }
+            optimizer.setLearningRate(learningRate);
+            optimizer.updateParameter(biases, dbiases);
+        }
+
+        optimizer.updateParameter(weights, dweights);
+
+
+        return gradientOutput;
+    }
+
+
+    public double[] backwardWithoutOptimizer(double[] gradientInput, double learningRate) {
+
+        double[] gradientOutput = new double[weights.length];
+
+        double gardientAct;
+        double deltaWeight;
+        double tmpW;
+
+
+        double[] deltaBiases = new double[weights[0].length];
+
+        if (softmax != null) {
+            lastActInput = softmax.backward(lastActInput);
+            //handles the softmax activation.
+        }
+
+        for (int i = 0; i < weights.length; i++) {
+
+            double gradientOutSum = 0;
+
+            for (int j = 0; j < weights[0].length; j++) {
+
+                if (softmax != null) {
+                    gardientAct = lastActInput[j];
+
+                } else {
+                    gardientAct = act.derivative(lastActInput[j]);
+                }
+
+                tmpW = weights[i][j];
+
+                deltaWeight = gradientInput[j] * gardientAct * lastInput[i];
+
+                weights[i][j] -= learningRate * deltaWeight;
+
+                gradientOutSum += gradientInput[j] * gardientAct * tmpW;
+            }
+
+
+            gradientOutput[i] = gradientOutSum;
+        }
+
+        if (useBiases) {
+            for (int i = 0; i < biases.length; i++) {
+                biases[i] -= learningRate * (lastActInput[i] * gradientInput[i]);
+            }
+
+        }
+
+
+        return gradientOutput;
+    }
+
+    public double[] backward(double[] gradientInput) {
+
+        double[] gradientOutput = new double[weights.length];
+
+        double gardientAct;
+        double deltaWeight;
+        double tmpW;
+
+
+        if (softmax != null) {
+            lastActInput = softmax.backward(lastActInput);
+            //handles the softmax activation.
+        }
+
+        for (int i = 0; i < weights.length; i++) {
+
+            double gradientOutSum = 0;
+
+            for (int j = 0; j < weights[0].length; j++) {
+
+                if (softmax != null) {
+                    gardientAct = lastActInput[j];
+
+                } else {
+                    gardientAct = act.derivative(lastActInput[j]);
+                }
+
+                tmpW = weights[i][j];
+
+                deltaWeight = gradientInput[j] * gardientAct * lastInput[i];
+
+                this.dweights[i][j] = deltaWeight;
+
+                gradientOutSum += gradientInput[j] * gardientAct * tmpW;
+            }
+
+            gradientOutput[i] = gradientOutSum;
+        }
+
+        if (this.optimizer != null) {
+            optimizer.updateParameter(weights, dweights);
+        }
+
+
+        return gradientOutput;
     }
 
     public double[][] backward(double[][] grad) {
@@ -525,33 +729,33 @@ public class FullyConnectedLayer implements Layer {
 
 
     public String toString(boolean export) {
-        String s = "";
+        StringBuilder s = new StringBuilder();
 
         for (int i = 0; i < weights.length; i++) {
             for (int j = 0; j < weights[0].length; j++) {
                 if (j != weights[0].length - 1) {
-                    s += weights[i][j] + ";";
+                    s.append(weights[i][j]).append(";");
                 } else {
-                    s += weights[i][j];
+                    s.append(weights[i][j]);
                 }
 
             }
             if (i != weights.length - 1) {
-                s += "\n";
+                s.append("\n");
             }
         }
 
         if (useBiases) {
-            s += "\n";
+            s.append("\n");
             for (int i = 0; i < biases.length; i++) {
                 if (i != biases.length - 1) {
-                    s += biases[i] + ";";
+                    s.append(biases[i]).append(";");
                 } else {
-                    s += biases[i];
+                    s.append(biases[i]);
                 }
             }
         }
-        return s;
+        return s.toString();
     }
 
 }
