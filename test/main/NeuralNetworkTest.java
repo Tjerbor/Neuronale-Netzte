@@ -33,7 +33,6 @@ class NeuralNetworkTest {
     void logicalConjunction() throws Exception {
         neuralNetwork.setLayers(Reader.create("data/weights/logicalConjunction.csv"));
 
-
         neuralNetwork.setFunction(0, new StepFunc(1.5));
 
         double[][] result = neuralNetwork.computeAll(new double[][]{{0, 0}, {0, 1}, {1, 0}, {1, 1}});
@@ -49,7 +48,6 @@ class NeuralNetworkTest {
     @Test
     void trafficLight() throws IOException {
         neuralNetwork.setLayers(Reader.create("data/weights/trafficLight.csv"));
-
 
         neuralNetwork.setFunction(0, new CustomActivation(new String[]{"logi", "logi", "logi", "id"}));
         neuralNetwork.setFunction(1, new CustomActivation(new String[]{"id", "id", "id", "id"}));
@@ -71,7 +69,7 @@ class NeuralNetworkTest {
         void createOne() {
             int[] topology = {3, 3, 4};
 
-            neuralNetwork.create(topology, "id");
+            neuralNetwork.create(topology, new Activation());
 
             assertArrayEquals(topology, neuralNetwork.topology(), "The returned topology is not correct.");
 
@@ -83,7 +81,7 @@ class NeuralNetworkTest {
         void createTwo() {
             int[] topology = {3, 3, 3, 3, 4, 4};
 
-            neuralNetwork.create(topology, new String[]{"id", "id"});
+            neuralNetwork.create(topology, new Activation[]{new Activation(), new Activation()});
 
             assertArrayEquals(topology, neuralNetwork.topology(), "The returned topology is not correct.");
 
@@ -95,20 +93,22 @@ class NeuralNetworkTest {
         void createMultiple() {
             int[] topology = {3, 3, 3, 3, 4, 4};
 
-            neuralNetwork.create(topology, new String[]{"id", "id", "id", "id", "id"});
+            neuralNetwork.create(topology, new Activation[]{new Activation(), new Activation(), new Activation(), new Activation(), new Activation()});
 
             assertArrayEquals(topology, neuralNetwork.topology(), "The returned topology is not correct.");
 
             assertEquals(5, neuralNetwork.size(), "The size of the neural network is not correct.");
 
-            assertThrows(IllegalArgumentException.class, () -> neuralNetwork.create(topology, new String[]{"id"}));
+            assertThrows(IllegalArgumentException.class, () -> neuralNetwork.create(topology, new Activation[]{new Activation()}));
         }
 
         @Test
         @DisplayName("Fully Connected Layer")
         void denseLayer() {
             FullyConnectedLayer layer = new FullyConnectedLayer(2, 1);
+
             layer.activateBiases();
+
             double[][] weights = new double[][]{{1}, {1}, {0.5}};
 
             layer.setWeights(weights);

@@ -11,7 +11,7 @@ import java.util.Random;
  * This class models a fully connected layer of the neural network.
  * Each fully connected layer represents two layers of neurons or one edge layer.
  *
- * @see main.NeuralNetwork#create(int[], String)
+ * @see main.NeuralNetwork#create(int[], Activation)
  */
 public class FullyConnectedLayer implements Layer {
     private static final Random random = new Random();
@@ -95,7 +95,7 @@ public class FullyConnectedLayer implements Layer {
         genWeights(2);
     }
 
-    public FullyConnectedLayer(int a, int b, String act) {
+    public FullyConnectedLayer(int a, int b, Activation act) {
         if (a < 1 || b < 1) {
             throw new IllegalArgumentException("Each layer must contain at least one neuron.");
         }
