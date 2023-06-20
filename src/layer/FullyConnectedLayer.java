@@ -1,6 +1,7 @@
 package layer;
 
 import main.Optimizer;
+import utils.Array_utils;
 import utils.Utils;
 
 import java.text.ParseException;
@@ -19,7 +20,7 @@ public class FullyConnectedLayer implements Layer {
     /**
      * This variable contains the weights of the layer.
      */
-    Activation act = new Activation(); //set to Tanh because is in most cases the desired Activation-function.
+    Activation act = new TanH(); //set to Tanh because is in most cases the desired Activation-function.
     NewSoftmax softmax = null; //needs to be handled differently
     Optimizer optimizer = null; //can be set in the layer so that every Optimizer can save one previous deltaWeights.
     boolean useMomentum = false;
@@ -62,6 +63,7 @@ public class FullyConnectedLayer implements Layer {
 
         weights = new double[a][b];
 
+
         for (int i = 0; i < a; i++) {
             weights[i] = random(b);
         }
@@ -102,9 +104,11 @@ public class FullyConnectedLayer implements Layer {
 
         this.weights = new double[a][];
 
+
         for (int i = 0; i < a; i++) {
             this.weights[i] = random(b);
         }
+        Array_utils.printShape(weights);
         setActivation(act);
 
         if (useBiases) {
@@ -112,7 +116,6 @@ public class FullyConnectedLayer implements Layer {
         }
 
         genWeights(2);
-
 
     }
 
@@ -573,18 +576,18 @@ public class FullyConnectedLayer implements Layer {
 
         double[] gradientOutput = new double[weights.length];
 
-        double gardientAct;
+        double gradAct;
         double deltaWeight;
         double tmpW;
 
-
-        double[] deltaBiases = new double[weights[0].length];
 
         if (softmax != null) {
             lastActInput = softmax.backward(lastActInput);
             //handles the softmax activation.
         }
 
+
+        Array_utils.printShape(weights);
         for (int i = 0; i < weights.length; i++) {
 
             double gradientOutSum = 0;
@@ -592,19 +595,19 @@ public class FullyConnectedLayer implements Layer {
             for (int j = 0; j < weights[0].length; j++) {
 
                 if (softmax != null) {
-                    gardientAct = lastActInput[j];
+                    gradAct = lastActInput[j];
 
                 } else {
-                    gardientAct = act.derivative(lastActInput[j]);
+                    gradAct = act.derivative(lastActInput[j]);
                 }
 
                 tmpW = weights[i][j];
 
-                deltaWeight = gradientInput[j] * gardientAct * lastInput[i];
+                deltaWeight = gradientInput[j] * gradAct * lastInput[i];
 
                 weights[i][j] -= learningRate * deltaWeight;
 
-                gradientOutSum += gradientInput[j] * gardientAct * tmpW;
+                gradientOutSum += gradientInput[j] * gradAct * tmpW;
             }
 
 
@@ -629,7 +632,8 @@ public class FullyConnectedLayer implements Layer {
         double gardientAct;
         double deltaWeight;
         double tmpW;
-
+        
+        dweights = new double[weights.length][weights[0].length];
 
         if (softmax != null) {
             lastActInput = softmax.backward(lastActInput);

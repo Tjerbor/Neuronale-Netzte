@@ -33,7 +33,7 @@ public class NeuralNetwork {
     public void create(int[] topology, Activation function) {
         layers = new FullyConnectedLayer[topology.length - 1];
 
-        for (int i = 0; i < topology.length - 1; i++) {
+        for (int i = 0; i < layers.length; i++) {
             layers[i] = new FullyConnectedLayer(topology[i], topology[i + 1], function);
         }
     }
@@ -83,7 +83,6 @@ public class NeuralNetwork {
             topology[i] = layers[i].getWeights().length - 1;
             topology[i + 1] = layers[i].getWeights()[0].length;
         }
-
         return topology;
     }
 
@@ -240,20 +239,17 @@ public class NeuralNetwork {
     /**
      * computes the backpropagation
      *
-     * @param dinput        delta input of NN.
+     * @param deltaLoss     delta input of NN.
      * @param learning_rate learning rate of the NN. (adjustment weights rate.)
      * @throws Exception shape Errors
      */
-    public void computeBackward(double[] dinput, double learning_rate) {
+    public void computeBackward(double[] deltaLoss, double learning_rate) {
 
 
-        double[] doutput = dinput;
-
-        for (int i = 1; i < size(); i++) {
-
-            doutput = this.layers[size() - 1 - i].backward(doutput, learning_rate);
+        double[] doutput = deltaLoss;
+        for (int i = 0; i < layers.length; i++) {
+            doutput = this.layers[layers.length - 1 - i].backward(doutput);
         }
-
 
     }
 
@@ -267,7 +263,7 @@ public class NeuralNetwork {
     public void computeBackward(double[] dinput) {
 
         double[] doutput = dinput;
-        for (int i = 1; i < layers.length; i++) {
+        for (int i = 0; i < layers.length; i++) {
             doutput = this.layers[layers.length - 1 - i].backward(doutput);
         }
 
@@ -425,8 +421,7 @@ public class NeuralNetwork {
      */
     public void train_single(int epoch, double[][] x_train, double[][] y_train, double learning_rate) throws Exception {
 
-
-        System.out.println(Arrays.toString(this.topology()));
+        System.out.println("Train Topologie: " + Arrays.toString(this.topology()));
         System.out.println("Train Data Length: " + x_train.length);
         //checks for rxceptions
         if (x_train.length != y_train.length) {
@@ -451,7 +446,7 @@ public class NeuralNetwork {
             double[] outs;
 
             for (int j = 0; j < step_size; j++) {
-                outs = compute(x_train[j]);
+                outs = compute(Array_utils.copyArray(x_train[j]));
                 step_loss = loss.forward(outs, y_train[j]);
                 loss_per_epoch += step_loss;
                 //calculates prime Loss
@@ -463,6 +458,52 @@ public class NeuralNetwork {
             loss_per_epoch = loss_per_epoch / x_train.length;
             System.out.println("Loss per epoch: " + loss_per_epoch);
         }
+    }
+
+
+    public void trainTestsingle(int epoch, double[][] x_train, double[][] y_train, double[][] x_test, double[][] y_test, double learning_rate) throws Exception {
+
+        System.out.println("Train Topologie: " + Arrays.toString(this.topology()));
+        System.out.println("Train Data Length: " + x_train.length);
+        //checks for rxceptions
+        if (x_train.length != y_train.length) {
+            throw new IllegalArgumentException("x und y Data have diffrent Size.");
+        } else if (this.loss == null) {
+            throw new IllegalArgumentException("loss function is not set.");
+        } else if (this.topology()[topology().length - 1] != y_train[0].length) {
+            throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
+                    "model output shape is: " + this.topology()[this.topology().length - 1]);
+        } else if (this.topology()[0] != x_train[0].length) {
+            throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
+                    "model inputs shape is: " + this.topology()[0]);
+        }
+
+
+        double loss_per_epoch;
+        double step_loss;
+        int step_size = x_train.length;
+        for (int i = 0; i < epoch; i++) {
+            loss_per_epoch = 0;
+
+            double[] outs;
+
+            for (int j = 0; j < step_size; j++) {
+                outs = compute(Array_utils.copyArray(x_train[j]));
+                step_loss = loss.forward(outs, y_train[j]);
+                loss_per_epoch += step_loss;
+                //calculates prime Loss
+                outs = loss.backward(outs, y_train[j]);
+                // now does backpropagation // and updates the weights.
+                computeBackward(outs, learning_rate);
+
+            }
+            loss_per_epoch = loss_per_epoch / x_train.length;
+            System.out.println("Loss per epoch: " + loss_per_epoch);
+        }
+
+        double lossTest = test_single(x_test, y_test);
+        System.out.println("Acc: " + lossTest);
+
     }
 
     public double test_single(double[][] x_train, double[][] y_train) {

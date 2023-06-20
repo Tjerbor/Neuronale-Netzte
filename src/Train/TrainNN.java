@@ -22,8 +22,8 @@ public class TrainNN {
         double[][] x_test = testData[0];
         double[][] y_test = testData[1];
 
-        int epochs = 20;
-        double learning = 1e-4;
+        int epochs = 5;
+        double learning = 0.1;
 
 
         nn.create(new int[]{784, 49, 20, 10}, new TanH());
