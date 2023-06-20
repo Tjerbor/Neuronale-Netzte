@@ -10,7 +10,7 @@ import static utils.Array_utils.getShape;
 
 public class Utils {
     static Random r = new Random(); //random to generate missing weights.
-    
+
     public static double[][][] reshape(double[] b, int[] a) {
 
         double[][][] c = new double[a[0]][a[1]][a[2]];
@@ -840,5 +840,21 @@ public class Utils {
 
 
         return w;
+    }
+
+    public static double[][][][] multiply(double[][][][] a, double[][][][] b) {
+
+        double[][][][] c = new double[a.length][a[0].length][a[0][0].length][a[0][0][0].length];
+
+        for (int j = 0; j < a.length; j++) {
+            for (int i = 0; i < a[0].length; i++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        c[i][j][k][l] = a[i][j][k][l] * b[i][j][k][l];
+                    }
+                }
+            }
+        }
+        return c;
     }
 }

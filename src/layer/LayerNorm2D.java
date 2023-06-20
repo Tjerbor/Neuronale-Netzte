@@ -144,7 +144,7 @@ public class LayerNorm2D {
 
 
         double[][][] dx_norm = Utils.multiply(grad_inputs, gamma);
-        double[][][] dx_centered = Array_utils.Matrix3Ddiv2D(dx_norm, std);
+        double[][][] dx_centered = Array_utils.Matrix3D_div2D(dx_norm, std);
 
         double[][] dmean = Array_utils.addMatrixScalar(Array_utils.sum_axis_0(dx_centered), 2 / N);
         dmean = Utils.multiply(dmean, Array_utils.sum_axis_1(x_centered));

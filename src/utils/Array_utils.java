@@ -211,7 +211,41 @@ public class Array_utils {
 
     }
 
-    public static double[][][] Matrix3Ddiv2D(double[][][] a, double[][] b) {
+    public static double[][][][] multiply_axis1(double[][][][] a, double[] b) {
+
+
+        double[][][][] c = new double[a.length][a[0].length][a[0][0].length][a[0][0][0].length];
+
+        for (int j = 0; j < a.length; j++) {
+            for (int i = 0; i < a[0].length; i++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        c[i][j][k][l] = a[i][j][k][l] * b[j];
+                    }
+                }
+            }
+        }
+        return c;
+    }
+
+    public static double[][][][] Matrix_div_axis_1(double[][][][] a, double[] b) {
+
+
+        double[][][][] c = new double[a.length][a[0].length][a[0][0].length][a[0][0][0].length];
+
+        for (int j = 0; j < a.length; j++) {
+            for (int i = 0; i < a[0].length; i++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        c[i][j][k][l] = a[i][j][k][l] / b[j];
+                    }
+                }
+            }
+        }
+        return c;
+    }
+
+    public static double[][][] Matrix3D_div2D(double[][][] a, double[][] b) {
         double[][][] c = zerosLike(a);
 
 
@@ -237,7 +271,7 @@ public class Array_utils {
         return c;
     }
 
-    public static double[][] Matrix2Ddiv1D(double[][] a, double[] b) {
+    public static double[][] Matrix2D_div1D(double[][] a, double[] b) {
         double[][] c = new double[a.length][a[0].length];
 
 
@@ -373,6 +407,51 @@ public class Array_utils {
         return mean_axis_0(c);
     }
 
+    public static double[] sum_axis_0_2_3(double[][][][] a) {
+
+        double[] mx = new double[a[0].length];
+
+        for (int j = 0; j < a.length; j++) {
+            for (int i = 0; i < a[0].length; i++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        mx[j] += a[i][j][k][l];
+                    }
+                }
+            }
+        }
+        return mx;
+    }
+
+    public static double[] mean_axis_0_2_3(double[][][][] a) {
+
+        double[] mx = sum_axis_0_2_3(a);
+
+        for (int i = 0; i < mx.length; i++) {
+            mx[i] /= a[0].length;
+        }
+        return mx;
+    }
+
+    public static double[] var_axis_0_2_3(double[][][][] a) {
+
+        double[] mx = mean_axis_0_2_3(a);
+
+        double[][][][] c = new double[a.length][a[0].length][a[0][0].length][a[0][0][0].length];
+
+        for (int j = 0; j < a.length; j++) {
+            for (int i = 0; i < a[0].length; i++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        c[i][j][k][l] = Math.pow((a[i][j][k][l] - mx[j]), 2);
+                    }
+                }
+            }
+        }
+        return mean_axis_0_2_3(c);
+    }
+
+
     public static double[][] var_axis_1(double[][][] x) {
 
 
@@ -491,6 +570,23 @@ public class Array_utils {
 
         return out;
     }
+
+    public static double[] neg_sum_axis_0_2_3(double[][][][] x) {
+        double[] out = new double[x[0].length];
+        for (int j = 0; j < x.length; j++) {
+            for (int i = 0; i < x[0].length; i++) {
+                for (int k = 0; k < x[0][0].length; k++) {
+                    for (int l = 0; l < x[0][0][0].length; l++) {
+                        out[j] += -x[j][i][k][l];
+                    }
+
+                }
+            }
+        }
+
+        return out;
+    }
+
 
     public static double[][] neg_sum_axis_0(double[][][] x) {
         double[][] out = new double[x[0].length][x[0][0].length];
@@ -651,11 +747,11 @@ public class Array_utils {
 
     }
 
-    public static double[] mult_matrix_by_scalar(double[] a, double scarlar) {
+    public static double[] mult_matrix_by_scalar(double[] a, double scalar) {
         double[] c = new double[a.length];
 
         for (int i = 0; i < a.length; i++) {
-            c[i] = a[i] * scarlar;
+            c[i] = a[i] * scalar;
         }
         return c;
     }
@@ -838,18 +934,6 @@ public class Array_utils {
         return d;
     }
 
-    public static double[][] getLinspaceWeights_wo_endpoint(int n_inputs, int n_neurons, double start, double end, int dec_precission) {
-
-        double[][] w = new double[n_inputs][n_neurons];
-        for (int i = 0; i < n_inputs; i++) {
-            w[i] = linspace_wo_endpoint(start, end, n_neurons, dec_precission);
-
-        }
-        return w;
-
-
-    }
-
     public static double[] linspace(double start, double end, int size) {
 
         double[] out = new double[size];
@@ -881,13 +965,13 @@ public class Array_utils {
         return c;
     }
 
-    public static double[][][] matmul3D(double[][][] a, double[][][] b, String tranpose) throws Exception {
+    public static double[][][] matmul3D(double[][][] a, double[][][] b, String transpose) throws Exception {
 
         if (a.length != b.length || a[0][0].length != b[0].length) {
             throw new Exception();
-        } else if (tranpose.equals("b")) {
+        } else if (transpose.equals("b")) {
             b = reshape3D_last(b);
-        } else if (tranpose.equals("a")) {
+        } else if (transpose.equals("a")) {
             a = reshape3D_last(a);
         }
 
@@ -942,7 +1026,7 @@ public class Array_utils {
     }
 
     /**
-     * Linspace without endpoint
+     * linspace without endpoint
      *
      * @param start
      * @param end
@@ -1093,7 +1177,7 @@ public class Array_utils {
                 }
             }
         } else if (!checkMultiShape(a, b)) {
-            throw new ArithmeticException("Sgape Error Got shaep a: " + Arrays.toString(getShape(a)) + " and shape b: " + Arrays.toString(getShape(b)));
+            throw new ArithmeticException("Shape Error Got Shape a: " + Arrays.toString(getShape(a)) + " and shape b: " + Arrays.toString(getShape(b)));
         } else if (b.length == 1 && b[0].length == a[0].length && a[0][0].length == b[0][0].length) {
             for (int i = 0; i < a.length; i++) {
                 for (int j = 0; j < a[0].length; j++) {
@@ -1107,12 +1191,6 @@ public class Array_utils {
 
         return c;
     }
-
-    /**
-     * RE functions mean it is required to cearte a new aary and do not overwrite.
-     *
-     * @param
-     */
 
 
     public static double sum(double[] a) {
