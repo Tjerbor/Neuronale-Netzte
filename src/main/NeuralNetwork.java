@@ -22,7 +22,7 @@ public class NeuralNetwork {
      * This variable contains the layers of the neural network.
      * It does not correspond to the topology used to create the neural network.
      *
-     * @see NeuralNetwork#create(int[], String)
+     * @see NeuralNetwork#create(int[], Activation)
      */
     private FullyConnectedLayer[] layers;
 
@@ -30,7 +30,7 @@ public class NeuralNetwork {
      * This method initializes the neural network with the given topology and activation function.
      * A {@link FullyConnectedLayer} is created for each edge layer.
      */
-    public void create(int[] topology, String function) {
+    public void create(int[] topology, Activation function) {
         layers = new FullyConnectedLayer[topology.length - 1];
 
         for (int i = 0; i < topology.length - 1; i++) {
@@ -53,7 +53,7 @@ public class NeuralNetwork {
      * <p>
      * The method throws an exception if the number of activation functions is not correct.
      */
-    public void create(int[] topology, String[] functions) {
+    public void create(int[] topology, Activation[] functions) {
         int size = topology.length - 1;
 
         if (functions.length != size && !(functions.length == 2 && size > 1)) {
@@ -63,7 +63,7 @@ public class NeuralNetwork {
         if (functions.length == 2) {
             create(topology, functions[0]);
 
-            layers[layers.length - 1].setActivation(Utils.getActivation(functions[1]));
+            layers[layers.length - 1].setActivation(functions[1]);
         } else {
             layers = new FullyConnectedLayer[topology.length - 1];
 
@@ -87,6 +87,9 @@ public class NeuralNetwork {
         return topology;
     }
 
+    /**
+     * This method returns the {@link NeuralNetwork#layers}.
+     */
     public FullyConnectedLayer[] getLayers() {
         return layers;
     }
@@ -107,7 +110,7 @@ public class NeuralNetwork {
      * This method returns the number of layers of the neural network.
      * The returned value does not correspond to the length of the topology used to create the neural network.
      *
-     * @see NeuralNetwork#create(int[], String)
+     * @see NeuralNetwork#create(int[], Activation)
      */
     protected int size() {
         return layers.length;
@@ -154,7 +157,7 @@ public class NeuralNetwork {
      * This method overwrites the weights of the given edge layer.
      * It throws an exception if the index is out of bounds.
      *
-     * @see NeuralNetwork#create(int[], String)
+     * @see NeuralNetwork#create(int[], Activation)
      */
     public void setWeights(int index, double[][] weights) {
         if (index < 0 || index >= layers.length) {
@@ -165,10 +168,8 @@ public class NeuralNetwork {
     }
 
     /**
-     * This method overwrites the {@link Activation} layer of the given edge layer.
+     * This method overwrites the {@link Activation} function of the given edge layer.
      * It throws an exception if the index is out of bounds.
-     *
-     * @see NeuralNetwork#create(int[], String)
      */
     public void setFunction(int index, Activation function) {
         if (index < 0 || index >= layers.length) {
@@ -178,18 +179,14 @@ public class NeuralNetwork {
         layers[index].setActivation(function);
     }
 
-    public void setFunctionAll(Activation function) {
+    /**
+     * This method overwrites the {@link Activation} function of all edge layers.
+     */
+    public void setFunctions(Activation function) {
         for (FullyConnectedLayer f : layers) {
             f.setActivation(function);
         }
     }
-
-    public void setFunctionAll(String function) {
-        for (FullyConnectedLayer f : layers) {
-            f.setActivation(function);
-        }
-    }
-
 
     public void setActivateMomAll() {
         for (FullyConnectedLayer f : layers) {
@@ -207,8 +204,8 @@ public class NeuralNetwork {
     public int parameters() {
         int parameters = 0;
 
-        for (int i = 0; i < layers.length; i++) {
-            parameters += layers[i].parameters();
+        for (FullyConnectedLayer layer : layers) {
+            parameters += layer.parameters();
         }
 
         return parameters;
@@ -218,12 +215,12 @@ public class NeuralNetwork {
      * This method calculates a forward pass through the neural network with the given input.
      */
     public double[] compute(double[] input) {
-        double[] result = Array_utils.copyArray(input);
+        double[] result = input.clone();
 
         for (FullyConnectedLayer layer : layers) {
             result = layer.forward(result);
-
         }
+
         return result;
     }
 
@@ -417,7 +414,6 @@ public class NeuralNetwork {
         }
     }
 
-
     /**
      * train the model with a batch.
      *
@@ -469,7 +465,6 @@ public class NeuralNetwork {
         }
     }
 
-
     public double test_single(double[][] x_train, double[][] y_train) {
 
 
@@ -511,7 +506,6 @@ public class NeuralNetwork {
 
         return loss_per_epoch;
     }
-
 
     /**
      * This method returns a string representation of the neural network.

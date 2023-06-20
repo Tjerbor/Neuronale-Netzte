@@ -12,7 +12,7 @@ public class LoadOwn {
     public static void main(String[] args) {
 
 
-        String dirFpath = "/home/dblade/Documents/Neuronale-Netzte/src/Train/OwnData";
+        String dirFpath = "src/Train/OwnData";
         double[][][] data = getTestData(dirFpath);
 
 
