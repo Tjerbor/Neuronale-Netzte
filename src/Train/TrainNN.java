@@ -1,6 +1,5 @@
 package Train;
 
-import layer.MSE;
 import layer.TanH;
 import main.MNIST;
 import main.NeuralNetwork;
@@ -27,7 +26,6 @@ public class TrainNN {
 
 
         nn.create(new int[]{784, 49, 20, 10}, new TanH());
-        nn.setLoss(new MSE());
         nn.train_single(epochs, x_train, y_train, learning);
 
 

@@ -99,7 +99,9 @@ class NeuralNetworkTest {
 
             assertEquals(5, neuralNetwork.size(), "The size of the neural network is not correct.");
 
-            assertThrows(IllegalArgumentException.class, () -> neuralNetwork.create(topology, new Activation[]{new Activation()}));
+            Activation[] activation = new Activation[]{new Activation()};
+
+            assertThrows(IllegalArgumentException.class, () -> neuralNetwork.create(topology, activation));
         }
 
         @Test

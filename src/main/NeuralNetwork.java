@@ -3,6 +3,7 @@ package main;
 import layer.Activation;
 import layer.FullyConnectedLayer;
 import layer.Losses;
+import layer.MSE;
 import utils.Array_utils;
 import utils.Utils;
 
@@ -15,16 +16,19 @@ import java.util.Arrays;
  * This class models a fully connected feed-forward artificial neural network.
  */
 public class NeuralNetwork {
-    Losses loss = null; //loss function of our NN. // now only MSE is available.
     SGD optimizer = null; // right now not really supported.
 
     /**
      * This variable contains the layers of the neural network.
      * It does not correspond to the topology used to create the neural network.
      *
-     * @see NeuralNetwork#create(int[], Activation)
+     * @see NeuralNetwork#topology()
      */
     private FullyConnectedLayer[] layers;
+    /**
+     * This variable contains the loss function of the neural network.
+     */
+    private final Losses loss = new MSE();
 
     /**
      * This method initializes the neural network with the given topology and activation function.
@@ -101,15 +105,11 @@ public class NeuralNetwork {
         this.layers = layers;
     }
 
-    public void setLoss(Losses loss) {
-        this.loss = loss;
-    }
-
     /**
      * This method returns the number of layers of the neural network.
      * The returned value does not correspond to the length of the topology used to create the neural network.
      *
-     * @see NeuralNetwork#create(int[], Activation)
+     * @see NeuralNetwork#topology()
      */
     protected int size() {
         return layers.length;
@@ -150,20 +150,6 @@ public class NeuralNetwork {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             writer.write(s.toString());
         }
-    }
-
-    /**
-     * This method overwrites the weights of the given edge layer.
-     * It throws an exception if the index is out of bounds.
-     *
-     * @see NeuralNetwork#create(int[], Activation)
-     */
-    public void setWeights(int index, double[][] weights) {
-        if (index < 0 || index >= layers.length) {
-            throw new IllegalArgumentException();
-        }
-
-        layers[index].setWeights(weights);
     }
 
     /**
@@ -419,7 +405,7 @@ public class NeuralNetwork {
      * @param learning_rate learning rate for weights.
      * @throws Exception More.
      */
-    public void train_single(int epoch, double[][] x_train, double[][] y_train, double learning_rate) throws Exception {
+    public void train_single(int epoch, double[][] x_train, double[][] y_train, double learning_rate) {
 
         System.out.println("Train Topologie: " + Arrays.toString(this.topology()));
         System.out.println("Train Data Length: " + x_train.length);
@@ -461,7 +447,7 @@ public class NeuralNetwork {
     }
 
 
-    public void trainTestsingle(int epoch, double[][] x_train, double[][] y_train, double[][] x_test, double[][] y_test, double learning_rate) throws Exception {
+    public void trainTestsingle(int epoch, double[][] x_train, double[][] y_train, double[][] x_test, double[][] y_test, double learning_rate) {
 
         System.out.println("Train Topologie: " + Arrays.toString(this.topology()));
         System.out.println("Train Data Length: " + x_train.length);
