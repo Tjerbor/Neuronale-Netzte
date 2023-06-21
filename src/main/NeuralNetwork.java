@@ -165,25 +165,6 @@ public class NeuralNetwork {
     }
 
     /**
-     * This method overwrites the {@link Activation} function of all edge layers.
-     */
-    public void setFunctions(Activation function) {
-        for (FullyConnectedLayer f : layers) {
-            f.setActivation(function);
-        }
-    }
-
-    public void setActivateMomAll() {
-        for (FullyConnectedLayer f : layers) {
-            f.activateMomentum();
-        }
-    }
-
-    public void setActivateMomentum(int index) {
-        layers[index].activateMomentum();
-    }
-
-    /**
      * This method returns the number of parameters of the neural network.
      */
     public int parameters() {
