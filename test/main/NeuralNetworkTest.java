@@ -109,8 +109,6 @@ class NeuralNetworkTest {
         void denseLayer() {
             FullyConnectedLayer layer = new FullyConnectedLayer(2, 1);
 
-            layer.activateBiases();
-
             double[][] weights = new double[][]{{1}, {1}, {0.5}};
 
             layer.setWeights(weights);

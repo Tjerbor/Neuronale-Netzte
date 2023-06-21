@@ -2,7 +2,7 @@ package main;
 
 import layer.Activation;
 import layer.FullyConnectedLayer;
-import layer.Losses;
+import layer.Loss;
 import layer.MSE;
 import utils.Array_utils;
 import utils.Utils;
@@ -28,7 +28,7 @@ public class NeuralNetwork {
     /**
      * This variable contains the loss function of the neural network.
      */
-    private final Losses loss = new MSE();
+    private final Loss loss = new MSE();
 
     /**
      * This method initializes the neural network with the given topology and activation function.
@@ -210,7 +210,7 @@ public class NeuralNetwork {
     }
 
     /**
-     * This method calculates a forward pass through the neural network with each of the given inputs.
+     * This method calculates a forward pass through the neural network with the given inputs.
      */
     public double[][] computeAll(double[][] inputs) {
         double[][] result = Arrays.stream(inputs).map(double[]::clone).toArray(double[][]::new);
@@ -223,73 +223,47 @@ public class NeuralNetwork {
     }
 
     /**
-     * computes the backpropagation
-     *
-     * @param deltaLoss     delta input of NN.
-     * @param learning_rate learning rate of the NN. (adjustment weights rate.)
-     * @throws Exception shape Errors
+     * This method calculates a backward pass through the neural network with the given input.
      */
-    public void computeBackward(double[] deltaLoss, double learning_rate) {
-
-
-        double[] doutput = deltaLoss;
-        for (int i = 0; i < layers.length; i++) {
-            doutput = this.layers[layers.length - 1 - i].backward(doutput);
-        }
-
-    }
-
-    /**
-     * computes the backpropagation
-     *
-     * @param dinput delta input of NN.
-     *               has noo learning rate because the optimizer updates the parameter.
-     * @throws Exception Shape Errors
-     */
-    public void computeBackward(double[] dinput) {
-
-        double[] doutput = dinput;
-        for (int i = 0; i < layers.length; i++) {
-            doutput = this.layers[layers.length - 1 - i].backward(doutput);
-        }
-
-    }
-
-    /**
-     * computes the backpropagation
-     *
-     * @param dinputs       delta inputs of NN.
-     * @param learning_rate learning rate of the NN. (adjustment weights rate.)
-     * @throws Exception Shape Errors
-     */
-    public void computeAllBackward(double[][] dinputs, double learning_rate) throws Exception {
-
-
-        double[][] doutputs = dinputs;
-        for (int i = 0; i < layers.length; i++) {
-            doutputs = this.layers[layers.length - 1 - i].backward(doutputs, learning_rate);
-
-        }
-
-    }
-
-    /**
-     * computes the backpropagation
-     *
-     * @param dinputs delta input of NN.
-     *                has noo learning rate because the optimizer updates the parameter.
-     * @throws Exception Shape Errors
-     */
-    public void computeAllBackward(double[][] dinputs) throws Exception {
-
-        double[][] doutputs = dinputs;
-
+    public void computeBackward(double[] input) {
+        double[] result = input.clone();
 
         for (int i = 0; i < size(); i++) {
-            doutputs = this.layers[size() - i].backward(doutputs);
-
+            result = layers[size() - 1 - i].backward(result);
         }
+    }
 
+    /**
+     * This method calculates a backward pass through the neural network with the given input and learning rate.
+     */
+    public void computeBackward(double[] input, double learningRate) {
+        double[] result = input.clone();
+
+        for (int i = 0; i < size(); i++) {
+            result = layers[size() - 1 - i].backward(result, learningRate);
+        }
+    }
+
+    /**
+     * This method calculates a backward pass through the neural network with the given inputs.
+     */
+    public void computeAllBackward(double[][] inputs) {
+        double[][] result = Arrays.stream(inputs).map(double[]::clone).toArray(double[][]::new);
+
+        for (int i = 0; i < size(); i++) {
+            result = layers[size() - i].backward(result);
+        }
+    }
+
+    /**
+     * This method calculates a backward pass through the neural network with the given inputs and learning rate.
+     */
+    public void computeAllBackward(double[][] inputs, double learningRate) {
+        double[][] result = Arrays.stream(inputs).map(double[]::clone).toArray(double[][]::new);
+
+        for (int i = 0; i < size(); i++) {
+            result = layers[size() - 1 - i].backward(result, learningRate);
+        }
     }
 
     /**

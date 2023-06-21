@@ -1,81 +1,68 @@
 package layer;
 
-
 /**
- * only Loss supported right no.
- * more comming in the future.
- * Calculates the Mean Squared Error.
- * is the normal option and not the 1/2 one.
+ * This class models the mean squared error function.
  */
-public class MSE extends Losses {
+public class MSE implements Loss {
+    public static final String EXCEPTION = "The arrays must have the same length.";
 
-
-    public double forward(double[] y_pred, double[] y_true) {
-
-        int sum = 0;
-        for (int i = 0; i < y_true.length; i++) {
-            sum += Math.pow((y_true[i] - y_pred[i]), 2);
+    @Override
+    public double forward(double[] actual, double[] expected) {
+        if (actual.length != expected.length) {
+            throw new IllegalArgumentException(EXCEPTION);
         }
-        return (double) sum / y_true.length;
-
-
-    }
-
-    public double forward(double[][] y_pred, double[][] y_true) {
-
-
-        int s = y_true.length;
-        int s1 = y_true[0].length;
 
         double sum = 0;
-        double[][] out = new double[s][s1];
 
-        for (int i = 0; i < s; i++) {
-            for (int j = 0; j < s1; j++) {
-                sum += Math.pow((y_true[i][j] - y_pred[i][j]), 2);
-            }
+        for (int i = 0; i < actual.length; i++) {
+            sum += Math.pow(actual[i] - expected[i], 2);
         }
 
-        return sum / (s1 * s);
-
+        return sum / actual.length;
     }
 
-    public double[] backward(double[] y_pred, double[] y_true) {
-
-
-        int s = y_true.length;
-        double[] out = new double[s];
-        for (int i = 0; i < s; i++) {
-            out[i] = 2 * (y_pred[i] - y_true[i]) / s;
-
+    @Override
+    public double forward(double[][] actual, double[][] expected) {
+        if (actual.length != expected.length) {
+            throw new IllegalArgumentException(EXCEPTION);
         }
-        return out;
+
+        double sum = 0;
+
+        for (int i = 0; i < actual.length; i++) {
+            sum += forward(actual[i], expected[i]);
+        }
+
+        return sum / actual.length;
     }
 
-    public double[][] backward(double[][] y_pred, double[][] y_true) {
-
-        int size = y_true.length * y_true[0].length;
-
-        int s = y_true.length;
-        int s1 = y_true[0].length;
-        double[][] out = new double[s][s1];
-        for (int i = 0; i < s; i++) {
-            for (int j = 0; j < s1; j++) {
-                out[i][j] += (y_pred[i][j] - y_true[i][j]);
-            }
+    @Override
+    public double[] backward(double[] actual, double[] expected) {
+        if (actual.length != expected.length) {
+            throw new IllegalArgumentException(EXCEPTION);
         }
 
+        double[] result = new double[actual.length];
 
-        for (int i = 0; i < s; i++) {
-            for (int j = 0; j < s1; j++) {
-                out[i][j] = 2 * out[i][j] / y_true[0].length;
-            }
-
-
+        for (int i = 0; i < actual.length; i++) {
+            result[i] = 2 * (actual[i] - expected[i]) / actual.length;
         }
 
-        return out;
+        return result;
     }
 
+    @Override
+    public double[][] backward(double[][] actual, double[][] expected) {
+        if (actual.length != expected.length) {
+            throw new IllegalArgumentException(EXCEPTION);
+        }
 
+        double[][] result = new double[actual.length][];
+
+        for (int i = 0; i < actual.length; i++) {
+            result[i] = backward(actual[i], expected[i]);
+        }
+
+        return result;
+    }
 }

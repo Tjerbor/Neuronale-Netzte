@@ -3,8 +3,7 @@ package layer;
 import utils.Array_utils;
 import utils.Utils;
 
-public class CategoricalCrossEntropy extends Losses {
-
+public class CategoricalCrossEntropy implements Loss {
     public static void clip(double[] a, double min, double max) {
 
         for (int i = 0; i < a.length; i++) {
@@ -45,30 +44,31 @@ public class CategoricalCrossEntropy extends Losses {
 
     }
 
-
-    public double forward(double[] y_pred, double[] y_true) {
+    @Override
+    public double forward(double[] actual, double[] expected) {
 
         int sum = 0;
 
         double sanityValue = Math.pow(10, -100);
 
-        int i = Utils.argmax(y_true);
+        int i = Utils.argmax(expected);
 
-        sum += y_true[i] * Math.log(y_pred[i] + sanityValue);
+        sum += expected[i] * Math.log(actual[i] + sanityValue);
         return -sum;
     }
 
-    public double forward(double[][] y_pred, double[][] y_true) {
+    @Override
+    public double forward(double[][] actual, double[][] expected) {
 
-        int batch_size = y_true.length;
-        clip(y_pred, 1e-7, 1 - 1e-7);
+        int batch_size = expected.length;
+        clip(actual, 1e-7, 1 - 1e-7);
 
         double output = 0;
 
-        double[][] c = new double[y_true.length][y_true[0].length];
-        for (int i = 0; i < y_true.length; i++) {
-            for (int j = 0; j < y_true[0].length; j++) {
-                c[i][j] = y_true[i][j] * y_pred[i][j];
+        double[][] c = new double[expected.length][expected[0].length];
+        for (int i = 0; i < expected.length; i++) {
+            for (int j = 0; j < expected[0].length; j++) {
+                c[i][j] = expected[i][j] * actual[i][j];
             }
         }
 
@@ -85,28 +85,28 @@ public class CategoricalCrossEntropy extends Losses {
         return neg_log / batch_size;
     }
 
-    public double[][] backward(double[][] y_pred, double[][] y_true) {
+    @Override
+    public double[] backward(double[] actual, double[] expected) {
 
-        double[][] output = new double[y_true.length][y_true[0].length];
-        for (int i = 0; i < y_true.length; i++) {
-            for (int j = 0; j < y_true[0].length; j++) {
-                output[i][j] = (-y_true[i][j] / y_pred[i][j]) / y_true.length; //divide by batch size.
-            }
-        }
-        return output;
-    }
-
-    public double[] backward(double[] y_pred, double[] y_true) {
-
-        double[] c = new double[y_true.length];
+        double[] c = new double[expected.length];
         double sanityValue = Math.pow(10, -100);
 
-        int i = Utils.argmax(y_true);
+        int i = Utils.argmax(expected);
 
-        c[i] = -(y_true[i] / y_pred[i] + sanityValue);
+        c[i] = -(expected[i] / actual[i] + sanityValue);
         return c;
 
     }
 
+    @Override
+    public double[][] backward(double[][] actual, double[][] expected) {
 
+        double[][] output = new double[expected.length][expected[0].length];
+        for (int i = 0; i < expected.length; i++) {
+            for (int j = 0; j < expected[0].length; j++) {
+                output[i][j] = (-expected[i][j] / actual[i][j]) / expected.length; //divide by batch size.
+            }
+        }
+        return output;
+    }
 }

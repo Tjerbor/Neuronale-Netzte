@@ -2,37 +2,44 @@ package layer;
 
 import utils.Array_utils;
 
-public class SoftmaxCategoricalCrossEntropy extends Losses {
-
-    
+public class SoftmaxCategoricalCrossEntropy implements Loss {
     public static NewSoftmax softmax = new NewSoftmax();
     public static CategoricalCrossEntropy loss = new CategoricalCrossEntropy();
 
-    public double forward(double[][] inputs, double[][] y_true) {
+    @Override
+    public double forward(double[] actual, double[] expected) {
+        throw new UnsupportedOperationException();
+    }
 
-        double[][] out = softmax.forward(inputs);
-        return loss.forward(out, y_true);
+    @Override
+    public double forward(double[][] actual, double[][] expected) {
+
+        double[][] out = softmax.forward(actual);
+        return loss.forward(out, expected);
 
     }
 
+    @Override
+    public double[] backward(double[] actual, double[] expected) {
+        throw new UnsupportedOperationException();
+    }
 
-    public double[][] backward(double[][] dvalues, double[][] y_true) {
+    @Override
+    public double[][] backward(double[][] actual, double[][] expected) {
 
         //expects One-Hot-Encoded
-        int batch_size = y_true.length;
+        int batch_size = expected.length;
 
-        double[][] out = new double[y_true.length][y_true[0].length];
+        double[][] out = new double[expected.length][expected[0].length];
 
         //either minus 0 or 1. class depending. //expect One-Hot-Encoded
-        for (int i = 0; i < y_true.length; i++) {
-            for (int j = 0; j < y_true[0].length; j++) {
-                out[i][j] = dvalues[i][j] - y_true[i][j];
+        for (int i = 0; i < expected.length; i++) {
+            for (int j = 0; j < expected[0].length; j++) {
+                out[i][j] = actual[i][j] - expected[i][j];
             }
         }
         Array_utils.div_matrix_by_scalar(out, batch_size);
         return out;
 
     }
-
-
 }
