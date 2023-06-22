@@ -10,6 +10,8 @@ public interface Layer {
     /**
      * initialize the Momentum weights and Biases with zeros.
      */
+
+
     default void activateMomentum() {
     }
 
@@ -63,4 +65,6 @@ public interface Layer {
      * This method calculates a backward pass with each of the given inputs and the given learning rate.
      */
     double[][] backward(double[][] inputs, double learningRate);
+
+
 }

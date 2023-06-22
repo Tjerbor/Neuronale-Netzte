@@ -1,7 +1,10 @@
 package Train;
 
+import utils.ImageReader;
+
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class LoadOwn {
@@ -17,6 +20,43 @@ public class LoadOwn {
 
 
     }
+
+
+    public static double[][][] getImages(String dirFpath) {
+
+
+        List<String> files = load(dirFpath);
+
+        double[] pixels;
+        double[] digits;
+
+
+        double[][] X = new double[files.size()][];
+        double[][] Y = new double[files.size()][];
+
+        for (int f = 0; f < files.size(); f++) {
+
+
+            digits = new double[DIGITS];
+
+            pixels = ImageReader.ImageToArray(files.get(f));
+
+            String filename = files.get(f);
+            String[] p = filename.split("_");
+            System.out.println(Arrays.toString(p));
+            filename = p[2].replace(".png", "");
+
+            digits[Integer.parseInt(filename)] = 1;
+
+            X[f] = pixels;
+            Y[f] = digits;
+        }
+
+        return new double[][][]{X, Y};
+
+
+    }
+
 
     public static double[][][] getTestData(String dirFpath) {
 

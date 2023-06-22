@@ -8,3 +8,5 @@
 - Bias-Knoten in jeder Ebene
 - Keine komplexen Strukturen oder Libraries
 - Vorgegebene `main()` Funktion, um Kompatibilität mit anderen Netzen zu gewährleisten
+
+

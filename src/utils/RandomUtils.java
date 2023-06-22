@@ -158,4 +158,83 @@ public class RandomUtils {
 
     }
 
+    public static void genTypeWeights(int type, double[][] weights) {
+
+        if (type == 0) {
+
+
+            for (int i = 0; i < weights[0].length; i++) {
+                for (int j = 0; j < weights.length; j++) {
+                    weights[j][i] = r.nextGaussian();
+                }
+            }
+
+
+        } else if (type == 1) {
+            for (int i = 0; i < weights[0].length; i++) {
+                for (int j = 0; j < weights.length; j++) {
+                    weights[j][i] = r.nextGaussian(0, 1);
+                }
+            }
+
+        } else if (type == 2) {
+            for (int i = 0; i < weights[0].length; i++) {
+                for (int j = 0; j < weights.length; j++) {
+                    weights[j][i] = r.nextDouble(-0.1, 0.1);
+                }
+            }
+
+        } else if (type == 3) {
+            for (int i = 0; i < weights[0].length; i++) {
+                for (int j = 0; j < weights.length; j++) {
+                    weights[j][i] = r.nextDouble(-0.01, 0.01);
+                }
+
+
+            }
+        } else {
+
+            for (int i = 0; i < weights[0].length; i++) {
+                for (int j = 0; j < weights.length; j++) {
+                    weights[j][i] = r.nextDouble(-1, 1);
+                }
+
+            }
+
+        }
+    }
+
+    public static void genTypeWeights(int type, double[] weights) {
+
+        if (type == 0) {
+
+            for (int i = 0; i < weights.length; i++) {
+                weights[i] = r.nextGaussian();
+            }
+
+        } else if (type == 1) {
+            for (int i = 0; i < weights.length; i++) {
+                weights[i] = r.nextGaussian(0, 2);
+            }
+
+        } else if (type == 2) {
+            for (int i = 0; i < weights.length; i++) {
+                weights[i] = r.nextDouble(-0.1, 0.1);
+            }
+
+        } else if (type == 3) {
+            for (int i = 0; i < weights.length; i++) {
+                weights[i] = r.nextDouble(-0.01, 0.01);
+            }
+        } else {
+
+            for (int i = 0; i < weights.length; i++) {
+                weights[i] = r.nextDouble(-1, 1);
+            }
+
+
+        }
+    }
+
+
 }

@@ -1,5 +1,7 @@
 package main;
 
+import optimizer.Optimizer;
+
 abstract public class LayerNew {
 
     abstract public LayerNew getNextLayer();
@@ -21,6 +23,14 @@ abstract public class LayerNew {
     abstract public double[] backward(double[] input);
 
     abstract public double[][] backward(double[][] inputs);
+
+    abstract public double[][] getWeights();
+
+    abstract public void setWeights(double[][] weights);
+
+    abstract public void setOptimizer(Optimizer optimizer);
+
+    abstract public int parameters();
 
 
 }

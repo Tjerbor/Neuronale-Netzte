@@ -44,7 +44,6 @@ public class NN_New {
             while (tmp.getNextLayer() != null) {
                 tmp = tmp.getNextLayer();
 
-
             }
             LayerNew before = tmp;
             before.setNextLayer(l);
@@ -54,4 +53,22 @@ public class NN_New {
     }
 
 
+    private LayerNew[] layers2Array() {
+        LayerNew[] layers = new LayerNew[size];
+
+        layers[0] = fristLayer;
+
+        LayerNew tmp = fristLayer;
+        for (int i = 1; i < layers.length; i++) {
+            tmp = tmp.getNextLayer();
+            layers[i] = tmp;
+
+        }
+
+        return layers;
+    }
+
+    public LayerNew[] getLayers() {
+        return layers2Array();
+    }
 }
