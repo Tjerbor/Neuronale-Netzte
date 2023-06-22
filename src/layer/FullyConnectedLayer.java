@@ -1,6 +1,6 @@
 package layer;
 
-import main.Optimizer;
+import optimizer.Optimizer;
 import utils.Array_utils;
 import utils.Utils;
 
@@ -632,7 +632,7 @@ public class FullyConnectedLayer implements Layer {
         double gardientAct;
         double deltaWeight;
         double tmpW;
-        
+
         dweights = new double[weights.length][weights[0].length];
 
         if (softmax != null) {

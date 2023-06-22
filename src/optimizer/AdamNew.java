@@ -1,4 +1,4 @@
-package main;
+package optimizer;
 
 import utils.Array_utils;
 
@@ -95,7 +95,7 @@ public class AdamNew implements Optimizer {
     public void updateParameter(double[] w, double[] dw, int t) {
 
         //has to only check for one because then teh other one is also null
-        //frist call to the optimizer. 
+        //frist call to the optimizer.
         if (dw_prev1_1d == null) {
             dw_prev1_1d = Array_utils.zerosLike(w);
             dw_prev2_1d = Array_utils.zerosLike(w);

@@ -4,6 +4,7 @@ import layer.Activation;
 import layer.FullyConnectedLayer;
 import loss.Loss;
 import loss.MSE;
+import optimizer.SGD;
 import utils.Array_utils;
 import utils.Utils;
 

@@ -4,7 +4,7 @@ import layer.FullyConnectedLayer;
 import loss.MSE;
 import layer.NewSoftmax;
 import layer.TanH;
-import main.AdamNew;
+import optimizer.AdamNew;
 import main.MNIST;
 import main.NeuralNetwork;
 import utils.Array_utils;

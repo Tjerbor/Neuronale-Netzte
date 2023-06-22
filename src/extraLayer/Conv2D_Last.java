@@ -2,7 +2,7 @@ package extraLayer;
 
 
 import layer.Activation;
-import main.Optimizer;
+import optimizer.Optimizer;
 import utils.Array_utils;
 import utils.RandomUtils;
 import utils.Utils;
