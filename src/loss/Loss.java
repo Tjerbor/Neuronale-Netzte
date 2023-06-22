@@ -1,4 +1,4 @@
-package layer;
+package loss;
 
 /**
  * This interface models a loss function.

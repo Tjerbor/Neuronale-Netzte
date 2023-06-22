@@ -2,8 +2,8 @@ package main;
 
 import layer.Activation;
 import layer.FullyConnectedLayer;
-import layer.Loss;
-import layer.MSE;
+import loss.Loss;
+import loss.MSE;
 import utils.Array_utils;
 import utils.Utils;
 

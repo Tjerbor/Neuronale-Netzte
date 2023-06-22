@@ -1,4 +1,4 @@
-package layer;
+package loss;
 
 import utils.Array_utils;
 import utils.Utils;

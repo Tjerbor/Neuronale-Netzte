@@ -1,4 +1,4 @@
-package layer;
+package loss;
 
 /**
  * This class models the mean squared error function.

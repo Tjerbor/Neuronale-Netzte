@@ -1,5 +1,6 @@
-package layer;
+package loss;
 
+import layer.NewSoftmax;
 import utils.Array_utils;
 
 public class SoftmaxCategoricalCrossEntropy implements Loss {

@@ -1,7 +1,7 @@
 package autograd;
 
 import autograd.nn.MLP;
-import layer.MSE;
+import loss.MSE;
 import main.MNIST;
 import utils.Utils;
 

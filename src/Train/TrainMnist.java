@@ -1,7 +1,7 @@
 package Train;
 
 import layer.FullyConnectedLayer;
-import layer.MSE;
+import loss.MSE;
 import layer.NewSoftmax;
 import layer.TanH;
 import main.AdamNew;
