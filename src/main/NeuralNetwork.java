@@ -17,8 +17,11 @@ import java.util.Arrays;
  * This class models a fully connected feed-forward artificial neural network.
  */
 public class NeuralNetwork {
+    /**
+     * This variable contains the loss function of the neural network.
+     */
+    private final Loss loss = new MSE();
     SGD optimizer = null; // right now not really supported.
-
     /**
      * This variable contains the layers of the neural network.
      * It does not correspond to the topology used to create the neural network.
@@ -26,10 +29,6 @@ public class NeuralNetwork {
      * @see NeuralNetwork#topology()
      */
     private FullyConnectedLayer[] layers;
-    /**
-     * This variable contains the loss function of the neural network.
-     */
-    private final Loss loss = new MSE();
 
     /**
      * This method initializes the neural network with the given topology and activation function.
@@ -174,7 +173,6 @@ public class NeuralNetwork {
         for (FullyConnectedLayer layer : layers) {
             parameters += layer.parameters();
         }
-
         return parameters;
     }
 

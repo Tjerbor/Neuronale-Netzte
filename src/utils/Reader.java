@@ -1,6 +1,8 @@
 package utils;
 
 import layer.FullyConnectedLayer;
+import main.FullyConnectedLayerNew;
+import main.LayerNew;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -75,6 +77,46 @@ public class Reader {
         }
 
         return structur;
+    }
+
+    public static LayerNew[] createNew(String path) throws IOException {
+        List<String[]> list = read(path);
+
+        if (!list.get(0)[0].equals("layers")) {
+            throw new IllegalArgumentException("The file must start with the keyword \"layers\".");
+        }
+
+        int[] topologie = IntStream.range(1, list.get(0).length).map(i -> Integer.parseInt(list.get(0)[i])).toArray();
+
+        System.out.println(Arrays.toString(topologie));
+        LayerNew[] structur = new LayerNew[topologie.length - 1];
+
+        int count = 0;
+        int list_pos = 1; //da die erste Zeile die Topologie bestimmt.
+
+        for (int i = 0; i < (topologie.length - 1); i++) {
+            double[][] w = Utils.genRandomWeights(topologie[i] + 1, topologie[i + 1]);
+
+            structur[i] = new FullyConnectedLayerNew(topologie[i], topologie[i + 1]);
+
+            for (int j = 0; j < (topologie[i]) + 1; j++) {
+                for (int wi = 0; wi < list.get(list_pos).length; wi++) {
+                    w[j][wi] = Double.parseDouble(list.get(list_pos)[wi]);
+                }
+
+                list_pos += 1; //update layer position.
+            }
+
+
+            list_pos += 1; //wegen der leerzeile.
+            //structur[i + count].weights = Utils.split_for_weights(w);
+            structur[i].setWeights(w);
+            //structur[i + count].biases = Utils.split_for_biases(w);
+            count += 1;
+        }
+
+        return structur;
+
     }
 
     public static double[][] getTrainDataOutputs(String path, int outputsSize) throws IOException {
