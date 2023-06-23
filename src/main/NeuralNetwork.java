@@ -309,10 +309,8 @@ public class NeuralNetwork {
         for (int i = 0; i < epochs; i++) {
             double loss = 0;
 
-            double[] result;
-
             for (int j = 0; j < inputs.length; j++) {
-                result = compute(inputs[j].clone());
+                double[] result = compute(inputs[j].clone());
 
                 loss += lossFunction.forward(result, expected[j]);
 
@@ -321,9 +319,33 @@ public class NeuralNetwork {
                 computeBackward(result, learningRate);
             }
 
-            loss = loss / inputs.length;
+            LOGGER.log(Level.INFO, "Loss of Epoch {0}: {1}", new Object[]{i + 1, loss / inputs.length});
+        }
+    }
 
-            LOGGER.log(Level.INFO, "Loss of Epoch {0}: {1}", new Object[]{i, loss});
+    /**
+     * This method trains the neural network with the given batch of data sets, number of epochs and learning rate.
+     * It throws an exception if the array dimensions are incorrect.
+     */
+    public void training(double[][][] inputs, double[][][] expected, int epochs, double learningRate) {
+        if (inputs.length != expected.length) {
+            throw new IllegalArgumentException("The arrays do not have the same length.");
+        }
+
+        for (int i = 0; i < epochs; i++) {
+            double loss = 0;
+
+            for (int j = 0; j < inputs.length; j++) {
+                double[][] result = compute(inputs[j].clone());
+
+                loss += lossFunction.forward(result, expected[j]);
+
+                result = lossFunction.backward(result, expected[j]);
+
+                computeBackward(result, learningRate);
+            }
+
+            LOGGER.log(Level.INFO, "Loss of Epoch {0}: {1}", new Object[]{i + 1, loss / inputs.length});
         }
     }
 
@@ -377,58 +399,6 @@ public class NeuralNetwork {
         }
 
 
-    }
-
-    /**
-     * train the model with a batch.
-     *
-     * @param epoch         epochs to train for
-     * @param x_train       input data for the NN.
-     * @param y_train       the output the NN shall give.
-     * @param learning_rate learning rate for weights.
-     * @throws Exception Shape Error.
-     */
-    public void train_with_batch(int epoch, double[][][] x_train, double[][][] y_train, double learning_rate) throws Exception {
-
-        System.out.println("Train Data Batch Size: " + x_train[0].length);
-        System.out.println("Train Data Length: " + x_train[0][0].length);
-        //checks for rxceptions
-        if (x_train.length != y_train.length) {
-            throw new IllegalArgumentException("x und y Data have diffrent Size.");
-        } else if (this.lossFunction == null) {
-            throw new IllegalArgumentException("loss function is not set.");
-        } else if (this.topology()[this.topology().length - 1] != y_train[0][0].length) {
-            throw new IllegalArgumentException("y has " + y_train[0][0].length + " classes but " +
-                    "model output shape is: " + topology()[topology().length - 1]);
-        } else if (topology()[0] != x_train[0][0].length) {
-            throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + topology()[0]);
-        }
-
-
-        double loss_per_epoch;
-
-        int step_size = x_train.length;
-
-        double[] step_losses = new double[step_size];
-
-
-        for (int i = 0; i < epoch; i++) {
-
-            for (int j = 0; j < step_size; j++) {
-                double[][] outs;
-                outs = compute(Array_utils.copyArray(x_train[j]));
-                //one epoch is finished.
-                //calculates Loss
-                step_losses[j] = lossFunction.forward(outs, y_train[j]);
-                //calculates prime Loss
-                outs = lossFunction.backward(outs, y_train[j]);
-                // now does back propagation //updates values.
-                this.computeBackward(outs, learning_rate);
-            }
-            loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
-            System.out.println("Loss per epoch: " + loss_per_epoch);
-        }
     }
 
     public void trainTestsingle(int epoch, double[][] x_train, double[][] y_train, double[][] x_test, double[][] y_test, double learning_rate) {
