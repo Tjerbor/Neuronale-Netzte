@@ -4,7 +4,7 @@ package loss;
  * This class models the mean squared error function.
  */
 public class MSE implements Loss {
-    public static final String EXCEPTION = "The arrays must have the same length.";
+    public static final String EXCEPTION = "The arrays do not have the same length.";
 
     @Override
     public double forward(double[] actual, double[] expected) {

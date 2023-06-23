@@ -35,7 +35,7 @@ class NeuralNetworkTest {
 
         neuralNetwork.setFunction(0, new StepFunc(1.5));
 
-        double[][] result = neuralNetwork.computeAll(new double[][]{{0, 0}, {0, 1}, {1, 0}, {1, 1}});
+        double[][] result = neuralNetwork.compute(new double[][]{{0, 0}, {0, 1}, {1, 0}, {1, 1}});
 
         assertAll(
                 () -> assertEquals(0, result[0][0]),

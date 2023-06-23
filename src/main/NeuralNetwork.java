@@ -185,8 +185,13 @@ public class NeuralNetwork {
 
     /**
      * This method calculates a forward pass through the neural network with the given input.
+     * It throws an exception if the array dimensions are incorrect.
      */
     public double[] compute(double[] input) {
+        if (topology()[0] != input.length) {
+            throw new IllegalArgumentException("The dimension of the first layer and that of the input data do not match.");
+        }
+
         double[] result = input.clone();
 
         for (FullyConnectedLayer layer : layers) {
@@ -198,8 +203,17 @@ public class NeuralNetwork {
 
     /**
      * This method calculates a forward pass through the neural network with the given inputs.
+     * It throws an exception if the array dimensions are incorrect.
      */
-    public double[][] computeAll(double[][] inputs) {
+    public double[][] compute(double[][] inputs) {
+        int[] topology = topology();
+
+        for (double[] input : inputs) {
+            if (topology[0] != input.length) {
+                throw new IllegalArgumentException("The dimension of the first layer and that of the input data do not match.");
+            }
+        }
+
         double[][] result = Arrays.stream(inputs).map(double[]::clone).toArray(double[][]::new);
 
         for (FullyConnectedLayer layer : layers) {
@@ -209,11 +223,22 @@ public class NeuralNetwork {
         return result;
     }
 
+    private void test(double[] output) {
+        int[] topology = topology();
+
+        if (topology[topology.length - 1] != output.length) {
+            throw new IllegalArgumentException("The dimension of the last layer and that of the output data do not match.");
+        }
+    }
+
     /**
-     * This method calculates a backward pass through the neural network with the given input.
+     * This method calculates a backward pass through the neural network with the given output.
+     * It throws an exception if the array dimensions are incorrect.
      */
-    public void computeBackward(double[] input) {
-        double[] result = input.clone();
+    public void computeBackward(double[] output) {
+        test(output);
+
+        double[] result = output.clone();
 
         for (int i = 0; i < size(); i++) {
             result = layers[size() - 1 - i].backward(result);
@@ -221,21 +246,37 @@ public class NeuralNetwork {
     }
 
     /**
-     * This method calculates a backward pass through the neural network with the given input and learning rate.
+     * This method calculates a backward pass through the neural network with the given output and learning rate.
+     * It throws an exception if the array dimensions are incorrect.
      */
-    public void computeBackward(double[] input, double learningRate) {
-        double[] result = input.clone();
+    public void computeBackward(double[] output, double learningRate) {
+        test(output);
+
+        double[] result = output.clone();
 
         for (int i = 0; i < size(); i++) {
             result = layers[size() - 1 - i].backward(result, learningRate);
         }
     }
 
+    private void test(double[][] outputs) {
+        int[] topology = topology();
+
+        for (double[] output : outputs) {
+            if (topology[topology.length - 1] != output.length) {
+                throw new IllegalArgumentException("The dimension of the last layer and that of the output data do not match.");
+            }
+        }
+    }
+
     /**
-     * This method calculates a backward pass through the neural network with the given inputs.
+     * This method calculates a backward pass through the neural network with the given outputs.
+     * It throws an exception if the array dimensions are incorrect.
      */
-    public void computeAllBackward(double[][] inputs) {
-        double[][] result = Arrays.stream(inputs).map(double[]::clone).toArray(double[][]::new);
+    public void computeBackward(double[][] outputs) {
+        test(outputs);
+
+        double[][] result = Arrays.stream(outputs).map(double[]::clone).toArray(double[][]::new);
 
         for (int i = 0; i < size(); i++) {
             result = layers[size() - i].backward(result);
@@ -243,10 +284,13 @@ public class NeuralNetwork {
     }
 
     /**
-     * This method calculates a backward pass through the neural network with the given inputs and learning rate.
+     * This method calculates a backward pass through the neural network with the given outputs and learning rate.
+     * It throws an exception if the array dimensions are incorrect.
      */
-    public void computeAllBackward(double[][] inputs, double learningRate) {
-        double[][] result = Arrays.stream(inputs).map(double[]::clone).toArray(double[][]::new);
+    public void computeBackward(double[][] outputs, double learningRate) {
+        test(outputs);
+
+        double[][] result = Arrays.stream(outputs).map(double[]::clone).toArray(double[][]::new);
 
         for (int i = 0; i < size(); i++) {
             result = layers[size() - 1 - i].backward(result, learningRate);
@@ -260,16 +304,6 @@ public class NeuralNetwork {
     public void training(double[][] inputs, double[][] expected, int epochs, double learningRate) {
         if (inputs.length != expected.length) {
             throw new IllegalArgumentException("The arrays do not have the same length.");
-        }
-
-        int[] topology = topology();
-
-        if (topology[0] != inputs[0].length) {
-            throw new IllegalArgumentException("The dimension of the first layer and that of the input data do not match.");
-        }
-
-        if (topology[topology.length - 1] != expected[0].length) {
-            throw new IllegalArgumentException("The dimension of the last layer and that of the output data do not match.");
         }
 
         for (int i = 0; i < epochs; i++) {
@@ -329,14 +363,14 @@ public class NeuralNetwork {
 
             for (int j = 0; j < step_size; j++) {
 
-                outs = computeAll(Array_utils.copyArray(x_train[j]));
+                outs = compute(Array_utils.copyArray(x_train[j]));
                 //one epoch is finished.
                 //calculates Loss
                 step_losses[j] = lossFunction.forward(outs, y_train[j]);
                 //calculates prime Loss
                 outs = lossFunction.backward(outs, y_train[j]);
                 // now does back propagation
-                this.computeAllBackward(outs);
+                this.computeBackward(outs);
             }
             loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
             System.out.println("Loss per epoch: " + loss_per_epoch);
@@ -383,14 +417,14 @@ public class NeuralNetwork {
 
             for (int j = 0; j < step_size; j++) {
                 double[][] outs;
-                outs = computeAll(Array_utils.copyArray(x_train[j]));
+                outs = compute(Array_utils.copyArray(x_train[j]));
                 //one epoch is finished.
                 //calculates Loss
                 step_losses[j] = lossFunction.forward(outs, y_train[j]);
                 //calculates prime Loss
                 outs = lossFunction.backward(outs, y_train[j]);
                 // now does back propagation //updates values.
-                this.computeAllBackward(outs, learning_rate);
+                this.computeBackward(outs, learning_rate);
             }
             loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
             System.out.println("Loss per epoch: " + loss_per_epoch);
