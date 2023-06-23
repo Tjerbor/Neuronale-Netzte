@@ -12,16 +12,22 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class models a fully connected feed-forward artificial neural network.
  */
 public class NeuralNetwork {
+    private static final Logger LOGGER = Logger.getLogger(NeuralNetwork.class.getName());
+
     /**
      * This variable contains the loss function of the neural network.
      */
-    private final Loss loss = new MSE();
+    private final Loss lossFunction = new MSE();
+
     SGD optimizer = null; // right now not really supported.
+
     /**
      * This variable contains the layers of the neural network.
      * It does not correspond to the topology used to create the neural network.
@@ -42,7 +48,6 @@ public class NeuralNetwork {
         }
     }
 
-    
     /**
      * This method initializes the neural network with the given topology and activation functions.
      * A {@link FullyConnectedLayer} is created for each edge layer.
@@ -174,6 +179,7 @@ public class NeuralNetwork {
         for (FullyConnectedLayer layer : layers) {
             parameters += layer.parameters();
         }
+
         return parameters;
     }
 
@@ -248,6 +254,46 @@ public class NeuralNetwork {
     }
 
     /**
+     * This method trains the neural network with the given data sets, number of epochs and learning rate.
+     * It throws an exception if the array dimensions are incorrect.
+     */
+    public void training(double[][] inputs, double[][] expected, int epochs, double learningRate) {
+        if (inputs.length != expected.length) {
+            throw new IllegalArgumentException("The arrays do not have the same length.");
+        }
+
+        int[] topology = topology();
+
+        if (topology[0] != inputs[0].length) {
+            throw new IllegalArgumentException("The dimension of the first layer and that of the input data do not match.");
+        }
+
+        if (topology[topology.length - 1] != expected[0].length) {
+            throw new IllegalArgumentException("The dimension of the last layer and that of the output data do not match.");
+        }
+
+        for (int i = 0; i < epochs; i++) {
+            double loss = 0;
+
+            double[] result;
+
+            for (int j = 0; j < inputs.length; j++) {
+                result = compute(inputs[j].clone());
+
+                loss += lossFunction.forward(result, expected[j]);
+
+                result = lossFunction.backward(result, expected[j]);
+
+                computeBackward(result, learningRate);
+            }
+
+            loss = loss / inputs.length;
+
+            LOGGER.log(Level.INFO, "Loss of Epoch {0}: {1}", new Object[]{i, loss});
+        }
+    }
+
+    /**
      * train the model with a batch.
      * has no learning rate because it uses and optimizer.
      *
@@ -262,7 +308,7 @@ public class NeuralNetwork {
             throw new Exception("Got no Optimizer and no Learning rate");
         } else if (x_train.length != y_train.length) {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
-        } else if (this.loss == null) {
+        } else if (this.lossFunction == null) {
             throw new IllegalArgumentException("loss function is not set.");
         } else if (topology()[topology().length - 1] != y_train[0][0].length) {
             throw new IllegalArgumentException("y has " + y_train[0][0].length + " classes but " +
@@ -286,9 +332,9 @@ public class NeuralNetwork {
                 outs = computeAll(Array_utils.copyArray(x_train[j]));
                 //one epoch is finished.
                 //calculates Loss
-                step_losses[j] = loss.forward(outs, y_train[j]);
+                step_losses[j] = lossFunction.forward(outs, y_train[j]);
                 //calculates prime Loss
-                outs = loss.backward(outs, y_train[j]);
+                outs = lossFunction.backward(outs, y_train[j]);
                 // now does back propagation
                 this.computeAllBackward(outs);
             }
@@ -315,7 +361,7 @@ public class NeuralNetwork {
         //checks for rxceptions
         if (x_train.length != y_train.length) {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
-        } else if (this.loss == null) {
+        } else if (this.lossFunction == null) {
             throw new IllegalArgumentException("loss function is not set.");
         } else if (this.topology()[this.topology().length - 1] != y_train[0][0].length) {
             throw new IllegalArgumentException("y has " + y_train[0][0].length + " classes but " +
@@ -340,9 +386,9 @@ public class NeuralNetwork {
                 outs = computeAll(Array_utils.copyArray(x_train[j]));
                 //one epoch is finished.
                 //calculates Loss
-                step_losses[j] = loss.forward(outs, y_train[j]);
+                step_losses[j] = lossFunction.forward(outs, y_train[j]);
                 //calculates prime Loss
-                outs = loss.backward(outs, y_train[j]);
+                outs = lossFunction.backward(outs, y_train[j]);
                 // now does back propagation //updates values.
                 this.computeAllBackward(outs, learning_rate);
             }
@@ -351,57 +397,6 @@ public class NeuralNetwork {
         }
     }
 
-    /**
-     * train the model with a batch.
-     *
-     * @param epoch         epochs to train for
-     * @param x_train       single data input for the NN.
-     * @param y_train       single y NN shall give.
-     * @param learning_rate learning rate for weights.
-     * @throws Exception More.
-     */
-    public void train_single(int epoch, double[][] x_train, double[][] y_train, double learning_rate) {
-
-        System.out.println("Train Topologie: " + Arrays.toString(this.topology()));
-        System.out.println("Train Data Length: " + x_train.length);
-        //checks for rxceptions
-        if (x_train.length != y_train.length) {
-            throw new IllegalArgumentException("x und y Data have diffrent Size.");
-        } else if (this.loss == null) {
-            throw new IllegalArgumentException("loss function is not set.");
-        } else if (this.topology()[topology().length - 1] != y_train[0].length) {
-            throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
-                    "model output shape is: " + this.topology()[this.topology().length - 1]);
-        } else if (this.topology()[0] != x_train[0].length) {
-            throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + this.topology()[0]);
-        }
-
-
-        double loss_per_epoch;
-        double step_loss;
-        int step_size = x_train.length;
-        for (int i = 0; i < epoch; i++) {
-            loss_per_epoch = 0;
-
-            double[] outs;
-
-            for (int j = 0; j < step_size; j++) {
-                outs = compute(Array_utils.copyArray(x_train[j]));
-                step_loss = loss.forward(outs, y_train[j]);
-                loss_per_epoch += step_loss;
-                //calculates prime Loss
-                outs = loss.backward(outs, y_train[j]);
-                // now does back propagation // an updates the weights.
-                computeBackward(outs, learning_rate);
-
-            }
-            loss_per_epoch = loss_per_epoch / x_train.length;
-            System.out.println("Loss per epoch: " + loss_per_epoch);
-        }
-    }
-
-
     public void trainTestsingle(int epoch, double[][] x_train, double[][] y_train, double[][] x_test, double[][] y_test, double learning_rate) {
 
         System.out.println("Train Topologie: " + Arrays.toString(this.topology()));
@@ -409,7 +404,7 @@ public class NeuralNetwork {
         //checks for rxceptions
         if (x_train.length != y_train.length) {
             throw new IllegalArgumentException("x und y Data have diffrent Size.");
-        } else if (this.loss == null) {
+        } else if (this.lossFunction == null) {
             throw new IllegalArgumentException("loss function is not set.");
         } else if (this.topology()[topology().length - 1] != y_train[0].length) {
             throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
@@ -430,10 +425,10 @@ public class NeuralNetwork {
 
             for (int j = 0; j < step_size; j++) {
                 outs = compute(Array_utils.copyArray(x_train[j]));
-                step_loss = loss.forward(outs, y_train[j]);
+                step_loss = lossFunction.forward(outs, y_train[j]);
                 loss_per_epoch += step_loss;
                 //calculates prime Loss
-                outs = loss.backward(outs, y_train[j]);
+                outs = lossFunction.backward(outs, y_train[j]);
                 // now does backpropagation // and updates the weights.
                 computeBackward(outs, learning_rate);
 
@@ -491,7 +486,7 @@ public class NeuralNetwork {
 
     /**
      * This method returns a string representation of the neural network.
-     * It contains the topology and the number of parameters.
+     * It contains the topology, the weights and the number of parameters.
      *
      * @see NeuralNetwork#topology()
      * @see NeuralNetwork#parameters()
