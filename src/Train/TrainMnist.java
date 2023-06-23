@@ -1,12 +1,12 @@
 package Train;
 
 import layer.FullyConnectedLayer;
-import loss.MSE;
 import layer.NewSoftmax;
 import layer.TanH;
-import optimizer.AdamNew;
+import loss.MSE;
 import main.MNIST;
 import main.NeuralNetwork;
+import optimizer.AdamNew;
 import utils.Array_utils;
 import utils.Utils;
 
@@ -54,8 +54,8 @@ public class TrainMnist {
         double[][] x_test = testData[0];
         double[][] y_test = testData[1];
 
-        FullyConnectedLayer f1 = new FullyConnectedLayer(784, 49);
-        FullyConnectedLayer f_out = new FullyConnectedLayer(49, 10);
+        FullyConnectedLayer f1 = new FullyConnectedLayer(784, 80);
+        FullyConnectedLayer f_out = new FullyConnectedLayer(80, 10);
 
 
         f1.genWeights(2);

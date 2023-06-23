@@ -21,6 +21,19 @@ public class NN_New {
     private int size;
 
 
+    public void newExport(String fpath) {
+
+        StringBuilder s = new StringBuilder();
+
+        LayerNew[] layers = getLayers();
+
+        for (int i = 0; i < layers.length; i++) {
+            s.append(layers[i].export()).append("\n");
+        }
+
+
+    }
+
     /**
      * This method initializes the neural network with the given topology and activation function.
      * A {@link FullyConnectedLayer} is created for each edge layer.
@@ -69,7 +82,7 @@ public class NN_New {
         if (this.lastLayer == null) {
             this.build();
         }
-
+        lastLayer.setEpochAt(epochAt + 1);
         lastLayer.backward(input, epochAt);
     }
 
@@ -77,20 +90,31 @@ public class NN_New {
         if (this.lastLayer == null) {
             this.build();
         }
-
         lastLayer.backward(input);
     }
 
-    public void computeBackward(double[] input, double learningRate) {
-        this.build();
-        lastLayer.backward(input);
+    public void computeBackward(double[] input, int epochAt, double learningRate) {
+        if (this.lastLayer == null) {
+            this.build();
+        }
+        lastLayer.setEpochAt(epochAt + 1); // start with zero.
+        lastLayer.backward(input, learningRate);
     }
 
-    public void computeAllBackward(double[][] inputs) {
+    public void computeAllBackward(double[][] inputs, int epochAt) {
+        if (this.lastLayer == null) {
+            this.build();
+        }
+
+        lastLayer.setEpochAt(epochAt + 1); // start with zero.
         lastLayer.backward(inputs);
     }
 
-    public void computeAllBackward(double[][] inputs, double learningRate) {
+    public void computeAllBackward(double[][] inputs, int epochAt, double learningRate) {
+        if (this.lastLayer == null) {
+            this.build();
+        }
+        lastLayer.setEpochAt(epochAt + 1); // start with zero.
         lastLayer.backward(inputs, learningRate);
     }
 
@@ -108,6 +132,19 @@ public class NN_New {
     public int size() {
         return size;
     }
+
+    /**
+     * public void addConvLayer(int[] shape, int numbFilter, int kernelSize, int stride){
+     * <p>
+     * if(shape[0] == 1 || shape[0] == 3){
+     * Conv2D  conv2D = new Conv2D(shape, numbFilter, kernelSize, stride);
+     * }else  {
+     * <p>
+     * }
+     * <p>
+     * }
+     **/
+
 
     public void add(LayerNew l) {
 
@@ -238,7 +275,6 @@ public class NN_New {
 
     }
 
-
     public void test(double[][] inputDaten, double[][] classes) {
 
         int step_size = inputDaten.length;
@@ -259,7 +295,6 @@ public class NN_New {
 
 
     }
-
 
     public void train(int epochs, double[][] inputDaten, double[][] classes) {
 
@@ -288,7 +323,7 @@ public class NN_New {
 
         }
         end = System.currentTimeMillis();
-        System.out.println("Time: " + (end - st / 1000));
+        System.out.println("Time: " + ((end - st) / 1000));
         System.out.println("Loss: " + Utils.mean(stepLosses));
 
 
@@ -314,16 +349,49 @@ public class NN_New {
                 //calculates backward Loss
                 out = loss.backward(out, classes[j]);
                 // now does back propagation
-                this.computeBackward(out);
+                this.computeBackward(out, i);
             }
 
 
         }
         end = System.currentTimeMillis();
-        System.out.println("Time: " + (end - st / 1000));
+        System.out.println("Time: " + ((end - st) / 1000));
         System.out.println("Loss: " + Utils.mean(stepLosses));
         test(testInput, testClasses);
 
     }
+
+    public void train(int epochs, double[][] inputDaten, double[][] classes, double[][] testInput, double[][] testClasses, double learningRate) {
+        this.build();
+        this.checkTraining(inputDaten, classes);
+
+
+        long st = 0;
+        long end;
+        int step_size = inputDaten.length;
+        double[] stepLosses = new double[step_size];
+        for (int i = 0; i < epochs; i++) {
+            st = System.currentTimeMillis();
+            double[] out;
+
+            for (int j = 0; j < step_size; j++) {
+                out = compute(Array_utils.copyArray(inputDaten[j]));
+                //calculates Loss
+                stepLosses[j] = loss.forward(out, classes[j]);
+                //calculates backward Loss
+                out = loss.backward(out, classes[j]);
+                // now does back propagation
+                this.computeBackward(out, i, learningRate);
+            }
+
+
+        }
+        end = System.currentTimeMillis();
+        System.out.println("Time: " + ((end - st) / 1000));
+        System.out.println("Loss: " + Utils.mean(stepLosses));
+        test(testInput, testClasses);
+
+    }
+
 
 }

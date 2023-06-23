@@ -1,8 +1,11 @@
 package main;
 
+import layer.Activation;
 import optimizer.Optimizer;
 
 abstract public class LayerNew {
+
+    abstract public <E> getWeights();
 
     abstract public void setTraining(boolean training);
 
@@ -24,9 +27,11 @@ abstract public class LayerNew {
 
     abstract public void backward(double[] input);
 
-    abstract public void backward(double[][] inputs);
+    //abstract public double[] getWeights();
 
-    abstract public double[][] getWeights();
+    //abstract public double[][] getWeights();
+
+    abstract public void backward(double[][] inputs);
 
     abstract public void setWeights(double[][] weights);
 
@@ -37,5 +42,17 @@ abstract public class LayerNew {
     abstract public int[] getInputShape();
 
     abstract public int[] getOutputShape();
+
+    abstract public String export();
+
+    abstract public void setEpochAt(int epochAt);
+
+    abstract public void setDropout(double rate);
+
+    abstract public void setDropout(int size);
+
+    abstract public void setActivation(Activation act);
+
+    abstract public void setUseBiases(boolean useBiases);
 
 }

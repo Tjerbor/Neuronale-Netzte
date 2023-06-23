@@ -1,12 +1,19 @@
 package extraLayer;
 
+import layer.Activation;
+import main.Dropout;
+import main.LayerNew;
+import optimizer.Optimizer;
 import utils.ArrayMathUtils;
 import utils.RandomUtils;
 
+import java.util.Arrays;
 import java.util.Random;
 
+import static utils.Array_utils.getShape;
 
-public class Conv2D {
+
+public class Conv2D extends LayerNew {
 
     final private int kernelSize1;
     final private int kernelSize2;
@@ -20,20 +27,27 @@ public class Conv2D {
     final private int numFilters;
     final private int paddingH = 0;
     final private int paddingW = 0;
+    boolean training = false;
 
+    LayerNew previousLayer;
+    LayerNew nextLayer;
+
+
+    Dropout dropout;
     private double learningRate = 1e-4;
     private double[][][][] weights;
     private double[][][] input;
     private double[][][][] inputs;
 
-    public Conv2D(int numFilters, int kernelSize, int strideSize, int channels, int inputHeight, int inputWidth) {
+
+    public Conv2D(int[] shape, int numFilters, int kernelSize, int strideSize) {
         this.kernelSize1 = kernelSize;
         this.kernelSize2 = kernelSize;
         this.stride1 = strideSize;
         this.stride2 = strideSize;
-        this.channels = channels;
-        this.inputHeight = inputHeight;
-        this.inputWidth = inputWidth;
+        this.channels = shape[0];
+        this.inputHeight = shape[1];
+        this.inputWidth = shape[2];
         this.numFilters = numFilters;
 
         outputHeight = (((inputHeight - kernelSize1 + (2 * paddingH)) / (stride1)) + 1);
@@ -56,9 +70,32 @@ public class Conv2D {
         this.stride2 = config[4];
 
 
-        inputHeight = config[config.length - 3];
+        inputHeight = config[config.length - 1];
         inputWidth = config[config.length - 2];
-        channels = config[config.length - 1];
+        channels = config[config.length - 3];
+
+        outputHeight = (((inputHeight - kernelSize1 + (2 * paddingH)) / (stride1)) + 1);
+        outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
+
+
+        this.weights = new double[kernelSize1][kernelSize2][channels][numFilters];
+        RandomUtils.genGaussianRandomWeight(weights);
+
+    }
+
+    public Conv2D(int[] shape, int numFillter) {
+
+
+        this.numFilters = numFillter;
+        this.kernelSize1 = 3;
+        this.kernelSize2 = 3;
+        this.stride1 = 1;
+        this.stride2 = 1;
+
+
+        inputHeight = shape[1];
+        inputWidth = shape[2];
+        channels = shape[0];
 
         outputHeight = (((inputHeight - kernelSize1 + (2 * paddingH)) / (stride1)) + 1);
         outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
@@ -91,6 +128,36 @@ public class Conv2D {
         return new int[]{numFilters, outputHeight, outputWidth};
     }
 
+    @Override
+    public String export() {
+        return null;
+    }
+
+    @Override
+    public void setEpochAt(int epochAt) {
+
+    }
+
+    @Override
+    public void setDropout(double rate) {
+
+    }
+
+    @Override
+    public void setDropout(int size) {
+
+    }
+
+    @Override
+    public void setActivation(Activation act) {
+
+    }
+
+    @Override
+    public void setUseBiases(boolean useBiases) {
+
+    }
+
     private void generateRandomFilters(int numFilters) {
         Random random = new Random();
 
@@ -108,8 +175,79 @@ public class Conv2D {
 
     }
 
+    @Override
+    public void setTraining(boolean training) {
+        this.training = training;
+    }
+
+    @Override
+    public LayerNew getNextLayer() {
+        return this.nextLayer;
+    }
+
+    @Override
+    public void setNextLayer(LayerNew l) {
+        this.nextLayer = l;
+    }
+
+    @Override
+    public LayerNew getPreviousLayer() {
+        return this.previousLayer;
+    }
+
+    @Override
+    public void setPreviousLayer(LayerNew l) {
+        this.previousLayer = l;
+    }
+
+    @Override
+    public double[] forward(double[] input) {
+        throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
+    }
+
+    @Override
+    public double[][] forward(double[][] inputs) {
+        throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
+    }
+
+    @Override
+    public void backward(double[] input, double learningRate) {
+        throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
+    }
+
+    @Override
+    public void backward(double[][] inputs, double learningRate) {
+        throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
+    }
+
+    @Override
+    public void backward(double[] input) {
+        throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
+    }
+
+    @Override
+    public void backward(double[][] inputs) {
+        throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
+    }
+
+    @Override
     public double[][][][] getWeights() {
         return weights;
+    }
+
+    @Override
+    public void setWeights(double[][] weights) {
+
+    }
+
+    @Override
+    public void setOptimizer(Optimizer optimizer) {
+
+    }
+
+    @Override
+    public int parameters() {
+        return kernelSize1 * kernelSize1 * channels * numFilters;
     }
 
     public double[][][] forward(double[][][] input) {

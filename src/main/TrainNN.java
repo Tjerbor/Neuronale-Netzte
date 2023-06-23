@@ -2,7 +2,6 @@ package main;
 
 import layer.TanH;
 import loss.MSE;
-import optimizer.AdamNew;
 
 import java.io.IOException;
 
@@ -11,11 +10,6 @@ public class TrainNN {
 
     public static void main(String[] args) throws IOException {
 
-
-        NN_New nn = new NN_New();
-
-        nn.add(new FullyConnectedLayerNew(784, 40, new TanH()));
-        nn.add(new FullyConnectedLayerNew(40, 10, new TanH()));
 
         double[][][] trainingData = MNIST.read("data/mnist/train-images-idx3-ubyte.gz", "data/mnist/train-labels-idx1-ubyte.gz");
         double[][] x_train = trainingData[0];
@@ -27,10 +21,15 @@ public class TrainNN {
         double[][] y_test = testData[1];
 
 
+        NN_New nn = new NN_New();
+        nn.add(new FullyConnectedLayerNew(784, 40, new TanH()));
+        nn.add(new FullyConnectedLayerNew(40, 10, new TanH()));
         nn.setLoss(new MSE());
-        nn.setOptimizer(new AdamNew());
+        //nn.setOptimizer(new AdamNew());
 
-        nn.train(10, x_train, y_train, x_test, y_test);
+
+        System.out.println("Started Training");
+        nn.train(10, x_train, y_train, x_test, y_test, 0.4);
 
 
     }

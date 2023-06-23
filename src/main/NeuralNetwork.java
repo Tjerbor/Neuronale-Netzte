@@ -42,6 +42,7 @@ public class NeuralNetwork {
         }
     }
 
+    
     /**
      * This method initializes the neural network with the given topology and activation functions.
      * A {@link FullyConnectedLayer} is created for each edge layer.

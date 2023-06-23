@@ -21,6 +21,10 @@ public class RMSPropNew implements Optimizer {
 
     double[][] dw_prev2D;
 
+    @Override
+    public String export() {
+        return "rmsprop;";
+    }
 
     @Override
     public void setLearningRate(double learningRate) {

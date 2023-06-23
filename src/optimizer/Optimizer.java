@@ -40,5 +40,12 @@ public interface Optimizer {
     default void updateParameter(double[] biases, double[] deltaBiases, int iteration) {
     }
 
+    default String export() {
+        return "null;";
+    }
+
+    default void setEpochAt(int iteration) {
+    }
+
 
 }

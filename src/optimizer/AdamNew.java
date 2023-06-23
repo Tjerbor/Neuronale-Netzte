@@ -48,6 +48,11 @@ public class AdamNew implements Optimizer {
 
 
     @Override
+    public String export() {
+        return "adam;";
+    }
+
+    @Override
     public void setLearningRate(double learningRate) {
         this.alpha = learningRate;
     }

@@ -42,8 +42,7 @@ public class RunNN {
 
 
     }
-
-
+    
     public static void main(String[] args) throws IOException {
 
         double[][][] trainingData = MNIST.read("data/mnist/train-images-idx3-ubyte.gz", "data/mnist/train-labels-idx1-ubyte.gz");

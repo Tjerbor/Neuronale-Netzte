@@ -40,7 +40,7 @@ public class Neuron extends Module {
         }
         act = act.add(this.b);
         if (this.nonlin) {
-            return act.relu();
+            return act.tanh();
         } else {
             return act;
         }
@@ -54,5 +54,5 @@ public class Neuron extends Module {
         return parameterList;
     }
 
-    
+
 }
