@@ -1,6 +1,6 @@
 package TestLayers;
 
-import extraLayer.BatchNorm1D;
+import extraLayer.BatchNorm;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -21,16 +21,16 @@ public class TestBatchNorm {
 
         //Shape is 2, 3
         // Batch Size Samples.
-        BatchNorm1D B1D = new BatchNorm1D(3);
+        BatchNorm B1D = new BatchNorm(3);
 
         B1D.setMomentum(0.9);
-        B1D.setUseMomentum(true);
         B1D.setEpsilon(1e-9);
-        double[][] test_output = B1D.forward(input);
+        B1D.forward(input);
+        double[][] test_output = B1D.getOutput().getData2D();
 
         System.out.println(Arrays.deepToString(test_output));
-
-        double[][] out = B1D.backwardNew(soll);
+        B1D.backward(soll);
+        double[][] out = B1D.getOutput().getData2D();
         System.out.println(Arrays.deepToString(out));
 
         double[][] sollBack = new double[][]{{

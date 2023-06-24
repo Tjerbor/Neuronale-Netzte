@@ -3,6 +3,7 @@ package Train;
 import layer.FullyConnectedLayer;
 import layer.TanH;
 import loss.MSE;
+import main.FastLinearLayer;
 import main.MNIST;
 import main.NeuralNetwork;
 import utils.Array_utils;
@@ -54,9 +55,11 @@ public class TrainMnist {
         double[][] y_test = testData[1];
 
         double learning_rate = 0.3;
-        LinearLayer f1 = new LinearLayer(784, 49, learning_rate);
-        LinearLayer f_out = new LinearLayer(49, 10, learning_rate);
+        FastLinearLayer f1 = new FastLinearLayer(784, 49, learning_rate);
+        FastLinearLayer f_out = new FastLinearLayer(49, 10, learning_rate);
 
+        f1.setNextLayer(f_out);
+        f_out.setPreviousLayer(f1);
 
         MSE loss = new MSE();
 
@@ -81,15 +84,17 @@ public class TrainMnist {
             for (int j = 0; j < step_size; j++) {
 
                 out = Array_utils.copyArray(trainX[j]);
-                out = f_out.forward((f1.forward(out)));
+
+                f1.forward(out);
+                out = f_out.getOutput().getData1D();
                 //out = act.forward(out);
 
                 loss_per_step += loss.forward(out, trainY[j]);
                 out = loss.backward(out, trainY[j]);
 
                 //out = act.backward(out);
-                out = f_out.backward(out);
-                out = f1.backward(out);
+                f_out.backward(out);
+
             }
 
             System.out.println("Loss: " + loss_per_step / x_train.length);
@@ -100,8 +105,8 @@ public class TrainMnist {
             for (int ti = 0; ti < x_test.length; ti++) {
 
                 out = Array_utils.copyArray(x_test[ti]);
-                out = f1.forward(out);
-                out = f_out.forward(out);
+                f1.forward(out);
+                out = f_out.getOutput().getData1D();
 
 
                 if (Utils.argmax(out) == Utils.argmax(y_test[ti])) {
@@ -120,8 +125,8 @@ public class TrainMnist {
         for (int ti = 0; ti < x_test.length; ti++) {
 
             out = x_test[ti];
-            out = f1.forward(out);
-            out = f_out.forward(out);
+            f1.forward(out);
+            out = f_out.getOutput().getData1D();
 
 
             if (Utils.argmax(out) == Utils.argmax(y_test[ti])) {

@@ -43,6 +43,14 @@ public class BatchNorm extends LayerNew {
 
     }
 
+    public void setMomentum(double momentum) {
+        this.momentum = momentum;
+    }
+
+    public void setEpsilon(double epsilon) {
+        this.epsilon = epsilon;
+    }
+
     public double[] sqrt_array(double[] a) {
         double[] out = new double[a.length];
 
