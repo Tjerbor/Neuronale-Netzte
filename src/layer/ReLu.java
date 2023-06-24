@@ -23,4 +23,9 @@ public class ReLu extends Activation {
     public float derivative(float x) {
         return x > 0 ? 1 : 0;
     }
+
+    @Override
+    public String toString() {
+        return "ReLu";
+    }
 }

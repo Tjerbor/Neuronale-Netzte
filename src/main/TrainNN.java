@@ -1,6 +1,5 @@
 package main;
 
-import layer.TanH;
 import loss.MSE;
 
 import java.io.IOException;
@@ -22,15 +21,28 @@ public class TrainNN {
 
 
         NN_New nn = new NN_New();
-        nn.add(new FullyConnectedLayerNew(784, 40, new TanH()));
-        nn.add(new FullyConnectedLayerNew(40, 10, new TanH()));
+
+
+        FastLinearLayer f = new FastLinearLayer(784, 40, 0.4);
+        FastLinearLayer f_out = new FastLinearLayer(40, 10, 0.4);
+
+        f.setUseBiases(false);
+        f.setLearningRate(0.4);
+        f_out.setUseBiases(false);
+        f.setLearningRate(0.4);
+
+        LayerNew[] ls = new LayerNew[]{f, f_out};
+
+        //nn.add(new FullyConnectedLayerNew(784, 80, new TanH()));
+        //nn.add(new FullyConnectedLayerNew(80, 10, new TanH()));
         nn.setLoss(new MSE());
         //nn.setOptimizer(new AdamNew());
 
+        nn.create(ls);
+        nn.build();
 
         System.out.println("Started Training");
-        nn.train(10, x_train, y_train, x_test, y_test, 0.4);
-
+        nn.trainNew(10, x_train, y_train, x_test, y_test, 0.4);
 
     }
 }

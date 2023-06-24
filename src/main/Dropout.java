@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class Dropout {
 
-    boolean Training = false;
+    boolean training = false;
 
     int size; //the size of the deactivate neurons.
     //no make sure teh number is exact and not rounded.
@@ -28,6 +28,9 @@ public class Dropout {
         rate = percentage;
     }
 
+    public void setTraining(boolean training) {
+        this.training = training;
+    }
 
     private void genNoDuplicateRandom(int numbersNeeded, int maxNumber) {
 
@@ -54,9 +57,10 @@ public class Dropout {
         }
     }
 
+
     public double[] forward(double[] a) {
 
-        if (Training) {
+        if (training) {
 
             int size;
             if (this.size == 0) {
@@ -80,7 +84,7 @@ public class Dropout {
 
     public double[][] forward(double[][] a) {
 
-        if (Training) {
+        if (training) {
 
             this.input2D = new double[a.length][];
             for (int i = 0; i < a.length; i++) {
@@ -95,7 +99,7 @@ public class Dropout {
 
     public double[][][] forward(double[][][] a) {
 
-        if (Training) {
+        if (training) {
             this.input3D = new double[a.length][][];
             for (int i = 0; i < a.length; i++) {
                 a[i] = this.forward(a[i]);
@@ -109,7 +113,7 @@ public class Dropout {
 
     public double[][][][] forward(double[][][][] a) {
 
-        if (Training) {
+        if (training) {
 
             this.input4D = new double[a.length][][][];
             for (int i = 0; i < a.length; i++) {
@@ -133,6 +137,31 @@ public class Dropout {
 
         return a;
     }
+
+    /**
+     * is meant to use to have still the same good Speed performance.
+     *
+     * @param a
+     * @return
+     */
+    public double backward(double a, int position) {
+
+        if (this.input1D[position] == 0) {
+            return 0;
+        }
+        return a;
+
+    }
+
+    public double backward(double a, int i, int j) {
+
+        if (this.input2D[i][j] == 0) {
+            return 0;
+        }
+        return a;
+
+    }
+
 
     public double[][] backward(double[][] a) {
 

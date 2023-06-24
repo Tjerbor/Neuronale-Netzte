@@ -1,6 +1,8 @@
 package builder;
 
+import extraLayer.BatchNorm;
 import extraLayer.Conv2D;
+import extraLayer.Conv2D_Last;
 import layer.Activation;
 import main.FullyConnectedLayerNew;
 import main.LayerNew;
@@ -188,4 +190,65 @@ public class BuildNetwork {
 
     }
 
+    public void addConv2D_Last(int numFilter) {
+
+        if (layers.size() != 0) {
+            int position = layers.size() - 1;
+            int[] shapeBefore = (layers.get(position - 1).getOutputShape());
+            this.layers.add(new Conv2D_Last(numFilter, shapeBefore));
+        } else if (this.inputShape != null) {
+            this.layers.add(new Conv2D_Last(numFilter, inputShape));
+        } else {
+            throw new IllegalArgumentException("No previous Layers are set.");
+        }
+
+
+    }
+
+    public void addConv2D_Last(int[] inputShape, int numFilter) {
+
+        if (layers.size() != 0) {
+            this.layers.add(new Conv2D_Last(numFilter, inputShape));
+        } else if (this.inputShape != null) {
+            this.layers.add(new Conv2D_Last(numFilter, inputShape));
+        } else {
+            throw new IllegalArgumentException("No previous Layers are set.");
+        }
+    }
+
+    public void addConv2D_Last(int numFilter, int kernelSize, int strideSize) {
+
+        if (layers.size() != 0) {
+            int position = layers.size() - 1;
+            int[] shapeBefore = (layers.get(position).getOutputShape());
+            this.layers.add(new Conv2D_Last(numFilter, shapeBefore, kernelSize, strideSize));
+        } else if (this.inputShape != null) {
+            this.layers.add(new Conv2D_Last(numFilter, inputShape, kernelSize, strideSize));
+        } else {
+            throw new IllegalArgumentException("No previous Layers are set.");
+        }
+
+
+    }
+
+    public void addBatchNorm() {
+        if (layers.size() == 0) {
+            throw new IllegalArgumentException("BatchNorm can not be set as first Layer without a InputShape.");
+        } else {
+            int position = layers.size() - 1;
+            int[] shapeBefore = (layers.get(position).getOutputShape());
+            this.layers.add(new BatchNorm(shapeBefore[0]));
+
+        }
+    }
+
+
+    public void addBatchNorm(int inputSize, int[] shape) {
+        this.layers.add(new BatchNorm(inputSize));
+        this.layers.get(layers.size() - 1).setInputShape(shape);
+    }
+
+    public LayerNew[] getLayers() {
+        return (LayerNew[]) layers.toArray();
+    }
 }

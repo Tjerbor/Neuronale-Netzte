@@ -1,12 +1,10 @@
 package Train;
 
 import layer.FullyConnectedLayer;
-import layer.NewSoftmax;
 import layer.TanH;
 import loss.MSE;
 import main.MNIST;
 import main.NeuralNetwork;
-import optimizer.AdamNew;
 import utils.Array_utils;
 import utils.Utils;
 
@@ -15,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import static Train.LoadOwn.getTestData;
+import static Train.TrainUtils.shuffle;
 
 public class TrainMnist {
 
@@ -54,53 +53,43 @@ public class TrainMnist {
         double[][] x_test = testData[0];
         double[][] y_test = testData[1];
 
-        FullyConnectedLayer f1 = new FullyConnectedLayer(784, 80);
-        FullyConnectedLayer f_out = new FullyConnectedLayer(80, 10);
+        double learning_rate = 0.3;
+        LinearLayer f1 = new LinearLayer(784, 49, learning_rate);
+        LinearLayer f_out = new LinearLayer(49, 10, learning_rate);
 
-
-        f1.genWeights(2);
-        f_out.genWeights(2);
-
-        System.out.println(getTop(new FullyConnectedLayer[]{f1, f_out}));
-
-
-        f1.setActivation(new TanH());
-        f1.setOptimizer(new AdamNew());
-        f1.setUseBiases(false);
-        //f2.setActivation(new TanH());
-        f_out.setOptimizer(new AdamNew());
-        f_out.setActivation(new TanH());
-        f_out.setUseBiases(false);
-
-        NewSoftmax act = new NewSoftmax();
 
         MSE loss = new MSE();
 
-        double learning_rate = 1e-4;
+
         int epochs = 7;
         int step_size = x_train.length;
 
         //to validate after every Epoch.
         long st;
         for (int i = 0; i < epochs; i++) {
+
+            trainingData = shuffle(x_train, y_train);
+
+            double[][] trainX = trainingData[0];
+            double[][] trainY = trainingData[1];
+
             st = System.currentTimeMillis();
             double[] out;
             double loss_per_step = 0;
 
-            learning_rate -= (learning_rate * 0.05);
+            //learning_rate -= (learning_rate * 0.05);
             for (int j = 0; j < step_size; j++) {
 
-                out = Array_utils.copyArray(x_train[j]);
-                out = f_out.forward(f1.forward(out));
+                out = Array_utils.copyArray(trainX[j]);
+                out = f_out.forward((f1.forward(out)));
                 //out = act.forward(out);
 
-                loss_per_step += loss.forward(out, y_train[j]);
-                out = loss.backward(out, y_train[j]);
+                loss_per_step += loss.forward(out, trainY[j]);
+                out = loss.backward(out, trainY[j]);
 
                 //out = act.backward(out);
-                out = f_out.backward(out, learning_rate, i);
-                //out = f2.backward(out, learning_rate);
-                out = f1.backward(out, learning_rate, i);
+                out = f_out.backward(out);
+                out = f1.backward(out);
             }
 
             System.out.println("Loss: " + loss_per_step / x_train.length);
@@ -112,7 +101,6 @@ public class TrainMnist {
 
                 out = Array_utils.copyArray(x_test[ti]);
                 out = f1.forward(out);
-                //out = f2.forward(out);
                 out = f_out.forward(out);
 
 
@@ -133,7 +121,6 @@ public class TrainMnist {
 
             out = x_test[ti];
             out = f1.forward(out);
-            //out = f2.forward(out);
             out = f_out.forward(out);
 
 
@@ -146,7 +133,7 @@ public class TrainMnist {
 
         float acc = (float) loss_per_step / x_test.length;
         NeuralNetwork nn = new NeuralNetwork();
-        FullyConnectedLayer[] layers = new FullyConnectedLayer[]{f1, f_out};
+        FullyConnectedLayer[] layers = new FullyConnectedLayer[2];
         nn.setLayers(layers);
         nn.exportWeights("weights_" + acc + "_.txt");
         String outFPath = "weights_" + loss_per_step / x_test.length + ".txt";

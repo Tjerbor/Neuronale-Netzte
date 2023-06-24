@@ -24,4 +24,8 @@ public class TanH extends Activation {
         return 1 - (float) (Math.pow(definition(x), 2));
     }
 
+    @Override
+    public String toString() {
+        return "TanH";
+    }
 }

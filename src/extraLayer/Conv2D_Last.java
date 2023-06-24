@@ -2,34 +2,32 @@ package extraLayer;
 
 
 import layer.Activation;
+import main.LayerNew;
 import optimizer.Optimizer;
 import utils.Array_utils;
+import utils.Matrix;
 import utils.RandomUtils;
 import utils.Utils;
 
 import java.util.Arrays;
-import java.util.Random;
 
 import static utils.Array_utils.getShape;
+import static utils.Array_utils.sumUpMult;
 
 /**
  * Expect as shape (28, 28,  1)
  * Outputs has Shape (outputHeight, outputWidth,  NUM_FILTERS)
  */
 
-public class Conv2D_Last {
+public class Conv2D_Last extends LayerNew {
 
-
-    boolean UseMomentum;
-    boolean useBiases;
+    Optimizer optimizer;
 
     double[][][] act_input;
     double[][][][] act_inputs;
     double[][][][] inputs;
     double[][][] input;
 
-    Activation act;
-    Optimizer optimizer;
 
     double[] biases;
 
@@ -54,7 +52,6 @@ public class Conv2D_Last {
 
     int paddingH = 0;
     int paddingW = 0;
-
 
     public Conv2D_Last(int[] config) {
 
@@ -105,7 +102,6 @@ public class Conv2D_Last {
         System.out.println(outputWidth);
     }
 
-
     public Conv2D_Last(int numFilter, int[] shape, int kernelSize) {
 
 
@@ -131,6 +127,7 @@ public class Conv2D_Last {
         System.out.println(outputHeight);
         System.out.println(outputWidth);
     }
+
 
     public Conv2D_Last(int numFilter, int[] shape, int kernelSize, int stride) {
 
@@ -222,7 +219,9 @@ public class Conv2D_Last {
         cN.biases = biases;
         cN.weights = w;
 
-        double[][][][] ist = cN.forward(data);
+        cN.forward(data);
+
+        double[][][][] ist = cN.getOutput().getData4D();
         double[][][][] backIst;
 
 
@@ -234,6 +233,83 @@ public class Conv2D_Last {
 
     }
 
+    @Override
+    public void setTraining(boolean training) {
+        this.training = training;
+    }
+
+    @Override
+    public LayerNew getNextLayer() {
+        return this.nextLayer;
+    }
+
+    @Override
+    public void setNextLayer(LayerNew l) {
+        this.nextLayer = l;
+    }
+
+    @Override
+    public LayerNew getPreviousLayer() {
+        return this.previousLayer;
+    }
+
+    @Override
+    public void setPreviousLayer(LayerNew l) {
+        this.previousLayer = l;
+    }
+
+    @Override
+    public void forward(double[] input) {
+        this.forward(Array_utils.reFlat(input, getInputShape()));
+    }
+
+    @Override
+    public void forward(double[][] inputs) {
+        this.forward(Array_utils.reFlat(inputs, getInputShape()));
+    }
+
+    @Override
+    public void backward(double[] input, double learningRate) {
+        this.learningRate = learningRate;
+        this.backward(Array_utils.reFlat(input, getInputShape()));
+
+    }
+
+    @Override
+    public void backward(double[][] inputs, double learningRate) {
+        this.learningRate = learningRate;
+        this.backward(Array_utils.reFlat(inputs, getInputShape()));
+    }
+
+    @Override
+    public Matrix getWeights() {
+
+        if (!useBiases) {
+            return new Matrix(weights);
+        } else {
+            double[][][][] tmp = Arrays.copyOf(weights, weights.length + 1);
+            biases = tmp[weights.length][0][0];
+            return new Matrix(tmp);
+        }
+
+    }
+
+    @Override
+    public void setWeights(Matrix m) {
+
+        if (!useBiases) {
+            weights = m.getData4D();
+        } else {
+            double[][][][] tmp = m.getData4D();
+            this.weights = Arrays.copyOf(tmp, tmp.length - 1);
+            this.biases = tmp[tmp.length - 1][0][0];
+        }
+    }
+
+    public void setWeights(double[][][][] weights) {
+        this.weights = weights;
+    }
+
     public int[] getInputShape() {
         return new int[]{inputHeight, inputWidth, channels};
     }
@@ -241,114 +317,47 @@ public class Conv2D_Last {
     public void setWeights(double[][][][] w, double[] b) {
         this.biases = b;
         this.weights = w;
+    }
 
+    @Override
+    public void backward(double[] input) {
 
+        double[][][] c = Utils.reshape(input, getOutputShape());
+        this.backward(c);
+
+    }
+
+    @Override
+    public void backward(double[][] inputs) {
+        double[][][][] c = new double[inputs.length][][][];
+        for (int i = 0; i < inputs.length; i++) {
+            c[i] = Utils.reshape(inputs[i], getOutputShape());
+        }
+
+        this.backward(c);
+
+    }
+
+    @Override
+    public void setOptimizer(Optimizer optimizer) {
+        this.optimizer = optimizer;
+    }
+
+    @Override
+    public int parameters() {
+        if (useBiases) {
+            return biases.length + sumUpMult(getShape(weights));
+
+        } else {
+            return sumUpMult(getShape(weights));
+        }
     }
 
     public void genWeights(int type) {
 
-        Random rand = new Random();
-        if (type == 0) {
-
-
-            for (int i = 0; i < weights.length; i++) {
-                for (int j = 0; j < weights[0].length; j++) {
-                    for (int k = 0; k < weights[0][0].length; k++) {
-                        for (int l = 0; l < weights[0][0][0].length; l++) {
-                            weights[i][j][k][l] = rand.nextGaussian();
-                        }
-                    }
-
-                }
-
-            }
-            if (useBiases) {
-
-                for (int i = 0; i < biases.length; i++) {
-                    biases[i] = rand.nextGaussian();
-                }
-
-            }
-
-        } else if (type == 1) {
-            for (int i = 0; i < weights.length; i++) {
-                for (int j = 0; j < weights[0].length; j++) {
-                    for (int k = 0; k < weights[0][0].length; k++) {
-                        for (int l = 0; l < weights[0][0][0].length; l++) {
-                            weights[i][j][k][l] = rand.nextGaussian(0, 1);
-                        }
-                    }
-
-                }
-
-            }
-
-
-            if (useBiases) {
-
-                for (int i = 0; i < biases.length; i++) {
-                    biases[i] = rand.nextGaussian(0, 1);
-                }
-
-            }
-
-        } else if (type == 2) {
-            for (int i = 0; i < weights.length; i++) {
-                for (int j = 0; j < weights[0].length; j++) {
-                    for (int k = 0; k < weights[0][0].length; k++) {
-                        for (int l = 0; l < weights[0][0][0].length; l++) {
-                            weights[i][j][k][l] = rand.nextDouble(-0.1, 0.1);
-                        }
-                    }
-
-                }
-
-            }
-            if (useBiases) {
-
-                for (int i = 0; i < biases.length; i++) {
-                    biases[i] = rand.nextDouble(-0.1, 0.1);
-                }
-
-            }
-        } else if (type == 3) {
-            for (int i = 0; i < weights.length; i++) {
-                for (int j = 0; j < weights[0].length; j++) {
-                    for (int k = 0; k < weights[0][0].length; k++) {
-                        for (int l = 0; l < weights[0][0][0].length; l++) {
-                            weights[j][i][k][l] = rand.nextDouble(-1, 1);
-                        }
-                    }
-
-                }
-
-            }
-            if (useBiases) {
-
-                for (int i = 0; i < biases.length; i++) {
-                    biases[i] = rand.nextDouble(-1, 1);
-                }
-
-            }
-        } else if (type == 4) {
-            for (int i = 0; i < weights.length; i++) {
-                for (int j = 0; j < weights[0].length; j++) {
-                    for (int k = 0; k < weights[0][0].length; k++) {
-                        for (int l = 0; l < weights[0][0][0].length; l++) {
-                            weights[i][j][k][l] = rand.nextGaussian();
-                        }
-                    }
-
-                }
-
-            }
-            if (useBiases) {
-
-                for (int i = 0; i < biases.length; i++) {
-                    biases[i] = rand.nextGaussian();
-                }
-
-            }
+        RandomUtils.genTypeWeights(type, weights);
+        if (useBiases) {
+            RandomUtils.genTypeWeights(type, biases);
         }
 
     }
@@ -430,7 +439,7 @@ public class Conv2D_Last {
         outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
     }
 
-    public void sumUpAndUpdateBiases(double[][][][] a, double learningRate) {
+    public void sumUpAndUpdateBiases(double[][][][] a) {
 
 
         double[] c = new double[a[0][0][0].length];
@@ -454,7 +463,8 @@ public class Conv2D_Last {
 
     }
 
-    public void sumUpAndUpdateBiases(double[][][] a, double learningRate) {
+
+    public void sumUpAndUpdateBiases(double[][][] a) {
 
 
         double[] c = new double[a[0][0].length];
@@ -526,7 +536,7 @@ public class Conv2D_Last {
 
     }
 
-    public double[][][][] forward(double[][][][] inputs) {
+    public void forward(double[][][][] inputs) {
 
         double[][][][] output = new double[inputs.length][outputHeight][outputWidth][numFilter];
 
@@ -558,11 +568,13 @@ public class Conv2D_Last {
 
         //279513, 86544
 
-
-        return output;
+        this.output = new Matrix(output);
+        if (this.getNextLayer() != null) {
+            this.getNextLayer().forward(output);
+        }
     }
 
-    public double[][][] forward(double[][][] input) {
+    public void forward(double[][][] input) {
 
         double[][][] output = new double[outputHeight][outputWidth][numFilter];
 
@@ -585,19 +597,72 @@ public class Conv2D_Last {
 
         }
 
+        this.output = new Matrix(output);
 
-        //1250541
+        if (this.getNextLayer() != null) {
+            this.getNextLayer().forward(output);
+        }
+    }
 
-        //279513, 86544
+    public void backward(double[][][][] gradInput) {
+
+        this.sumUpAndUpdateBiases(gradInput);
+        double[][][][] dW = Array_utils.zerosLike(this.weights);
+        double[][][][] dX = Array_utils.zerosLike(this.inputs);
 
 
-        return output;
+        for (int bs = 0; bs < gradInput.length; bs++) {
+            for (int i = 0; i < outputHeight; i++) {
+                for (int j = 0; j < outputWidth; j++) {
+                    for (int ci = 0; ci < numFilter; ci++) {
+
+
+                        getMultiBackward(ci, inputs[bs], i * (stride1), kernelSize1 + (i * (stride1)),
+                                j * (stride2), kernelSize2 + (j * (stride2)), gradInput[bs][i][j][ci], dW);
+
+                        getOutputGradient(ci, dX[bs], i * (stride1), kernelSize1 + (i * (stride1)),
+                                j * (stride2), kernelSize2 + (j * (stride2)), gradInput[bs][i][j][ci]);
+                    }
+                }
+
+            }
+        }
+
+
+        if (optimizer != null) {
+            optimizer.updateParameter(weights, dW);
+        } else {
+            Utils.updateParameter(weights, dW, this.learningRate);
+
+        }
+
+        if (this.getPreviousLayer() != null) {
+            this.getPreviousLayer().backward(dX);
+        }
+    }
+
+
+    @Override
+    public void setIterationAt(int iterationAt) {
+        this.iterationAt = iterationAt;
+    }
+
+    @Override
+    public Matrix getOutput() {
+
+        if (this.output == null) {
+            return null;
+        } else {
+            return this.output;
+        }
+
     }
 
     public double[][][][] backward(double[][][][] gradInput, double learningRate) {
 
 
-        this.sumUpAndUpdateBiases(gradInput, learningRate);
+        this.learningRate = learningRate;
+        this.sumUpAndUpdateBiases(gradInput);
 
         double[][][][] dW = Array_utils.zerosLike(this.weights);
         double[][][][] dX = Array_utils.zerosLike(this.inputs);
@@ -620,55 +685,14 @@ public class Conv2D_Last {
             }
         }
 
-
         if (optimizer != null) {
             optimizer.setLearningRate(learningRate);
+            optimizer.setEpochAt(this.iterationAt);
             optimizer.updateParameter(weights, dW);
         } else {
             Utils.updateParameter(weights, dW, learningRate);
         }
 
-        //
-
-
-        //1250541
-        //279513, 86544
-        return dX;
-    }
-
-    public double[][][][] backward(double[][][][] gradInput, double learningRate, int t) {
-
-
-        this.sumUpAndUpdateBiases(gradInput, learningRate);
-
-        double[][][][] dW = Array_utils.zerosLike(this.weights);
-        double[][][][] dX = Array_utils.zerosLike(this.inputs);
-
-
-        for (int bs = 0; bs < gradInput.length; bs++) {
-            for (int i = 0; i < outputHeight; i++) {
-                for (int j = 0; j < outputWidth; j++) {
-                    for (int ci = 0; ci < numFilter; ci++) {
-
-
-                        getMultiBackward(ci, inputs[bs], i * (stride1), kernelSize1 + (i * (stride1)),
-                                j * (stride2), kernelSize2 + (j * (stride2)), gradInput[bs][i][j][ci], dW);
-
-                        getOutputGradient(ci, dX[bs], i * (stride1), kernelSize1 + (i * (stride1)),
-                                j * (stride2), kernelSize2 + (j * (stride2)), gradInput[bs][i][j][ci]);
-                    }
-                }
-
-            }
-        }
-
-        if (optimizer != null) {
-            optimizer.setLearningRate(learningRate);
-            optimizer.updateParameter(weights, dW, t);
-        } else {
-            Utils.updateParameter(weights, dW, learningRate);
-        }
-
 
         //1250541
 
@@ -676,10 +700,16 @@ public class Conv2D_Last {
         return dX;
     }
 
-    public double[][][] backward(double[][][] gradInput, double learningRate) {
+    public void backward(double[][][] gradInput, double learningRate) {
+
+        this.learningRate = learningRate;
+        this.backward(gradInput);
+    }
+
+    public void backward(double[][][] gradInput) {
 
 
-        this.sumUpAndUpdateBiases(gradInput, learningRate);
+        this.sumUpAndUpdateBiases(gradInput);
 
         double[][][][] dW = Array_utils.zerosLike(this.weights);
         double[][][] dX = Array_utils.zerosLike(this.input);
@@ -700,40 +730,45 @@ public class Conv2D_Last {
 
         }
 
-
         if (optimizer != null) {
-            optimizer.setLearningRate(learningRate);
             optimizer.updateParameter(weights, dW);
         } else {
             Utils.updateParameter(weights, dW, learningRate);
         }
 
 
-        //1250541
-
-        //279513, 86544
-        return dX;
+        if (this.getPreviousLayer() != null) {
+            this.getPreviousLayer().backward(dX);
+        }
     }
-
 
     public void printOutputShape() {
         System.out.println("Output Shape: " + Arrays.toString(new int[]{this.outputHeight, this.outputWidth, this.numFilter}));
 
     }
 
-
     public int[] getOutputShape() {
         return new int[]{this.outputHeight, this.outputWidth, this.numFilter};
 
     }
 
+    @Override
+    public String export() {
+        return null;
+    }
 
-    public void setWeights(double[][][][] weights) {
-        this.weights = weights;
+    @Override
+    public void setActivation(Activation act) {
+        this.act = act;
     }
 
     public void setUseBiases(boolean useBiases) {
         this.useBiases = useBiases;
+    }
+
+    @Override
+    public void setLearningRate(double learningRate) {
+        this.learningRate = learningRate;
     }
 
 

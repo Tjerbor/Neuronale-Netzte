@@ -1,7 +1,6 @@
 package layer;
 
 import optimizer.Optimizer;
-import utils.Array_utils;
 import utils.Utils;
 
 import java.text.ParseException;
@@ -108,7 +107,7 @@ public class FullyConnectedLayer implements Layer {
         for (int i = 0; i < a; i++) {
             this.weights[i] = random(b);
         }
-        Array_utils.printShape(weights);
+        //Array_utils.printShape(weights);
         setActivation(act);
 
         if (useBiases) {
@@ -436,6 +435,7 @@ public class FullyConnectedLayer implements Layer {
         if (optimizer == null) {
             return backwardWithoutOptimizer(gradientInput, learningRate);
         }
+
         return backwardWithOptimizer(gradientInput, learningRate);
 
     }
@@ -501,7 +501,7 @@ public class FullyConnectedLayer implements Layer {
             optimizer.setLearningRate(learningRate);
             optimizer.updateParameter(biases, dbiases);
         }
-
+        optimizer.setLearningRate(learningRate);
         optimizer.updateParameter(weights, dweights, iteration);
 
 
@@ -583,7 +583,6 @@ public class FullyConnectedLayer implements Layer {
         }
 
 
-        Array_utils.printShape(weights);
         for (int i = 0; i < weights.length; i++) {
 
             double gradientOutSum = 0;

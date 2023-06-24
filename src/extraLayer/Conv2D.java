@@ -5,12 +5,15 @@ import main.Dropout;
 import main.LayerNew;
 import optimizer.Optimizer;
 import utils.ArrayMathUtils;
+import utils.Matrix;
 import utils.RandomUtils;
+import utils.Utils;
 
 import java.util.Arrays;
 import java.util.Random;
 
 import static utils.Array_utils.getShape;
+import static utils.Array_utils.reFlat;
 
 
 public class Conv2D extends LayerNew {
@@ -28,14 +31,20 @@ public class Conv2D extends LayerNew {
     final private int paddingH = 0;
     final private int paddingW = 0;
     boolean training = false;
-
+    boolean useBiases = false;
     LayerNew previousLayer;
     LayerNew nextLayer;
 
+    int iterationAt;
 
+    Optimizer optimizer;
     Dropout dropout;
-    private double learningRate = 1e-4;
+
+    Activation act; //only local Activations. Softmax is not supported.
+
+    private double learningRate;
     private double[][][][] weights;
+    private double[][][] biases;
     private double[][][] input;
     private double[][][][] inputs;
 
@@ -120,6 +129,41 @@ public class Conv2D extends LayerNew {
         return c;
     }
 
+    @Override
+    public void backward(double[] input) {
+
+        double[][][] c = Utils.reshape(input, getOutputShape());
+        this.backward(c);
+
+    }
+
+    @Override
+    public void backward(double[][] inputs) {
+        double[][][][] c = new double[inputs.length][][][];
+        for (int i = 0; i < inputs.length; i++) {
+            c[i] = Utils.reshape(inputs[i], getOutputShape());
+        }
+
+        this.backward(c);
+
+    }
+
+
+    @Override
+    public void setIterationAt(int iterationAt) {
+        this.iterationAt = iterationAt;
+    }
+
+    @Override
+    public Matrix getOutput() {
+        return output;
+    }
+
+    @Override
+    public void setLearningRate(double learningRate) {
+        this.learningRate = learningRate;
+    }
+
     public int[] getInputShape() {
         return new int[]{channels, inputHeight, inputWidth};
     }
@@ -133,29 +177,25 @@ public class Conv2D extends LayerNew {
         return null;
     }
 
-    @Override
-    public void setEpochAt(int epochAt) {
-
-    }
 
     @Override
     public void setDropout(double rate) {
-
+        this.dropout = new Dropout(rate);
     }
 
     @Override
     public void setDropout(int size) {
-
+        this.dropout = new Dropout(size);
     }
 
     @Override
     public void setActivation(Activation act) {
-
+        this.act = act;
     }
 
     @Override
     public void setUseBiases(boolean useBiases) {
-
+        this.useBiases = useBiases;
     }
 
     private void generateRandomFilters(int numFilters) {
@@ -201,56 +241,56 @@ public class Conv2D extends LayerNew {
     }
 
     @Override
-    public double[] forward(double[] input) {
+    public void forward(double[] input) {
         throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
     }
 
     @Override
-    public double[][] forward(double[][] inputs) {
+    public void forward(double[][] inputs) {
         throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
-    }
-
-    @Override
-    public void backward(double[] input, double learningRate) {
-        throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
-    }
-
-    @Override
-    public void backward(double[][] inputs, double learningRate) {
-        throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
-    }
-
-    @Override
-    public void backward(double[] input) {
-        throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
-    }
-
-    @Override
-    public void backward(double[][] inputs) {
-        throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
-    }
-
-    @Override
-    public double[][][][] getWeights() {
-        return weights;
-    }
-
-    @Override
-    public void setWeights(double[][] weights) {
-
     }
 
     @Override
     public void setOptimizer(Optimizer optimizer) {
+        this.optimizer = optimizer;
+    }
+
+    public Matrix getWeights() {
+
+        if (!this.useBiases) {
+
+            return new Matrix(weights);
+        } else {
+
+            double[][][][] result = Arrays.copyOf(weights, weights.length + 1);
+            result[weights.length] = this.biases;
+            return new Matrix(result);
+
+
+        }
+    }
+
+    @Override
+    public void setWeights(Matrix m) {
+
+        if (!useBiases) {
+            this.weights = m.getData4D();
+        } else {
+            double[][][][] result = m.getData4D();
+            biases = result[result.length - 1];
+            weights = Arrays.copyOf(result, result.length - 1);
+
+        }
 
     }
+
 
     @Override
     public int parameters() {
         return kernelSize1 * kernelSize1 * channels * numFilters;
     }
 
-    public double[][][] forward(double[][][] input) {
+    public void forward(double[][][] input) {
         this.input = input;
 
         double[][][] output = new double[numFilters][][];
@@ -261,11 +301,15 @@ public class Conv2D extends LayerNew {
             }
         }
 
-        return output;
+        if (this.getNextLayer() != null) {
+            this.getNextLayer().forward(output);
+        } else {
+            this.output = new Matrix(output);
+        }
 
     }
 
-    public double[][][][] forward(double[][][][] inputs) {
+    public void forward(double[][][][] inputs) {
         this.inputs = inputs;
 
         double[][][][] output = new double[inputs.length][numFilters][][];
@@ -280,8 +324,28 @@ public class Conv2D extends LayerNew {
             }
         }
 
-        return output;
 
+        if (this.getNextLayer() != null) {
+            this.getNextLayer().forward(output);
+        } else {
+            this.output = new Matrix(output);
+        }
+
+    }
+
+    @Override
+    public void backward(double[] input, double learningRate) {
+        this.learningRate = learningRate;
+        double[][][] c = reFlat(input, getOutputShape());
+        backward(c);
+
+    }
+
+    @Override
+    public void backward(double[][] inputs, double learningRate) {
+        this.learningRate = learningRate;
+        double[][][][] c = reFlat(inputs, getOutputShape());
+        backward(c);
     }
 
     private double[][] convolve(double[][] input, double[][] filter) {
@@ -462,7 +526,7 @@ public class Conv2D extends LayerNew {
     }
 
 
-    public double[][][] backward(double[][][] gradInput) {
+    public void backward(double[][][] gradInput) {
 
 
         double[][][][] filtersDelta = new double[kernelSize1][kernelSize1][channels][numFilters];
@@ -512,7 +576,14 @@ public class Conv2D extends LayerNew {
             }
         }
 
-        return dLdOPreviousLayer;
+        if (this.getPreviousLayer() != null) {
+            this.getPreviousLayer().backward(dLdOPreviousLayer);
+        }
+    }
+
+    @Override
+    public void backward(double[][][][] inputs) {
+
 
     }
 

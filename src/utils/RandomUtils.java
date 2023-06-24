@@ -158,6 +158,144 @@ public class RandomUtils {
 
     }
 
+    public static void genTypeWeights(int type, double[][][][] weights) {
+
+        if (type == 0) {
+
+            for (int i = 0; i < weights.length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+                    for (int k = 0; k < weights[0][0].length; k++) {
+                        for (int l = 0; l < weights[0][0][0].length; l++) {
+                            weights[i][j][k][l] = r.nextGaussian();
+                        }
+
+                    }
+
+                }
+
+            }
+
+
+        } else if (type == 1) {
+            for (int i = 0; i < weights.length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+                    for (int k = 0; k < weights[0][0].length; k++) {
+                        for (int l = 0; l < weights[0][0][0].length; l++) {
+                            weights[i][j][k][l] = r.nextGaussian(0, 2);
+                        }
+
+                    }
+
+                }
+
+            }
+
+        } else if (type == 2) {
+            for (int i = 0; i < weights.length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+                    for (int k = 0; k < weights[0][0].length; k++) {
+                        for (int l = 0; l < weights[0][0][0].length; l++) {
+                            weights[i][j][k][l] = r.nextDouble(-0.1, 0.1);
+                        }
+
+                    }
+
+                }
+
+            }
+        } else if (type == 3) {
+            for (int i = 0; i < weights.length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+                    for (int k = 0; k < weights[0][0].length; k++) {
+                        for (int l = 0; l < weights[0][0][0].length; l++) {
+                            weights[i][j][k][l] = r.nextDouble(-0.01, 0.01);
+                        }
+
+                    }
+
+                }
+
+            }
+        } else {
+
+            for (int i = 0; i < weights.length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+                    for (int k = 0; k < weights[0][0].length; k++) {
+                        for (int l = 0; l < weights[0][0][0].length; l++) {
+                            weights[i][j][k][l] = r.nextDouble(-1, 1);
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+    }
+
+    public static void genTypeWeights(int type, double[][][] weights) {
+
+        if (type == 0) {
+
+            for (int i = 0; i < weights.length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+                    for (int k = 0; k < weights[0][0].length; k++) {
+                        weights[i][j][k] = r.nextGaussian();
+                    }
+
+                }
+
+            }
+
+
+        } else if (type == 1) {
+            for (int i = 0; i < weights.length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+                    for (int k = 0; k < weights[0][0].length; k++) {
+                        weights[i][j][k] = r.nextGaussian(0, 2);
+                    }
+
+                }
+
+            }
+
+        } else if (type == 2) {
+            for (int i = 0; i < weights.length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+                    for (int k = 0; k < weights[0][0].length; k++) {
+                        weights[i][j][k] = r.nextDouble(-0.1, 0.1);
+                    }
+
+                }
+
+            }
+        } else if (type == 3) {
+            for (int i = 0; i < weights.length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+                    for (int k = 0; k < weights[0][0].length; k++) {
+                        weights[i][j][k] = r.nextDouble(-0.01, 0.01);
+                    }
+
+                }
+
+            }
+        } else {
+
+            for (int i = 0; i < weights.length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+                    for (int k = 0; k < weights[0][0].length; k++) {
+                        weights[i][j][k] = r.nextDouble(-1, 1);
+                    }
+
+                }
+
+            }
+
+        }
+    }
+
+
     public static void genTypeWeights(int type, double[][] weights) {
 
         if (type == 0) {
@@ -165,7 +303,7 @@ public class RandomUtils {
 
             for (int i = 0; i < weights[0].length; i++) {
                 for (int j = 0; j < weights.length; j++) {
-                    weights[j][i] = r.nextGaussian();
+                    weights[j][i] = r.nextGaussian(0, 1);
                 }
             }
 
@@ -173,7 +311,7 @@ public class RandomUtils {
         } else if (type == 1) {
             for (int i = 0; i < weights[0].length; i++) {
                 for (int j = 0; j < weights.length; j++) {
-                    weights[j][i] = r.nextGaussian(0, 1);
+                    weights[j][i] = r.nextGaussian(0, 2);
                 }
             }
 
@@ -196,7 +334,7 @@ public class RandomUtils {
 
             for (int i = 0; i < weights[0].length; i++) {
                 for (int j = 0; j < weights.length; j++) {
-                    weights[j][i] = r.nextDouble(-1, 1);
+                    weights[j][i] = r.nextDouble(-0.1, 0.1);
                 }
 
             }

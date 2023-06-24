@@ -30,4 +30,10 @@ public class Activation {
     public float derivative(float x) {
         return 1;
     }
+
+
+    @Override
+    public String toString() {
+        return "id";
+    }
 }

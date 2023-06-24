@@ -110,7 +110,7 @@ public class Reader {
 
             list_pos += 1; //wegen der leerzeile.
             //structur[i + count].weights = Utils.split_for_weights(w);
-            structur[i].setWeights(w);
+            structur[i].setWeights(new Matrix(w));
             //structur[i + count].biases = Utils.split_for_biases(w);
             count += 1;
         }

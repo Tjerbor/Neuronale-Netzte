@@ -2,57 +2,125 @@ package main;
 
 import layer.Activation;
 import optimizer.Optimizer;
+import utils.Matrix;
 
 abstract public class LayerNew {
 
-    abstract public <E> getWeights();
+    protected Matrix output;
 
-    abstract public void setTraining(boolean training);
+    protected Optimizer optimizer;
+    protected LayerNew previousLayer;
+    protected LayerNew nextLayer;
 
-    abstract public LayerNew getNextLayer();
+    protected boolean training = false;
+    protected boolean useBiases = false;
+    protected int iterationAt;
 
-    abstract public void setNextLayer(LayerNew l);
+    protected double learningRate = 0.4;
 
-    abstract public LayerNew getPreviousLayer();
+    protected Dropout dropout;
 
-    abstract public void setPreviousLayer(LayerNew l);
+    protected Activation act;
 
-    abstract public double[] forward(double[] input);
+    protected int[] inputShape;
+    protected int[] outputShape;
 
-    abstract public double[][] forward(double[][] inputs);
+
+    public void setTraining(boolean training) {
+        this.training = training;
+    }
+
+    public LayerNew getNextLayer() {
+        return this.nextLayer;
+    }
+
+    public void setNextLayer(LayerNew l) {
+        this.nextLayer = l;
+
+    }
+
+    public LayerNew getPreviousLayer() {
+        return this.previousLayer;
+    }
+
+    public void setPreviousLayer(LayerNew l) {
+        this.previousLayer = l;
+    }
+
+    abstract public void forward(double[] input);
+
+    abstract public void forward(double[][] inputs);
+
+    abstract public void forward(double[][][] input);
+
+    abstract public void forward(double[][][][] inputs);
 
     abstract public void backward(double[] input, double learningRate);
 
     abstract public void backward(double[][] inputs, double learningRate);
 
+    abstract public Matrix getWeights();
+
+    abstract public void setWeights(Matrix m);
+
     abstract public void backward(double[] input);
-
-    //abstract public double[] getWeights();
-
-    //abstract public double[][] getWeights();
 
     abstract public void backward(double[][] inputs);
 
-    abstract public void setWeights(double[][] weights);
+    abstract public void backward(double[][][] input);
 
-    abstract public void setOptimizer(Optimizer optimizer);
+    abstract public void backward(double[][][][] inputs);
 
-    abstract public int parameters();
+    public void setOptimizer(Optimizer optimizer) {
+        this.optimizer = optimizer;
+    }
 
-    abstract public int[] getInputShape();
+    public int parameters() {
+        return 0;
+    }
 
-    abstract public int[] getOutputShape();
+    public int[] getInputShape() {
+        return this.inputShape;
+    }
 
-    abstract public String export();
+    public void setInputShape(int[] inputShape) {
+        this.inputShape = inputShape;
+    }
 
-    abstract public void setEpochAt(int epochAt);
+    public int[] getOutputShape() {
+        return this.outputShape;
+    }
 
-    abstract public void setDropout(double rate);
+    abstract public String export(); //needs to implemented.
 
-    abstract public void setDropout(int size);
+    public void setDropout(double rate) {
+        this.dropout = new Dropout(rate);
+    }
 
-    abstract public void setActivation(Activation act);
+    public void setDropout(int size) {
+        this.dropout = new Dropout(size);
+    }
 
-    abstract public void setUseBiases(boolean useBiases);
+    public void setActivation(Activation act) {
+        this.act = act;
+    }
+
+    public void setUseBiases(boolean useBiases) {
+        this.useBiases = useBiases;
+    }
+
+    public void setLearningRate(double learningRate) {
+        this.learningRate = learningRate;
+    }
+
+
+    public void setIterationAt(int iterationAt) {
+        this.iterationAt = iterationAt;
+    }
+
+    public Matrix getOutput() {
+        return output;
+    }
+
 
 }

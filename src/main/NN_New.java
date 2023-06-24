@@ -70,20 +70,40 @@ public class NN_New {
 
     }
 
+    public void create(LayerNew[] layers) {
+
+        if (layers.length == 2) {
+            this.size = 2;
+            this.fristLayer = layers[0];
+            this.lastLayer = layers[1];
+            this.fristLayer.setNextLayer(this.lastLayer);
+            this.lastLayer.setPreviousLayer(this.fristLayer);
+        } else {
+            for (LayerNew l : layers
+            ) {
+                this.add(l);
+            }
+
+        }
+    }
+
     public double[] compute(double[] input) {
-        return fristLayer.forward(input);
+        fristLayer.forward(input);
+        return lastLayer.getOutput().getData1D();
+
     }
 
     public double[][] computeAll(double[][] inputs) {
-        return fristLayer.forward(inputs);
+        fristLayer.forward(inputs);
+        return lastLayer.getOutput().getData2D();
     }
 
     public void computeBackward(double[] input, int epochAt) {
         if (this.lastLayer == null) {
             this.build();
         }
-        lastLayer.setEpochAt(epochAt + 1);
-        lastLayer.backward(input, epochAt);
+        lastLayer.setIterationAt(epochAt + 1);
+        lastLayer.backward(input);
     }
 
     public void computeBackward(double[] input) {
@@ -97,8 +117,9 @@ public class NN_New {
         if (this.lastLayer == null) {
             this.build();
         }
-        lastLayer.setEpochAt(epochAt + 1); // start with zero.
-        lastLayer.backward(input, learningRate);
+        lastLayer.setIterationAt(epochAt + 1); // start with zero.
+        lastLayer.setLearningRate(learningRate);
+        lastLayer.backward(input);
     }
 
     public void computeAllBackward(double[][] inputs, int epochAt) {
@@ -106,7 +127,7 @@ public class NN_New {
             this.build();
         }
 
-        lastLayer.setEpochAt(epochAt + 1); // start with zero.
+        lastLayer.setIterationAt(epochAt + 1); // start with zero.
         lastLayer.backward(inputs);
     }
 
@@ -114,7 +135,8 @@ public class NN_New {
         if (this.lastLayer == null) {
             this.build();
         }
-        lastLayer.setEpochAt(epochAt + 1); // start with zero.
+        lastLayer.setIterationAt(epochAt + 1); // start with zero.
+        //lastLayer.setLearningRate(learningRate);
         lastLayer.backward(inputs, learningRate);
     }
 
@@ -122,11 +144,7 @@ public class NN_New {
      * only needed for training.
      */
     public void build() {
-
         this.setTrainingsStuff();
-        this.setLastLayers();
-
-
     }
 
     public int size() {
@@ -148,20 +166,23 @@ public class NN_New {
 
     public void add(LayerNew l) {
 
-        if (this.fristLayer == null) {
-            fristLayer = l;
+        if (l != null) {
+            if (this.fristLayer == null) {
+                fristLayer = l;
 
-        } else {
-            LayerNew tmp = fristLayer;
-            while (tmp.getNextLayer() != null) {
-                tmp = tmp.getNextLayer();
+            } else if (lastLayer == null) {
+                lastLayer = l;
+                fristLayer.setNextLayer(lastLayer);
+                lastLayer.setPreviousLayer(lastLayer);
+            } else {
+                LayerNew before = lastLayer;
+                lastLayer = l;
+                before.setNextLayer(lastLayer);
+                lastLayer.setPreviousLayer(before);
 
             }
-            LayerNew before = tmp;
-            before.setNextLayer(l);
-            l.setPreviousLayer(before);
+            size++;
         }
-        size++;
     }
 
     public void setLoss(Loss loss) {
@@ -186,22 +207,6 @@ public class NN_New {
         return layers;
     }
 
-    private void setTraining() {
-        LayerNew[] layers = new LayerNew[size];
-
-        fristLayer.setTraining(true);
-        layers[0] = fristLayer;
-
-        LayerNew tmp = fristLayer;
-        for (int i = 1; i < layers.length; i++) {
-            tmp = tmp.getNextLayer();
-            tmp.setTraining(true);
-            layers[i] = tmp;
-
-        }
-
-
-    }
 
     /**
      * set Training for all Layers.
@@ -231,16 +236,6 @@ public class NN_New {
 
     }
 
-    private void setLastLayers() {
-
-        LayerNew tmp = fristLayer;
-        for (int i = 1; i < size; i++) {
-            tmp = tmp.getNextLayer();
-        }
-
-        lastLayer = tmp;
-
-    }
 
     public LayerNew[] getLayers() {
         return layers2Array();
@@ -299,16 +294,16 @@ public class NN_New {
     public void train(int epochs, double[][] inputDaten, double[][] classes) {
 
         this.build();
-        this.checkTraining(inputDaten, classes);
-
+        this.checkTraining(inputDaten, classes); //check if got valid Arguments for Training.
 
         long st = 0;
         long end;
         int step_size = inputDaten.length;
-        double[] stepLosses = new double[step_size];
+
         for (int i = 0; i < epochs; i++) {
             st = System.currentTimeMillis();
             double[] out;
+            double[] stepLosses = new double[step_size];
 
             for (int j = 0; j < step_size; j++) {
                 out = compute(Array_utils.copyArray(inputDaten[j]));
@@ -319,15 +314,16 @@ public class NN_New {
                 // now does back propagation
                 this.computeBackward(out, i);
             }
+            end = System.currentTimeMillis();
+            System.out.println("Time: " + ((end - st) / 1000));
+            System.out.println("Loss: " + Utils.mean(stepLosses));
 
 
         }
-        end = System.currentTimeMillis();
-        System.out.println("Time: " + ((end - st) / 1000));
-        System.out.println("Loss: " + Utils.mean(stepLosses));
 
 
     }
+
 
     public void train(int epochs, double[][] inputDaten, double[][] classes, double[][] testInput, double[][] testClasses) {
         this.build();
@@ -337,10 +333,11 @@ public class NN_New {
         long st = 0;
         long end;
         int step_size = inputDaten.length;
-        double[] stepLosses = new double[step_size];
+
         for (int i = 0; i < epochs; i++) {
             st = System.currentTimeMillis();
             double[] out;
+            double[] stepLosses = new double[step_size];
 
             for (int j = 0; j < step_size; j++) {
                 out = compute(Array_utils.copyArray(inputDaten[j]));
@@ -352,12 +349,12 @@ public class NN_New {
                 this.computeBackward(out, i);
             }
 
-
+            end = System.currentTimeMillis();
+            System.out.println("Time: " + ((end - st) / 1000));
+            System.out.println("Loss: " + Utils.mean(stepLosses));
+            test(testInput, testClasses);
         }
-        end = System.currentTimeMillis();
-        System.out.println("Time: " + ((end - st) / 1000));
-        System.out.println("Loss: " + Utils.mean(stepLosses));
-        test(testInput, testClasses);
+
 
     }
 
@@ -369,10 +366,11 @@ public class NN_New {
         long st = 0;
         long end;
         int step_size = inputDaten.length;
-        double[] stepLosses = new double[step_size];
+
         for (int i = 0; i < epochs; i++) {
             st = System.currentTimeMillis();
             double[] out;
+            double[] stepLosses = new double[step_size];
 
             for (int j = 0; j < step_size; j++) {
                 out = compute(Array_utils.copyArray(inputDaten[j]));
@@ -384,12 +382,78 @@ public class NN_New {
                 this.computeBackward(out, i, learningRate);
             }
 
-
+            end = System.currentTimeMillis();
+            System.out.println("Time: " + ((end - st) / 1000));
+            System.out.println("Loss: " + Utils.mean(stepLosses));
+            test(testInput, testClasses);
         }
-        end = System.currentTimeMillis();
-        System.out.println("Time: " + ((end - st) / 1000));
-        System.out.println("Loss: " + Utils.mean(stepLosses));
-        test(testInput, testClasses);
+
+
+    }
+
+    public void trainNew(int epochs, double[][] inputDaten, double[][] classes, double[][] testInput, double[][] testClasses, double learningRate) {
+        this.build();
+        this.checkTraining(inputDaten, classes);
+
+
+        long st = 0;
+        long end;
+        int step_size = inputDaten.length;
+
+        for (int i = 0; i < epochs; i++) {
+            st = System.currentTimeMillis();
+            double[] out;
+            double[] stepLosses = new double[step_size];
+
+            for (int j = 0; j < step_size; j++) {
+                out = compute(Array_utils.copyArray(inputDaten[j]));
+                //calculates Loss
+                stepLosses[j] = loss.forward(out, classes[j]);
+                //calculates backward Loss
+                out = loss.backward(out, classes[j]);
+                // now does back propagation
+                this.computeBackward(out, i, learningRate);
+            }
+
+            end = System.currentTimeMillis();
+            System.out.println("Time: " + ((end - st) / 1000));
+            System.out.println("Loss: " + Utils.mean(stepLosses));
+            test(testInput, testClasses);
+        }
+
+
+    }
+
+    public void trainNew(int epochs, double[][] inputDaten, double[][] classes, double[][] testInput, double[][] testClasses) {
+        this.build();
+        this.checkTraining(inputDaten, classes);
+
+
+        long st = 0;
+        long end;
+        int step_size = inputDaten.length;
+
+        for (int i = 0; i < epochs; i++) {
+            st = System.currentTimeMillis();
+            double[] out;
+            double[] stepLosses = new double[step_size];
+
+            for (int j = 0; j < step_size; j++) {
+                out = compute(Array_utils.copyArray(inputDaten[j]));
+                //calculates Loss
+                stepLosses[j] = loss.forward(out, classes[j]);
+                //calculates backward Loss
+                out = loss.backward(out, classes[j]);
+                // now does back propagation
+                this.computeBackward(out, i);
+            }
+
+            end = System.currentTimeMillis();
+            System.out.println("Time: " + ((end - st) / 1000));
+            System.out.println("Loss: " + Utils.mean(stepLosses));
+            test(testInput, testClasses);
+        }
+
 
     }
 

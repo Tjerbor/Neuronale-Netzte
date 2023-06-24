@@ -4,10 +4,14 @@ import layer.Activation;
 import layer.NewSoftmax;
 import layer.TanH;
 import optimizer.Optimizer;
+import utils.Array_utils;
+import utils.Matrix;
 import utils.RandomUtils;
 import utils.Utils;
 
 import java.util.Arrays;
+
+import static utils.Array_utils.getShape;
 
 /**
  * This class models a fully connected layer of the neural network.
@@ -21,43 +25,20 @@ public class FullyConnectedLayerNew extends LayerNew {
      */
     Activation act = new TanH(); //set to Tanh because is in most cases the desired Activation-function.
     NewSoftmax softmax = null; //needs to be handled differently
-    Optimizer optimizer = null; //can be set in the layer so that every Optimizer can save one previous deltaWeights.
-    boolean useBiases = true;
-
-    Dropout dropout;
-
-    double learningRate = 0.1;
-
-    int epochAt = 0;
-
-    boolean training = false;
-
-    private LayerNew nextLayer;
-    private LayerNew previousLayer;
-
+    Optimizer optimizer; //can be set in the layer so that every Optimizer can save one previous deltaWeights.
     private double[][] weights;
     /**
      * This variable contains the biases of the layer.
      */
     private double[] biases;
-
     private double[][] dweights; // gradients of weights needed if the optimizer is set.
-    private double[][] dinputs; //needed if a build-System is created to get the output of the backpropagation.
-    private double[] dinput; //needed if a build-System is created to get the output of the backpropagation.
-    private double[][] inputs; //needed for backpropagation with batch input.
-    private double[] input; //needed for backpropagation with Single Input.
     private double[] dbiases; //biases of layer.
-
-
-    private double[][] act_inputs; //needed for backpropagation with batch input.
-    private double[] act_input; //needed for backpropagation with Single Input.
 
     private double[] lastActInput;
     private double[] lastInput;
 
-
-    public FullyConnectedLayerNew() {
-    }
+    private double[][] lastActInputs;
+    private double[][] lastInputs;
 
     /**
      * This constructor creates a fully connected layer with the given number of neurons of the two layers it models.
@@ -74,15 +55,19 @@ public class FullyConnectedLayerNew extends LayerNew {
 
         RandomUtils.genTypeWeights(2, weights);
 
+        //this.useBiases = true;
         if (useBiases) {
             biases = new double[b];
             RandomUtils.genTypeWeights(2, biases);
         }
 
+        this.inputShape = new int[]{a};
+        this.outputShape = new int[]{b};
+
+
     }
 
-
-    public FullyConnectedLayerNew(int a, int b, boolean Biases) {
+    public FullyConnectedLayerNew(int a, int b, boolean useBiases) {
         if (a < 1 || b < 1) {
             throw new IllegalArgumentException("Each layer must contain at least one neuron.");
         }
@@ -91,8 +76,8 @@ public class FullyConnectedLayerNew extends LayerNew {
 
         RandomUtils.genTypeWeights(2, weights);
 
-        this.useBiases = Biases;
-        if (useBiases) {
+        this.useBiases = useBiases;
+        if (this.useBiases) {
             biases = new double[b];
             RandomUtils.genTypeWeights(2, biases);
         }
@@ -107,17 +92,11 @@ public class FullyConnectedLayerNew extends LayerNew {
 
         this.weights = new double[a][b];
 
-        if (useBiases) {
-            biases = new double[b];
-        }
+        this.useBiases = true;
+        biases = new double[b];
 
         setActivation(act);
         genWeights(2);
-    }
-
-    @Override
-    public void setTraining(boolean training) {
-        this.training = training;
     }
 
     public void genWeights(int type) {
@@ -154,9 +133,7 @@ public class FullyConnectedLayerNew extends LayerNew {
         if (useBiases) {
             this.optimizer.updateParameter(this.biases, dbiases);
         }
-
         this.optimizer.updateParameter(weights, dweights);
-
     }
 
     public void setActivation(Activation act) {
@@ -171,19 +148,46 @@ public class FullyConnectedLayerNew extends LayerNew {
         return this.biases;
     }
 
-    /**
-     * This method returns the weights of the layer, including the bias nodes.
-     */
-    @Override
-    public double[][] getWeights() {
-        double[][] result = Arrays.copyOf(weights, weights.length + 1);
 
-        result[result.length - 1] = biases;
+    public Matrix getWeights() {
+        Double[][] d;
+        if (useBiases) {
+            double[][] result = Arrays.copyOf(weights, weights.length + 1);
+            result[result.length - 1] = biases;
+            return new Matrix(result);
 
-        return result;
+        } else {
+            return new Matrix(weights);
+
+        }
+
+
+        //Stream.of(boxed).mapToDouble(Double::doubleValue).toArray();
+
     }
 
     @Override
+    public void setWeights(Matrix m) {
+
+        if (!useBiases) {
+            this.weights = m.getData2D();
+
+        } else {
+            double[][] tmp = m.getData2D();
+            weights = Arrays.copyOf(tmp, tmp.length - 1);
+            biases = tmp[tmp.length - 1];
+
+
+        }
+
+
+    }
+
+
+    /**
+     * This method returns the weights of the layer, including the bias nodes.
+     */
+
     public void setWeights(double[][] weights) {
 
         if (!useBiases) {
@@ -192,11 +196,7 @@ public class FullyConnectedLayerNew extends LayerNew {
         } else {
             this.weights = Arrays.copyOf(weights, weights.length - 1);
             biases = weights[weights.length - 1];
-
-
         }
-
-
     }
 
     /**
@@ -212,7 +212,7 @@ public class FullyConnectedLayerNew extends LayerNew {
         return weights.length * weights[0].length;
 
     }
-    
+
 
     @Override
     public int[] getInputShape() {
@@ -255,11 +255,11 @@ public class FullyConnectedLayerNew extends LayerNew {
     }
 
 
-    public double[][] forward(double[][] inputs) {
+    public void forward(double[][] inputs) {
         double[][] result = new double[inputs.length][weights[0].length];
-        act_inputs = new double[inputs.length][weights[0].length];
+        lastActInputs = new double[inputs.length][weights[0].length];
 
-        this.inputs = (inputs);
+        this.lastInputs = (inputs);
         for (int i = 0; i < inputs.length; i++) {
             for (int j = 0; j < weights[0].length; j++) {
                 for (int k = 0; k < weights.length; k++) {
@@ -270,12 +270,41 @@ public class FullyConnectedLayerNew extends LayerNew {
                     result[i][j] += biases[j];
                 }
 
-                act_inputs[i][j] = result[i][j];
+                lastActInputs[i][j] = result[i][j];
                 result[i][j] = act.definition(result[i][j]);
             }
         }
 
-        return result;
+        if (this.dropout != null) {
+            result = dropout.forward(result);
+        }
+
+        if (this.getNextLayer() != null) {
+            this.getNextLayer().forward(result);
+        } else {
+            output = new Matrix(result);
+        }
+
+    }
+
+    @Override
+    public void forward(double[][][] input) {
+        double[] c = Array_utils.flatten(input);
+        this.inputShape = getShape(input);
+        forward(c);
+    }
+
+    @Override
+    public void forward(double[][][][] inputs) {
+        double[][] c = new double[inputs.length][];
+        this.inputShape = getShape(inputs[0]);
+        for (int i = 0; i < inputs.length; i++) {
+            c[i] = Array_utils.flatten(inputs[i]);
+        }
+
+        this.forward(c);
+
+
     }
 
     @Override
@@ -298,7 +327,8 @@ public class FullyConnectedLayerNew extends LayerNew {
         this.previousLayer = l;
     }
 
-    public double[] forward(double[] input) {
+    @Override
+    public void forward(double[] input) {
 
         lastInput = input;
 
@@ -328,54 +358,37 @@ public class FullyConnectedLayerNew extends LayerNew {
         }
 
         //return out;
-
-        if (this.nextLayer != null) {
-            return nextLayer.forward(out);
-        } else {
-            return out;
+        if (this.dropout != null) {
+            out = dropout.forward(out);
         }
 
+        if (this.getNextLayer() != null) {
+            this.getNextLayer().forward(out);
+        } else {
+            this.output = new Matrix(out);
+        }
 
     }
 
-    /**
-     * rate musste be between 1 and 0. It is a percentage value.
-     *
-     * @param rate
-     */
-    public void setDropout(double rate) {
-        dropout = new Dropout(rate);
-
-    }
-
-    /**
-     * if the size shall be 100 % sure use this methode.
-     *
-     * @param size
-     */
-    public void setDropout(int size) {
-        dropout = new Dropout(size);
-
-    }
 
     @Override
-    public void setEpochAt(int epochAt) {
-        this.epochAt = epochAt;
-    }
-
     public void backward(double[] gradientInput) {
 
         double[] grad;
         if (optimizer == null) {
-
             grad = backwardWithoutOptimizer(gradientInput, learningRate);
         } else {
-            optimizer.setEpochAt(epochAt);
+            optimizer.setEpochAt(this.iterationAt);
             grad = backwardWithOptimizer(gradientInput, learningRate);
         }
 
+
+        if (this.dropout != null) {
+            grad = this.dropout.backward(grad);
+        }
+
         if (this.previousLayer != null) {
-            this.previousLayer.setEpochAt(this.epochAt);
+            this.previousLayer.setIterationAt(this.iterationAt);
             this.previousLayer.backward(grad);
         }
 
@@ -387,16 +400,18 @@ public class FullyConnectedLayerNew extends LayerNew {
 
         double[] grad;
         if (optimizer == null) {
-
             grad = backwardWithoutOptimizer(gradientInput, learningRate);
         } else {
-            optimizer.setEpochAt(epochAt);
+            optimizer.setEpochAt(iterationAt);
             grad = backwardWithOptimizer(gradientInput, learningRate);
         }
 
+        if (this.dropout != null) {
+            grad = this.dropout.backward(grad);
+        }
 
         if (this.previousLayer != null) {
-            this.previousLayer.setEpochAt(this.epochAt);
+            this.previousLayer.setIterationAt(this.iterationAt);
             this.previousLayer.backward(grad, learningRate);
         }
     }
@@ -446,17 +461,18 @@ public class FullyConnectedLayerNew extends LayerNew {
 
             gradientOutput[i] = gradientOutSum;
         }
-
-
+        
         if (useBiases) {
             for (int i = 0; i < biases.length; i++) {
                 dbiases[i] = gradAct[i] * gradientInput[i];
             }
             optimizer.setLearningRate(learningRate);
             optimizer.updateParameter(biases, dbiases);
+        } else {
+            optimizer.updateParameter(weights, dweights);
         }
 
-        optimizer.updateParameter(weights, dweights);
+
         return gradientOutput;
     }
 
@@ -475,7 +491,6 @@ public class FullyConnectedLayerNew extends LayerNew {
             //handles the softmax activation.
         }
 
-
         for (int i = 0; i < weights.length; i++) {
 
             double gradientOutSum = 0;
@@ -486,12 +501,12 @@ public class FullyConnectedLayerNew extends LayerNew {
                     gradAct = lastActInput[j];
 
                 } else {
-                    gradAct = act.derivative(lastActInput[j]);
+                    gradAct = act.derivative(lastActInput[j]) * gradientInput[j];
                 }
 
                 tmpW = weights[i][j];
 
-                deltaWeight = gradientInput[j] * gradAct * lastInput[i];
+                deltaWeight = gradAct * lastInput[i];
 
                 weights[i][j] -= learningRate * deltaWeight;
 
@@ -503,32 +518,37 @@ public class FullyConnectedLayerNew extends LayerNew {
         }
 
         if (useBiases) {
-            for (int i = 0; i < biases.length; i++) {
-                biases[i] -= learningRate * (lastActInput[i] * gradientInput[i]);
+            if (softmax != null) {
+                for (int i = 0; i < biases.length; i++) {
+                    biases[i] -= learningRate * (lastActInput[i]);
+                }
+            } else {
+                for (int i = 0; i < biases.length; i++) {
+                    biases[i] -= learningRate * (lastActInput[i] * gradientInput[i]);
+                }
             }
 
         }
         return gradientOutput;
     }
 
-
     public void backward(double[][] grad) {
 
-        double[][] grad_out = new double[grad.length][inputs[0].length];
+        double[][] grad_out = new double[lastInputs.length][lastInputs[0].length];
 
         double d_act_out;
         this.dweights = new double[weights.length][weights[0].length];
 
-        for (int bs = 0; bs < inputs.length; bs++) {
+        for (int bs = 0; bs < lastInputs.length; bs++) {
 
-            for (int i = 0; i < inputs[0].length; i++) {
+            for (int i = 0; i < lastInputs[0].length; i++) {
 
                 double grad_sum = 0;
 
                 for (int j = 0; j < weights[0].length; j++) {
 
-                    d_act_out = act.derivative(act_inputs[i][j]);
-                    dweights[i][j] += grad[bs][j] * d_act_out * this.inputs[bs][i];
+                    d_act_out = act.derivative(lastActInputs[i][j]);
+                    dweights[i][j] += grad[bs][j] * d_act_out * this.lastInputs[bs][i];
                     grad_sum += grad[bs][j] * d_act_out * weights[i][j];
                 }
 
@@ -540,46 +560,40 @@ public class FullyConnectedLayerNew extends LayerNew {
 
         this.useOptimizer();
 
-
-        if (this.previousLayer != null) {
-            this.previousLayer.backward(grad_out);
+        if (this.dropout != null) {
+            grad_out = this.dropout.backward(grad_out);
         }
 
+        if (this.getPreviousLayer() != null) {
+            this.getPreviousLayer().backward(grad_out);
+        }
+
+    }
+
+    @Override
+    public void backward(double[][][] input) {
+        double[] c;
+        c = Array_utils.flatten(input);
+        this.backward(c);
+
+
+    }
+
+    @Override
+    public void backward(double[][][][] inputs) {
+        double[][] c = new double[inputs.length][];
+        for (int i = 0; i < inputs.length; i++) {
+            c[i] = Array_utils.flatten(inputs[i]);
+        }
+        this.backward(c);
     }
 
 
     @Override
     public void backward(double[][] grad, double learningRate) {
-
-        double[][] grad_out = new double[grad.length][inputs[0].length];
-
-        double d_act_out;
-        double dweight = 0;
-
-        for (int bs = 0; bs < inputs.length; bs++) {
-
-            for (int i = 0; i < inputs[0].length; i++) {
-
-                double grad_sum = 0;
-
-                for (int j = 0; j < weights[0].length; j++) {
-
-                    d_act_out = act.derivative(act_inputs[bs][j]);
-                    dweight = grad[bs][j] * d_act_out * this.inputs[bs][j];
-                    weights[i][j] -= dweight * learningRate;
-                    grad_sum += grad[bs][j] * d_act_out * weights[i][j];
-                }
-
-                grad_out[bs][i] = grad_sum;
-
-            }
-
-        }
-
-        if (this.previousLayer != null) {
-            this.previousLayer.backward(grad_out);
-        }
-
+        this.learningRate = learningRate;
+        this.getNextLayer().setLearningRate(learningRate);
+        this.backward(grad);
     }
 
     public String toString(boolean export) {
@@ -650,4 +664,9 @@ public class FullyConnectedLayerNew extends LayerNew {
         return s.toString();
     }
 
+
+    @Override
+    public Matrix getOutput() {
+        return output;
+    }
 }
