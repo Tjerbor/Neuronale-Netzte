@@ -124,7 +124,6 @@ public class LoadModel {
         /**
          * start with the name, weight.length, weight[0].length, act
          */
-
         int a = Integer.parseInt(config[1]);
         int b = Integer.parseInt(config[2]);
         FastLinearLayer f = new FastLinearLayer(a, b);
@@ -244,14 +243,13 @@ public class LoadModel {
         int[] strides = new int[]{Integer.parseInt(config[5]), Integer.parseInt(config[6])};
 
         int numFilter = Integer.parseInt(config[2]);
-
-        double[][][][] w = new double[kernelsSize[0]][kernelsSize[1]][inputShape[2]][numFilter];
-
         Conv2D_Last c = new Conv2D_Last(inputShape, numFilter, kernelsSize, strides);
 
+        double[][][][] w = new double[kernelsSize[0]][kernelsSize[1]][inputShape[2]][numFilter];
         double[] b = new double[numFilter];
         getWeightsFromLine(b, biasesLine);
         getWeightsFromLine(w, nextLine);
+
 
         c.setUseBiases(true);
         c.setWeights(w, b);

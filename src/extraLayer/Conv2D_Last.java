@@ -24,8 +24,7 @@ public class Conv2D_Last extends LayerNew {
 
     Optimizer optimizer;
 
-    double[][][] act_input;
-    double[][][][] act_inputs;
+
     double[][][][] inputs;
     double[][][] input;
 
@@ -87,16 +86,16 @@ public class Conv2D_Last extends LayerNew {
     public Conv2D_Last(int[] shape, int numFilter) {
 
         this.numFilter = numFilter;
-        this.weights = new double[kernelSize1][kernelSize2][shape[0]][numFilter];
+        this.weights = new double[kernelSize1][kernelSize2][shape[2]][numFilter];
 
         RandomUtils.genGaussianRandomWeight(weights);
         inputHeight = shape[0];
         inputWidth = shape[1];
+        channels = shape[2];
 
         biases = new double[numFilter];
         RandomUtils.genRandomWeight(biases);
 
-        channels = shape[2];
 
         outputHeight = (((inputHeight - kernelSize1 + (2 * paddingH)) / (stride1)) + 1);
         outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
