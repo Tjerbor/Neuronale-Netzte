@@ -32,6 +32,10 @@ public class Dropout {
         this.training = training;
     }
 
+    public double getRate() {
+        return this.rate;
+    }
+
     private void genNoDuplicateRandom(int numbersNeeded, int maxNumber) {
 
         if (maxNumber < numbersNeeded) {

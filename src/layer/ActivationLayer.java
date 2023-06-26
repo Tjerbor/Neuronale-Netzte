@@ -4,6 +4,7 @@ package layer;
 import main.LayerNew;
 import utils.Array_utils;
 import utils.Matrix;
+import utils.Utils;
 
 import java.util.Arrays;
 
@@ -24,6 +25,10 @@ public class ActivationLayer extends LayerNew {
 
     public ActivationLayer(Activation act) {
         this.act = act;
+    }
+
+    public ActivationLayer(String act) {
+        this.act = Utils.getActivation(act);
     }
 
     @Override

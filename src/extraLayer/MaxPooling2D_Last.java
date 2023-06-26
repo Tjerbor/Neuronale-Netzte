@@ -6,6 +6,8 @@ import utils.Matrix;
 
 import java.util.Arrays;
 
+import static load.writeUtils.writeShape;
+
 
 /**
  * Max Pooling Last expect teh Last Dimension to have teh channels.
@@ -46,7 +48,7 @@ public class MaxPooling2D_Last extends LayerNew {
         this.outputShape = new int[]{outputHeight, outputWidth, channels};
     }
 
-    public MaxPooling2D_Last(int[] shape, int[] strides, int[] kernelSizes) {
+    public MaxPooling2D_Last(int[] shape, int[] kernelSizes, int[] strides) {
 
         this.stride1 = strides[0];
         this.stride2 = strides[0];
@@ -92,7 +94,7 @@ public class MaxPooling2D_Last extends LayerNew {
 
     @Override
     public String export() {
-        return "MaxPooling2D_Last";
+        return "MaxPooling2D_Last;" + kernelSize1 + ";" + kernelSize2 + ";" + stride1 + ";" + stride2 + ";" + writeShape(inputShape);
     }
 
 

@@ -7,6 +7,9 @@ import utils.Utils;
 
 import java.util.Arrays;
 
+import static load.writeUtils.writeShape;
+import static load.writeUtils.writeWeights;
+
 
 /**
  * was put into one Class because the Weights are the same.
@@ -47,6 +50,7 @@ public class BatchNorm extends LayerNew {
         this.runningVar = new double[input_size];
         Arrays.fill(gamma, 1);
         Arrays.fill(runningVar, 1);
+        this.inputSize = input_size;
 
     }
 
@@ -145,7 +149,25 @@ public class BatchNorm extends LayerNew {
 
     @Override
     public String export() {
-        return null;
+
+
+        String s = "batchnorm;" + inputSize;
+
+        if (this.inputShape != null) {
+            s += writeShape(inputShape);
+        }
+        s += "\n";
+
+        double[][] w = new double[4][];
+
+        w[0] = gamma;
+        w[1] = biases;
+        w[2] = runningVar;
+        w[3] = runningMean;
+        s += writeWeights(w);
+
+
+        return s;
     }
 
     @Override

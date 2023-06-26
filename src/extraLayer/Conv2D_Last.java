@@ -11,6 +11,7 @@ import utils.Utils;
 
 import java.util.Arrays;
 
+import static load.writeUtils.writeWeights;
 import static utils.Array_utils.getShape;
 import static utils.Array_utils.sumUpMult;
 
@@ -83,7 +84,7 @@ public class Conv2D_Last extends LayerNew {
 
     }
 
-    public Conv2D_Last(int numFilter, int[] shape) {
+    public Conv2D_Last(int[] shape, int numFilter) {
 
         this.numFilter = numFilter;
         this.weights = new double[kernelSize1][kernelSize2][shape[0]][numFilter];
@@ -110,9 +111,8 @@ public class Conv2D_Last extends LayerNew {
     public Conv2D_Last(int[] shape, int numFilter, int[] kernelSize, int[] strides) {
 
         this.numFilter = numFilter;
-        this.weights = new double[kernelSize1][kernelSize2][shape[0]][numFilter];
 
-        RandomUtils.genGaussianRandomWeight(weights);
+
         inputHeight = shape[0];
         inputWidth = shape[1];
 
@@ -122,8 +122,6 @@ public class Conv2D_Last extends LayerNew {
         this.stride1 = strides[0];
         this.stride2 = strides[1];
 
-        biases = new double[numFilter];
-        RandomUtils.genRandomWeight(biases);
 
         channels = shape[2];
 
@@ -134,10 +132,18 @@ public class Conv2D_Last extends LayerNew {
         this.inputShape = new int[]{inputHeight, inputWidth, channels};
         this.outputShape = new int[]{outputHeight, outputWidth, numFilter};
 
+        if (useBiases) {
+            biases = new double[numFilter];
+            RandomUtils.genRandomWeight(biases);
+        }
+
+        this.weights = new double[kernelSize1][kernelSize2][shape[2]][numFilter];
+        RandomUtils.genGaussianRandomWeight(weights);
+
 
     }
 
-    public Conv2D_Last(int numFilter, int[] shape, int kernelSize) {
+    public Conv2D_Last(int[] shape, int numFilter, int kernelSize) {
 
 
         this.kernelSize1 = kernelSize;
@@ -217,7 +223,7 @@ public class Conv2D_Last extends LayerNew {
         int batchSize = 1;
         int numFilter = 8;
         int channels = 3;
-        Conv2D_Last cN = new Conv2D_Last(numFilter, new int[]{6, 6, channels});
+        Conv2D_Last cN = new Conv2D_Last(new int[]{6, 6, channels}, numFilter);
 
         double[] biases = new double[numFilter];
 
@@ -271,6 +277,16 @@ public class Conv2D_Last extends LayerNew {
 
     }
 
+    public void activateBias() {
+
+        this.useBiases = true;
+        if (this.biases == null) {
+            this.biases = new double[numFilter];
+            RandomUtils.genTypeWeights(2, biases);
+        }
+
+
+    }
 
     @Override
     public void setTraining(boolean training) {
@@ -327,7 +343,8 @@ public class Conv2D_Last extends LayerNew {
             return new Matrix(weights);
         } else {
             double[][][][] tmp = Arrays.copyOf(weights, weights.length + 1);
-            biases = tmp[weights.length][0][0];
+            tmp[weights.length] = new double[1][1][biases.length];
+            tmp[weights.length][0][0] = biases;
             return new Matrix(tmp);
         }
 
@@ -788,28 +805,11 @@ public class Conv2D_Last extends LayerNew {
                 kernelSize1 + ";" + kernelSize2 + ";" + stride1 + ";" + stride2 + ";" + inputHeight + ";" + inputWidth + ";" + channels + "\n";
 
 
-        double[] w = Array_utils.flatten(weights);
-
-        for (int i = 0; i < w.length; i++) {
-            if (i != w.length - 1) {
-                s += w[i] + ";";
-            } else {
-                s += w[i];
-            }
-
-        }
+        s += writeWeights(weights);
 
         if (useBiases) {
             s += "\n";
-
-            for (int i = 0; i < numFilter; i++) {
-                if (i != numFilter - 1) {
-                    s += biases[i] + ";";
-                } else {
-                    s += biases[i];
-                }
-
-            }
+            s += writeWeights(biases);
         }
 
         return s;
@@ -837,6 +837,9 @@ public class Conv2D_Last extends LayerNew {
         s += "Kernels: (" + kernelSize1 + ", " + kernelSize1 + ")" + "\n";
         s += "Strides: (" + stride1 + ", " + stride2 + ")" + "\n";
         s += "Num. Filter: " + this.numFilter + "\n";
+        s += "inputSize: " + Arrays.toString(getInputShape()) + "\n"
+                + "outputSize: " + Arrays.toString(getOutputShape()) + "\n"
+                + "useBias: " + useBiases + "\n";
 
         return s;
 

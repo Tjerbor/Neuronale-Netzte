@@ -121,7 +121,7 @@ public class DropoutLayer extends LayerNew {
 
     @Override
     public String export() {
-        return "dropout";
+        return "dropout;" + dropout.getRate();
     }
 
     @Override

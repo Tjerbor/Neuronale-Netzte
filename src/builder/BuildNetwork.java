@@ -211,9 +211,9 @@ public class BuildNetwork {
         if (layers.size() != 0) {
             int position = layers.size() - 1;
             int[] shapeBefore = (layers.get(position - 1).getOutputShape());
-            this.layers.add(new Conv2D_Last(numFilter, shapeBefore));
+            this.layers.add(new Conv2D_Last(shapeBefore, numFilter));
         } else if (this.inputShape != null) {
-            this.layers.add(new Conv2D_Last(numFilter, inputShape));
+            this.layers.add(new Conv2D_Last(inputShape, numFilter));
         } else {
             throw new IllegalArgumentException("No previous Layers are set.");
         }
@@ -224,9 +224,9 @@ public class BuildNetwork {
     public void addConv2D_Last(int[] inputShape, int numFilter) {
 
         if (layers.size() != 0) {
-            this.layers.add(new Conv2D_Last(numFilter, inputShape));
+            this.layers.add(new Conv2D_Last(inputShape, numFilter));
         } else if (this.inputShape != null) {
-            this.layers.add(new Conv2D_Last(numFilter, inputShape));
+            this.layers.add(new Conv2D_Last(inputShape, numFilter));
         } else {
             throw new IllegalArgumentException("No previous Layers are set.");
         }

@@ -1,5 +1,6 @@
 package extraLayer;
 
+import load.writeUtils;
 import main.LayerNew;
 import utils.Array_utils;
 import utils.Matrix;
@@ -117,7 +118,7 @@ public class Flatten extends LayerNew {
 
     @Override
     public String export() {
-        return "flatten;";
+        return "flatten;" + writeUtils.writeShape(inputShape);
     }
 
     @Override

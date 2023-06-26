@@ -88,6 +88,7 @@ public class Array_utils {
 
     }
 
+
     public static double[] copyArray(double[] a) {
         double[] c = zerosLike(a);
 
@@ -1299,8 +1300,7 @@ public class Array_utils {
         return sum;
     }
 
-    public void printShape(double[][][][] a) {
-
+    public static void printShape(double[][][][] a) {
         System.out.println(Arrays.toString(getShape(a)));
 
     }

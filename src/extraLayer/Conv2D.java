@@ -4,11 +4,15 @@ import layer.Activation;
 import main.Dropout;
 import main.LayerNew;
 import optimizer.Optimizer;
-import utils.*;
+import utils.ArrayMathUtils;
+import utils.Matrix;
+import utils.RandomUtils;
+import utils.Utils;
 
 import java.util.Arrays;
 import java.util.Random;
 
+import static load.writeUtils.writeWeights;
 import static utils.Array_utils.getShape;
 import static utils.Array_utils.reFlat;
 
@@ -42,7 +46,6 @@ public class Conv2D extends LayerNew {
     Optimizer optimizer;
     Dropout dropout;
 
-    int numFilter;
     Activation act; //only local Activations. Softmax is not supported.
 
     private double learningRate;
@@ -60,12 +63,12 @@ public class Conv2D extends LayerNew {
         this.channels = shape[0];
         this.inputHeight = shape[1];
         this.inputWidth = shape[2];
-        this.numFilters = numFilters;
+
 
         outputHeight = (((inputHeight - kernelSize1 + (2 * paddingH)) / (stride1)) + 1);
         outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
 
-        this.numFilter = numFilters;
+        this.numFilters = numFilters;
         weights = new double[kernelSize1][kernelSize2][channels][numFilters];
         generateRandomFilters(numFilters);
 
@@ -84,9 +87,13 @@ public class Conv2D extends LayerNew {
         outputHeight = (((inputHeight - kernelSize1 + (2 * paddingH)) / (stride1)) + 1);
         outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
 
-        this.numFilter = numFilters;
         weights = new double[kernelSize1][kernelSize2][channels][numFilters];
         generateRandomFilters(numFilters);
+
+        if (useBiases) {
+            this.biases = new double[numFilters][outputHeight][outputWidth];
+            RandomUtils.genTypeWeights(2, this.biases);
+        }
 
     }
 
@@ -133,7 +140,7 @@ public class Conv2D extends LayerNew {
         outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
 
 
-        this.weights = new double[kernelSize1][kernelSize2][channels][numFilters];
+        this.weights = new double[kernelSize1][kernelSize2][channels][this.numFilters];
         RandomUtils.genGaussianRandomWeight(weights);
 
     }
@@ -233,6 +240,11 @@ public class Conv2D extends LayerNew {
 
     }
 
+    public void setWeights(double[][][][] weights, double[][][] biases) {
+        this.weights = weights;
+        this.biases = biases;
+    }
+
     @Override
     public void setTraining(boolean training) {
         this.training = training;
@@ -288,6 +300,10 @@ public class Conv2D extends LayerNew {
         }
     }
 
+    public void setWeights(double[][][][] weights) {
+        this.weights = weights;
+    }
+
     @Override
     public void setWeights(Matrix m) {
 
@@ -302,6 +318,11 @@ public class Conv2D extends LayerNew {
 
     }
 
+    public void activateBias() {
+        this.useBiases = true;
+        this.biases = new double[numFilters][outputHeight][outputWidth];
+        RandomUtils.genTypeWeights(2, biases);
+    }
 
     @Override
     public int parameters() {
@@ -670,34 +691,17 @@ public class Conv2D extends LayerNew {
     @Override
     public String export() {
 
-        String s = "conv2d_last;" + useBiases + ";" + numFilter + ";" +
-                kernelSize1 + ";" + kernelSize2 + ";" + stride1 + ";" + stride2 + ";" + inputHeight + ";" + inputWidth + ";" + channels + "\n";
+        String s = "conv2d;" + useBiases + ";" + this.numFilters + ";" +
+                kernelSize1 + ";" + kernelSize2 + ";" + stride1 + ";" + stride2 + ";" + channels + ";" + inputHeight + ";" + inputWidth + "\n";
 
 
-        double[] w = Array_utils.flatten(weights);
-
-        for (int i = 0; i < w.length; i++) {
-            if (i != w.length - 1) {
-                s += w[i] + ";";
-            } else {
-                s += w[i];
-            }
-
-        }
+        s += writeWeights(weights);
 
         if (useBiases) {
             s += "\n";
-
-            for (int i = 0; i < numFilter; i++) {
-                if (i != numFilter - 1) {
-                    s += biases[i] + ";";
-                } else {
-                    s += biases[i];
-                }
-
-            }
+            s += writeWeights(biases);
         }
-
         return s;
+
     }
 }

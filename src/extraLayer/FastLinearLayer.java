@@ -7,6 +7,8 @@ import utils.Array_utils;
 import utils.Matrix;
 import utils.RandomUtils;
 
+import static load.writeUtils.writeWeights;
+
 public class FastLinearLayer extends LayerNew {
 
 
@@ -216,18 +218,8 @@ public class FastLinearLayer extends LayerNew {
     @Override
     public String export() {
 
-        String s = "fastlinearlayer;" + weights.length + ";" + weights[0].length + ";" + act.toString() + ";" + "\n";
-
-
-        for (int i = 0; i < weights.length; i++) {
-            for (int j = 0; j < weights[0].length; j++) {
-                if (i == weights.length - 1 && j == weights[0].length - 1) {
-                    s += weights[i][j] + ";";
-                } else {
-                    s += weights[i][j];
-                }
-            }
-        }
+        String s = "fastlinearlayer;" + weights.length + ";" + weights[0].length + ";" + act.toString() + "\n";
+        s += writeWeights(weights);
 
         return s;
     }

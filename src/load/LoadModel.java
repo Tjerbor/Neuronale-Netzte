@@ -2,17 +2,35 @@ package load;
 
 import extraLayer.*;
 import layer.Activation;
+import layer.ActivationLayer;
 import layer.ReLu;
 import layer.TanH;
 import main.LayerNew;
 import main.NN_New;
 import utils.Matrix;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LoadModel {
 
+
+    private static List<String> read(String path) throws IOException {
+        try (BufferedReader in = new BufferedReader(new FileReader(path))) {
+            String line;
+
+            List<String> list = new ArrayList<>();
+
+            while ((line = in.readLine()) != null) {
+                list.add(line.replace("\n", ""));
+            }
+
+            return list;
+        }
+    }
 
     public static Activation getActivation(String s) {
 
@@ -87,10 +105,10 @@ public class LoadModel {
     }
 
     public static LayerNew loadMaxPooling2D_Last(String[] config) {
-        //first Starts with name, inputShape(1, 2, 3), poolSize1, poolSize2, stride1, stride2,
-        int[] inputShape = new int[]{Integer.parseInt(config[1]), Integer.parseInt(config[2]), Integer.parseInt(config[3])};
-        int[] poolSize = new int[]{Integer.parseInt(config[4]), Integer.parseInt(config[5])};
-        int[] strides = new int[]{Integer.parseInt(config[6]), Integer.parseInt(config[7])};
+        //first Starts with name, poolSize1, poolSize2, stride1, stride2,inputShape(1, 2, 3)
+        int[] inputShape = new int[]{Integer.parseInt(config[5]), Integer.parseInt(config[6]), Integer.parseInt(config[7])};
+        int[] poolSize = new int[]{Integer.parseInt(config[1]), Integer.parseInt(config[2])};
+        int[] strides = new int[]{Integer.parseInt(config[3]), Integer.parseInt(config[4])};
         return new MaxPooling2D_Last(inputShape, poolSize, strides);
 
 
@@ -199,20 +217,26 @@ public class LoadModel {
 
         int numFilter = Integer.parseInt(config[2]);
 
-        double[][][][] w = new double[kernelsSize[0]][kernelsSize[1]][inputShape[0]][numFilter];
+        double[][][][] w = new double[kernelsSize[0]][kernelsSize[1]][inputShape[2]][numFilter];
         getWeightsFromLine(w, nextLine);
 
         Conv2D_Last c = new Conv2D_Last(inputShape, numFilter, kernelsSize, strides);
 
+        c.setWeights(w);
         c.setUseBiases(false);
         return c;
 
 
     }
 
+    public static LayerNew loadActivation(String[] config) {
+        return new ActivationLayer(config[1]);
+
+    }
+
     public static LayerNew loadConv2D_Last(String[] config, String nextLine, String biasesLine) {
 
-        //congig -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, inputShape3
+        //congig -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, channels
 
         int[] inputShape = new int[]{Integer.parseInt(config[7]), Integer.parseInt(config[8]), Integer.parseInt(config[9])};
 
@@ -220,14 +244,14 @@ public class LoadModel {
         int[] strides = new int[]{Integer.parseInt(config[5]), Integer.parseInt(config[6])};
 
         int numFilter = Integer.parseInt(config[2]);
+
+        double[][][][] w = new double[kernelsSize[0]][kernelsSize[1]][inputShape[2]][numFilter];
+
         Conv2D_Last c = new Conv2D_Last(inputShape, numFilter, kernelsSize, strides);
 
-        int[] outputShape = c.getOutputShape();
-        double[][][][] w = new double[kernelsSize[0]][kernelsSize[1]][inputShape[0]][numFilter];
         double[] b = new double[numFilter];
         getWeightsFromLine(b, biasesLine);
         getWeightsFromLine(w, nextLine);
-
 
         c.setUseBiases(true);
         c.setWeights(w, b);
@@ -253,6 +277,7 @@ public class LoadModel {
 
         Conv2D c = new Conv2D(inputShape, numFilter, kernelsSize, strides);
 
+        c.setWeights(w);
         c.setUseBiases(false);
         return c;
 
@@ -301,7 +326,7 @@ public class LoadModel {
             weights = new double[2][inputSize];
             getWeightsFromLine(weights, nextLine);
         } else {
-            throw new IllegalArgumentException("BatchNorm Weight-Size error.");
+            throw new IllegalArgumentException("BatchNorm Weight-Size error." + "got Size weights: " + w.length + " and inputSize: " + inputSize);
         }
         BatchNorm b = new BatchNorm(inputSize);
         b.setWeights(new Matrix(weights));
@@ -319,7 +344,7 @@ public class LoadModel {
         return new DropoutLayer(Double.parseDouble(config[1]));
     }
 
-    public NN_New loadModel(String fpath) {
+    public NN_New loadModel(String fpath) throws IOException {
 
         List<String> lines = read(fpath);
 
@@ -396,7 +421,13 @@ public class LoadModel {
 
         NN_New nn = new NN_New();
 
-        nn.setLayers(layers);
+        LayerNew[] l = new LayerNew[layers.size()];
+
+        for (int i = 0; i < l.length; i++) {
+            l[i] = layers.get(i);
+        }
+
+        nn.setLayers(l);
         return nn;
     }
 
