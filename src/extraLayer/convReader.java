@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
+/**
+ * can read Weights for the Layer.
+ */
+
 public class convReader {
 
 
@@ -39,7 +43,7 @@ public class convReader {
         //5 output
 
 
-        //conv2D;numFillter,kernelSize1,kernelSize2,stride1,stride2,inputShape1-3
+        //conv2D;useBiases;numFillter,kernelSize1,kernelSize2,stride1,stride2,inputShape1-3
         int[] config = IntStream.range(1, data.get(0).length).map(i -> Integer.parseInt(data.get(0)[i])).toArray();
         String[] w = data.get(1);
 

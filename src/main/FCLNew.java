@@ -59,7 +59,7 @@ public class FCLNew extends LayerNew {
                 tmp[i] += biases[i];
             }
         }
-        
+
         lastActInput = tmp;
 
         for (int j = 0; j < out.length; j++) {
@@ -261,6 +261,13 @@ public class FCLNew extends LayerNew {
     @Override
     public Matrix getOutput() {
         return output;
+    }
+
+    @Override
+    public String summary() {
+        return "FullyConnectedLayer inputSize: " + Arrays.toString(getInputShape())
+                + " outputSize: " + Arrays.toString(getOutputShape())
+                + " parameter" + parameters() + "\n";
     }
 
 

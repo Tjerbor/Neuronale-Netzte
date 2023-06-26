@@ -1,8 +1,10 @@
-package layer;
+package extraLayer;
 
 import main.Dropout;
 import main.LayerNew;
 import utils.Matrix;
+
+import java.util.Arrays;
 
 public class DropoutLayer extends LayerNew {
 
@@ -119,12 +121,18 @@ public class DropoutLayer extends LayerNew {
 
     @Override
     public String export() {
-        return null;
+        return "dropout";
     }
 
     @Override
     public void setTraining(boolean training) {
         this.training = training;
         this.dropout.setTraining(training);
+    }
+
+    public String summary() {
+        return "Dropout inputSize: " + Arrays.toString(getInputShape())
+                + " outputSize: " + Arrays.toString(getOutputShape())
+                + " parameterSize: " + parameters() + "\n";
     }
 }

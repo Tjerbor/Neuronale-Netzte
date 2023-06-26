@@ -42,6 +42,15 @@ public class FCL extends LayerNew {
 
     }
 
+    public static String isNull(Object o) {
+
+        if (o == null) {
+            return "";
+        } else {
+            return "true";
+        }
+    }
+
     @Override
     public void forward(double[] input) {
         lastInput = input;
@@ -201,11 +210,47 @@ public class FCL extends LayerNew {
 
     @Override
     public String export() {
-        return null;
+
+        String s = "FullyConnectedLayer;" + useBiases + ";" + weights.length + ";" + weights[0].length + ";" + act.toString() + ";" + isNull(dropout) + "\n";
+
+        for (int i = 0; i < weights.length; i++) {
+            for (int j = 0; j < weights[0].length; j++) {
+                if (i == weights.length - 1 && j == weights[0].length - 1) {
+                    s += weights[i][j];
+                } else {
+                    s += weights[i][j] + ";";
+                }
+            }
+        }
+
+
+        if (useBiases) {
+            s += "\n";
+
+            for (int i = 0; i < biases.length; i++) {
+
+                if (i == biases.length - 1) {
+                    s += biases[i];
+                } else {
+                    s += biases[i] + ";";
+                }
+            }
+
+        }
+
+        return s + "\n";
+
     }
 
     @Override
     public Matrix getOutput() {
         return output;
+    }
+
+    @Override
+    public String summary() {
+        return "FCL inputSize: " + Arrays.toString(getInputShape())
+                + " outputSize: " + Arrays.toString(getOutputShape())
+                + " parameter" + parameters() + "\n";
     }
 }

@@ -1,7 +1,8 @@
-package main;
+package extraLayer;
 
 import layer.Activation;
 import layer.TanH;
+import main.LayerNew;
 import utils.Array_utils;
 import utils.Matrix;
 import utils.RandomUtils;
@@ -13,7 +14,9 @@ public class FastLinearLayer extends LayerNew {
     double learningRate;
     double[][] weights;
     private double[] lastZ;
+    private double[][] lastZs;
     private double[] lastX;
+    private double[][] lastXs;
 
     public FastLinearLayer(int a, int b, double learningRate) {
         this.learningRate = learningRate;
@@ -61,27 +64,58 @@ public class FastLinearLayer extends LayerNew {
 
     @Override
     public void forward(double[][] inputs) {
+        lastXs = inputs;
+
+        double[][] z = new double[inputs.length][weights[0].length];
+        double[][] out = new double[inputs.length][weights[0].length];
+
+        for (int bs = 0; bs < inputs.length; bs++) {
+
+
+            for (int i = 0; i < inputs[0].length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+                    z[bs][j] += inputs[bs][i] * weights[i][j];
+                }
+
+            }
+
+        }
+        lastZs = z;
+        for (int i = 0; i < out.length; i++) {
+            for (int j = 0; j < out[0].length; j++) {
+                out[i][j] = act.definition(z[i][j]);
+            }
+        }
+
+        this.output = new Matrix(out);
+        if (this.nextLayer != null) {
+            this.nextLayer.forward(out);
+        } else {
+            this.output = new Matrix(out);
+        }
 
     }
 
     @Override
     public void forward(double[][][] input) {
-
+        throw new IllegalArgumentException("Expected shape 1Dim got 3Dim");
     }
 
     @Override
     public void forward(double[][][][] inputs) {
-
+        throw new IllegalArgumentException("Expected shape 2Dim got 4Dim");
     }
 
     @Override
     public void backward(double[] input, double learningRate) {
-
+        this.learningRate = learningRate;
+        this.backward(input);
     }
 
     @Override
     public void backward(double[][] inputs, double learningRate) {
-
+        this.learningRate = learningRate;
+        this.backward(inputs);
     }
 
     public Matrix getWeights() {
@@ -149,9 +183,9 @@ public class FastLinearLayer extends LayerNew {
 
                 for (int j = 0; j < weights[0].length; j++) {
 
-                    dAct = act.derivative(lastZ[j]);
+                    dAct = act.derivative(lastZs[bs][j]);
 
-                    dweight = inputs[bs][j] * dAct * lastX[k];
+                    dweight = inputs[bs][j] * dAct * lastXs[bs][k];
 
                     weights[k][j] -= dweight * learningRate;
 
@@ -171,22 +205,43 @@ public class FastLinearLayer extends LayerNew {
 
     @Override
     public void backward(double[][][] input) {
-
+        throw new IllegalArgumentException("Expected shape 1Dim got 3Dim");
     }
 
     @Override
     public void backward(double[][][][] inputs) {
-
+        throw new IllegalArgumentException("Expected shape 2Dim got 4Dim");
     }
 
     @Override
     public String export() {
-        return null;
+
+        String s = "fastlinearlayer;" + weights.length + ";" + weights[0].length + ";" + act.toString() + ";" + "\n";
+
+
+        for (int i = 0; i < weights.length; i++) {
+            for (int j = 0; j < weights[0].length; j++) {
+                if (i == weights.length - 1 && j == weights[0].length - 1) {
+                    s += weights[i][j] + ";";
+                } else {
+                    s += weights[i][j];
+                }
+            }
+        }
+
+        return s;
     }
 
     @Override
     public Matrix getOutput() {
         return output;
+    }
+
+    @Override
+    public String summary() {
+        return "FastLinear inputSize: " + getInputShape()[0]
+                + " outputSize: " + getOutputShape()[0]
+                + " parameter: " + parameters() + "\n";
     }
 
 

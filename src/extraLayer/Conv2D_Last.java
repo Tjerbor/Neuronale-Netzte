@@ -75,6 +75,9 @@ public class Conv2D_Last extends LayerNew {
         outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
 
 
+        this.inputShape = new int[]{inputHeight, inputWidth, channels};
+        this.outputShape = new int[]{outputHeight, outputWidth, numFilter};
+
         this.weights = new double[kernelSize1][kernelSize2][channels][numFilter];
         RandomUtils.genGaussianRandomWeight(weights);
 
@@ -98,8 +101,40 @@ public class Conv2D_Last extends LayerNew {
         outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
 
 
-        System.out.println(outputHeight);
-        System.out.println(outputWidth);
+        this.inputShape = new int[]{inputHeight, inputWidth, channels};
+        this.outputShape = new int[]{outputHeight, outputWidth, numFilter};
+
+
+    }
+
+    public Conv2D_Last(int[] shape, int numFilter, int[] kernelSize, int[] strides) {
+
+        this.numFilter = numFilter;
+        this.weights = new double[kernelSize1][kernelSize2][shape[0]][numFilter];
+
+        RandomUtils.genGaussianRandomWeight(weights);
+        inputHeight = shape[0];
+        inputWidth = shape[1];
+
+        this.kernelSize1 = kernelSize[0];
+        this.kernelSize2 = kernelSize[1];
+
+        this.stride1 = strides[0];
+        this.stride2 = strides[1];
+
+        biases = new double[numFilter];
+        RandomUtils.genRandomWeight(biases);
+
+        channels = shape[2];
+
+        outputHeight = (((inputHeight - kernelSize1 + (2 * paddingH)) / (stride1)) + 1);
+        outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
+
+
+        this.inputShape = new int[]{inputHeight, inputWidth, channels};
+        this.outputShape = new int[]{outputHeight, outputWidth, numFilter};
+
+
     }
 
     public Conv2D_Last(int numFilter, int[] shape, int kernelSize) {
@@ -123,9 +158,10 @@ public class Conv2D_Last extends LayerNew {
         outputHeight = (((inputHeight - kernelSize1 + (2 * paddingH)) / (stride1)) + 1);
         outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
 
+        this.inputShape = new int[]{inputHeight, inputWidth, channels};
+        this.outputShape = new int[]{outputHeight, outputWidth, numFilter};
 
-        System.out.println(outputHeight);
-        System.out.println(outputWidth);
+
     }
 
 
@@ -153,6 +189,8 @@ public class Conv2D_Last extends LayerNew {
         outputHeight = (((inputHeight - kernelSize1 + (2 * paddingH)) / (stride1)) + 1);
         outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
 
+        this.inputShape = new int[]{inputHeight, inputWidth, numFilter};
+        this.outputShape = new int[]{outputHeight, outputWidth, numFilter};
 
     }
 
@@ -233,6 +271,7 @@ public class Conv2D_Last extends LayerNew {
 
     }
 
+
     @Override
     public void setTraining(boolean training) {
         this.training = training;
@@ -260,12 +299,12 @@ public class Conv2D_Last extends LayerNew {
 
     @Override
     public void forward(double[] input) {
-        this.forward(Array_utils.reFlat(input, getInputShape()));
+        throw new IllegalArgumentException("got input Dim 1.");
     }
 
     @Override
     public void forward(double[][] inputs) {
-        this.forward(Array_utils.reFlat(inputs, getInputShape()));
+        throw new IllegalArgumentException("got input Dim 2.");
     }
 
     @Override
@@ -321,21 +360,12 @@ public class Conv2D_Last extends LayerNew {
 
     @Override
     public void backward(double[] input) {
-
-        double[][][] c = Utils.reshape(input, getOutputShape());
-        this.backward(c);
-
+        throw new IllegalArgumentException("inpt are 1Dim.");
     }
 
     @Override
     public void backward(double[][] inputs) {
-        double[][][][] c = new double[inputs.length][][][];
-        for (int i = 0; i < inputs.length; i++) {
-            c[i] = Utils.reshape(inputs[i], getOutputShape());
-        }
-
-        this.backward(c);
-
+        throw new IllegalArgumentException("inpt are 1Dim.");
     }
 
     @Override
@@ -536,6 +566,7 @@ public class Conv2D_Last extends LayerNew {
 
     }
 
+    @Override
     public void forward(double[][][][] inputs) {
 
         double[][][][] output = new double[inputs.length][outputHeight][outputWidth][numFilter];
@@ -604,6 +635,7 @@ public class Conv2D_Last extends LayerNew {
         }
     }
 
+    @Override
     public void backward(double[][][][] gradInput) {
 
         this.sumUpAndUpdateBiases(gradInput);
@@ -703,9 +735,11 @@ public class Conv2D_Last extends LayerNew {
     public void backward(double[][][] gradInput, double learningRate) {
 
         this.learningRate = learningRate;
+        this.nextLayer.setLearningRate(learningRate);
         this.backward(gradInput);
     }
 
+    @Override
     public void backward(double[][][] gradInput) {
 
 
@@ -747,14 +781,38 @@ public class Conv2D_Last extends LayerNew {
 
     }
 
-    public int[] getOutputShape() {
-        return new int[]{this.outputHeight, this.outputWidth, this.numFilter};
-
-    }
-
     @Override
     public String export() {
-        return null;
+
+        String s = "conv2d_last;" + useBiases + ";" + numFilter + ";" +
+                kernelSize1 + ";" + kernelSize2 + ";" + stride1 + ";" + stride2 + ";" + inputHeight + ";" + inputWidth + ";" + channels + "\n";
+
+
+        double[] w = Array_utils.flatten(weights);
+
+        for (int i = 0; i < w.length; i++) {
+            if (i != w.length - 1) {
+                s += w[i] + ";";
+            } else {
+                s += w[i];
+            }
+
+        }
+
+        if (useBiases) {
+            s += "\n";
+
+            for (int i = 0; i < numFilter; i++) {
+                if (i != numFilter - 1) {
+                    s += biases[i] + ";";
+                } else {
+                    s += biases[i];
+                }
+
+            }
+        }
+
+        return s;
     }
 
     @Override
@@ -786,10 +844,14 @@ public class Conv2D_Last extends LayerNew {
     }
 
     public void printConfig() {
-
         System.out.println(getConfig());
     }
 
-
+    @Override
+    public String summary() {
+        return "Conv2D_Last inputSize: " + Arrays.toString(getInputShape())
+                + " outputSize: " + Arrays.toString(getOutputShape())
+                + " parameterSize: " + parameters() + "\n";
+    }
 }
 

@@ -8,6 +8,8 @@ import utils.Array_utils;
 import utils.Reader;
 import utils.Utils;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class NN_New {
@@ -457,5 +459,77 @@ public class NN_New {
 
     }
 
+    public int parameters() {
+        int sum = 0;
 
+        LayerNew tmp = fristLayer;
+        while (tmp != null) {
+            sum += tmp.parameters();
+            tmp = tmp.nextLayer;
+        }
+        return sum;
+    }
+
+    @Override
+    public String toString() {
+        return "NN_New{" +
+                "fristLayer=" + fristLayer.summary() +
+                ", lastLayer=" + lastLayer.summary() +
+                ", loss=" + loss +
+                ", optimizer=" + optimizer +
+                ", size=" + size +
+                ", parameters=" + parameters() +
+                '}';
+    }
+
+    public void printLayers() {
+        StringBuilder s = new StringBuilder();
+        LayerNew tmp = fristLayer;
+        while (tmp != null) {
+            s.append(tmp.summary());
+            tmp = tmp.nextLayer;
+        }
+
+        System.out.println(s);
+
+    }
+
+
+    public String export() {
+
+        LayerNew[] tmp = layers2Array();
+
+        String s = "";
+        for (int i = 0; i < tmp.length; i++) {
+            if (i != tmp.length - 1) {
+                s += tmp[i].export() + "\n";
+            } else {
+                s += tmp[i].export();
+            }
+
+        }
+
+        return s;
+    }
+
+    public void writeModel(String fileName) {
+
+        String s = this.export();
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.write(s);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            System.out.println("File could not be written.");
+        }
+    }
+
+    public LayerNew getFristLayer() {
+        return fristLayer;
+    }
+
+    public LayerNew getLastLayer() {
+        return lastLayer;
+    }
 }

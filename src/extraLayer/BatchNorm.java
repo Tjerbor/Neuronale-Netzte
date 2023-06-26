@@ -7,6 +7,14 @@ import utils.Utils;
 
 import java.util.Arrays;
 
+
+/**
+ * was put into one Class because the Weights are the same.
+ * Easier to use.
+ * Normalize the Data with a Batch of inputs.
+ * Should be used with a larger BatchSize to make normalizing more powerful.
+ * forward[][][] is not supported because RNNs are nor supported.
+ */
 public class BatchNorm extends LayerNew {
 
 
@@ -31,7 +39,6 @@ public class BatchNorm extends LayerNew {
 
     Matrix output;
 
-    int[] inputShape;
 
     public BatchNorm(int input_size) {
         this.gamma = new double[input_size];
@@ -190,7 +197,7 @@ public class BatchNorm extends LayerNew {
             }
         }
 
-        standart_inputs = minus_mean.clone();
+        standart_inputs4D = Array_utils.copyArray(minus_mean4D);
         for (int i = 0; i < inputs.length; i++) {
             for (int j = 0; j < inputs[0].length; j++) {
                 for (int k = 0; k < inputs[0][0].length; k++) {
@@ -222,7 +229,7 @@ public class BatchNorm extends LayerNew {
 
     @Override
     public void backward(double[] input, double learningRate) {
-
+        this.backward(input);
     }
 
     @Override
@@ -330,7 +337,7 @@ public class BatchNorm extends LayerNew {
 
     @Override
     public void backward(double[] input) {
-
+        throw new IllegalArgumentException("Tried to use Batch-Norm with single input");
     }
 
     @Override
@@ -341,5 +348,11 @@ public class BatchNorm extends LayerNew {
     @Override
     public void backward(double[][][] input) {
 
+    }
+
+    public String summary() {
+        return "BatchNorm inputSize: " + Arrays.toString(getInputShape())
+                + " outputSize: " + Arrays.toString(getOutputShape())
+                + " parameterSize: " + parameters() + "\n";
     }
 }

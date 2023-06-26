@@ -11,6 +11,7 @@ import static utils.Utils.matmul2D;
  */
 public class Array_utils {
 
+
     public static double[][][][] fill(double[][][][] a, double d) {
 
         for (int i = 0; i < a.length; i++) {
@@ -18,6 +19,28 @@ public class Array_utils {
                 for (int k = 0; k < a[0][0].length; k++) {
                     for (int l = 0; l < a[0][0][0].length; l++) {
                         a[i][j][k][l] = d;
+                    }
+                }
+            }
+        }
+
+        return a;
+
+    }
+
+    public static double[] flatten(double[][][][] d) {
+
+
+        int size = sumUpMult(getShape(d));
+        double[] a = new double[size];
+
+        int count = 0;
+        for (int i = 0; i < d.length; i++) {
+            for (int j = 0; j < d[0].length; j++) {
+                for (int k = 0; k < d[0][0].length; k++) {
+                    for (int l = 0; l < d[0][0][0].length; l++) {
+                        a[count] = d[i][j][k][l];
+                        count += 1;
                     }
                 }
             }
@@ -133,7 +156,6 @@ public class Array_utils {
 
     }
 
-
     public static double[][] flattenBatch(double[][][][] a) {
 
         int[] shape = getShape(a);
@@ -154,7 +176,6 @@ public class Array_utils {
 
         return c;
     }
-
 
     public static double[][][][] reFlat(double[][] a, int[] shape) {
 
@@ -411,8 +432,8 @@ public class Array_utils {
 
         double[] mx = new double[a[0].length];
 
-        for (int j = 0; j < a.length; j++) {
-            for (int i = 0; i < a[0].length; i++) {
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
                 for (int k = 0; k < a[0][0].length; k++) {
                     for (int l = 0; l < a[0][0][0].length; l++) {
                         mx[j] += a[i][j][k][l];
@@ -439,8 +460,8 @@ public class Array_utils {
 
         double[][][][] c = new double[a.length][a[0].length][a[0][0].length][a[0][0][0].length];
 
-        for (int j = 0; j < a.length; j++) {
-            for (int i = 0; i < a[0].length; i++) {
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
                 for (int k = 0; k < a[0][0].length; k++) {
                     for (int l = 0; l < a[0][0][0].length; l++) {
                         c[i][j][k][l] = Math.pow((a[i][j][k][l] - mx[j]), 2);
@@ -450,7 +471,6 @@ public class Array_utils {
         }
         return mean_axis_0_2_3(c);
     }
-
 
     public static double[][] var_axis_1(double[][][] x) {
 
@@ -586,7 +606,6 @@ public class Array_utils {
 
         return out;
     }
-
 
     public static double[][] neg_sum_axis_0(double[][][] x) {
         double[][] out = new double[x[0].length][x[0][0].length];
@@ -1192,7 +1211,6 @@ public class Array_utils {
         return c;
     }
 
-
     public static double sum(double[] a) {
 
         double sum = 0;
@@ -1271,6 +1289,15 @@ public class Array_utils {
         return sum;
     }
 
+    public static int getFlattenInputShape(int[] shape) {
+
+        int sum = shape[0];
+        for (int i = 1; i < shape.length; i++) {
+            sum *= shape[i];
+        }
+
+        return sum;
+    }
 
     public void printShape(double[][][][] a) {
 

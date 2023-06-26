@@ -1,9 +1,9 @@
 package Train;
 
+import extraLayer.FastLinearLayer;
 import layer.FullyConnectedLayer;
 import layer.TanH;
 import loss.MSE;
-import main.FastLinearLayer;
 import main.MNIST;
 import main.NeuralNetwork;
 import utils.Array_utils;
@@ -14,7 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import static Train.LoadOwn.getTestData;
-import static Train.TrainUtils.shuffle;
+import static utils.TrainUtils.shuffle;
 
 public class TrainMnist {
 

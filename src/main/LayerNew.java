@@ -91,6 +91,10 @@ abstract public class LayerNew {
         return this.outputShape;
     }
 
+    public void setOutputShape(int[] outputShape) {
+        this.outputShape = outputShape;
+    }
+
     abstract public String export(); //needs to implemented.
 
     public void setDropout(double rate) {
@@ -122,5 +126,7 @@ abstract public class LayerNew {
         return output;
     }
 
+
+    abstract public String summary();
 
 }

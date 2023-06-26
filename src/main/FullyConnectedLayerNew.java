@@ -461,7 +461,7 @@ public class FullyConnectedLayerNew extends LayerNew {
 
             gradientOutput[i] = gradientOutSum;
         }
-        
+
         if (useBiases) {
             for (int i = 0; i < biases.length; i++) {
                 dbiases[i] = gradAct[i] * gradientInput[i];
@@ -662,6 +662,13 @@ public class FullyConnectedLayerNew extends LayerNew {
             }
         }
         return s.toString();
+    }
+
+    @Override
+    public String summary() {
+        return "Fully-Connected-Layer inputSize: " + Arrays.toString(getInputShape())
+                + " outputSize: " + Arrays.toString(getOutputShape())
+                + " parameter: " + parameters() + "\n";
     }
 
 

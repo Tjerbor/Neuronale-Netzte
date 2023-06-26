@@ -5,6 +5,8 @@ import main.LayerNew;
 import utils.Array_utils;
 import utils.Matrix;
 
+import java.util.Arrays;
+
 import static utils.Array_utils.getShape;
 
 /**
@@ -222,6 +224,13 @@ public class ActivationLayer extends LayerNew {
     @Override
     public String export() {
         return act.toString().toLowerCase() + ";";
+    }
+
+    @Override
+    public String summary() {
+        return act.toString() + " inputSize: " + Arrays.toString(getInputShape())
+                + " outputSize: " + Arrays.toString(getOutputShape())
+                + " parameter" + parameters() + "\n";
     }
 
 }

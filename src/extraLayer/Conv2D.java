@@ -4,10 +4,7 @@ import layer.Activation;
 import main.Dropout;
 import main.LayerNew;
 import optimizer.Optimizer;
-import utils.ArrayMathUtils;
-import utils.Matrix;
-import utils.RandomUtils;
-import utils.Utils;
+import utils.*;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -15,6 +12,11 @@ import java.util.Random;
 import static utils.Array_utils.getShape;
 import static utils.Array_utils.reFlat;
 
+
+/**
+ * Convolution expects the input Dim to be (channels, Heights, Width)
+ * Is important because the Output Shape is (numFilter, OutputHeight, OutputWidth)
+ */
 
 public class Conv2D extends LayerNew {
 
@@ -40,6 +42,7 @@ public class Conv2D extends LayerNew {
     Optimizer optimizer;
     Dropout dropout;
 
+    int numFilter;
     Activation act; //only local Activations. Softmax is not supported.
 
     private double learningRate;
@@ -62,6 +65,26 @@ public class Conv2D extends LayerNew {
         outputHeight = (((inputHeight - kernelSize1 + (2 * paddingH)) / (stride1)) + 1);
         outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
 
+        this.numFilter = numFilters;
+        weights = new double[kernelSize1][kernelSize2][channels][numFilters];
+        generateRandomFilters(numFilters);
+
+    }
+
+    public Conv2D(int[] shape, int numFilters, int[] kernelSize, int[] strideSize) {
+        this.kernelSize1 = kernelSize[0];
+        this.kernelSize2 = kernelSize[1];
+        this.stride1 = strideSize[0];
+        this.stride2 = strideSize[1];
+        this.channels = shape[0];
+        this.inputHeight = shape[1];
+        this.inputWidth = shape[2];
+        this.numFilters = numFilters;
+
+        outputHeight = (((inputHeight - kernelSize1 + (2 * paddingH)) / (stride1)) + 1);
+        outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
+
+        this.numFilter = numFilters;
         weights = new double[kernelSize1][kernelSize2][channels][numFilters];
         generateRandomFilters(numFilters);
 
@@ -92,10 +115,10 @@ public class Conv2D extends LayerNew {
 
     }
 
-    public Conv2D(int[] shape, int numFillter) {
+    public Conv2D(int[] shape, int numFilter) {
 
 
-        this.numFilters = numFillter;
+        this.numFilters = numFilter;
         this.kernelSize1 = 3;
         this.kernelSize2 = 3;
         this.stride1 = 1;
@@ -170,11 +193,6 @@ public class Conv2D extends LayerNew {
 
     public int[] getOutputShape() {
         return new int[]{numFilters, outputHeight, outputWidth};
-    }
-
-    @Override
-    public String export() {
-        return null;
     }
 
 
@@ -641,4 +659,45 @@ public class Conv2D extends LayerNew {
 
     }
 
+
+    @Override
+    public String summary() {
+        return "Conv2D inputSize: " + Arrays.toString(getInputShape())
+                + " outputSize: " + Arrays.toString(getOutputShape())
+                + " parameterSize: " + parameters() + "\n";
+    }
+
+    @Override
+    public String export() {
+
+        String s = "conv2d_last;" + useBiases + ";" + numFilter + ";" +
+                kernelSize1 + ";" + kernelSize2 + ";" + stride1 + ";" + stride2 + ";" + inputHeight + ";" + inputWidth + ";" + channels + "\n";
+
+
+        double[] w = Array_utils.flatten(weights);
+
+        for (int i = 0; i < w.length; i++) {
+            if (i != w.length - 1) {
+                s += w[i] + ";";
+            } else {
+                s += w[i];
+            }
+
+        }
+
+        if (useBiases) {
+            s += "\n";
+
+            for (int i = 0; i < numFilter; i++) {
+                if (i != numFilter - 1) {
+                    s += biases[i] + ";";
+                } else {
+                    s += biases[i];
+                }
+
+            }
+        }
+
+        return s;
+    }
 }

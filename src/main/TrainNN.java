@@ -1,5 +1,6 @@
 package main;
 
+import extraLayer.FastLinearLayer;
 import loss.MSE;
 
 import java.io.IOException;
