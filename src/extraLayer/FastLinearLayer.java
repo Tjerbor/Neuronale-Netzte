@@ -16,7 +16,7 @@ public class FastLinearLayer extends LayerNew {
 
 
     Activation act = new TanH();
-    double learningRate;
+    double learningRate = 0.4;
     double[][] weights;
     private double[] lastZ;
     private double[][] lastZs;
@@ -61,13 +61,13 @@ public class FastLinearLayer extends LayerNew {
         }
 
         if (this.nextLayer != null) {
-            this.nextLayer.forward(out);
+            this.nextLayer.forward(new Matrix(out));
         } else {
             this.output = new Matrix(out);
         }
     }
 
-    @Override
+
     public void forward(double[][] inputs) {
         lastXs = inputs;
 
@@ -94,33 +94,41 @@ public class FastLinearLayer extends LayerNew {
 
         this.output = new Matrix(out);
         if (this.nextLayer != null) {
-            this.nextLayer.forward(out);
+            this.nextLayer.forward(new Matrix(out));
         } else {
             this.output = new Matrix(out);
         }
 
     }
 
+
     @Override
-    public void forward(double[][][] input) {
-        throw new IllegalArgumentException("Expected shape 1Dim got 3Dim");
+    public void forward(Matrix m) {
+        if (m.getDim() == 2) {
+            this.forward(m.getData2D());
+        } else if (m.getDim() == 1) {
+            this.forward(m.getData1D());
+        }
+    }
+
+
+    @Override
+    public void backward(Matrix m) {
+        if (m.getDim() == 2) {
+            this.backward(m.getData2D());
+        } else if (m.getDim() == 1) {
+            this.backward(m.getData1D());
+        }
     }
 
     @Override
-    public void forward(double[][][][] inputs) {
-        throw new IllegalArgumentException("Expected shape 2Dim got 4Dim");
-    }
-
-    @Override
-    public void backward(double[] input, double learningRate) {
+    public void backward(Matrix m, double learningRate) {
         this.learningRate = learningRate;
-        this.backward(input);
-    }
-
-    @Override
-    public void backward(double[][] inputs, double learningRate) {
-        this.learningRate = learningRate;
-        this.backward(inputs);
+        if (m.getDim() == 2) {
+            this.backward(m.getData2D());
+        } else if (m.getDim() == 1) {
+            this.backward(m.getData1D());
+        }
     }
 
     public Matrix getWeights() {
@@ -165,11 +173,11 @@ public class FastLinearLayer extends LayerNew {
         }
 
         if (this.previousLayer != null) {
-            this.previousLayer.backward(dLdX);
+            this.previousLayer.backward(new Matrix(dLdX));
         }
     }
 
-    @Override
+
     public void backward(double[][] inputs) {
 
 
@@ -203,19 +211,9 @@ public class FastLinearLayer extends LayerNew {
 
         }
         if (this.previousLayer != null) {
-            this.previousLayer.backward(dInputs);
+            this.previousLayer.backward(new Matrix(dInputs));
         }
 
-    }
-
-    @Override
-    public void backward(double[][][] input) {
-        throw new IllegalArgumentException("Expected shape 1Dim got 3Dim");
-    }
-
-    @Override
-    public void backward(double[][][][] inputs) {
-        throw new IllegalArgumentException("Expected shape 2Dim got 4Dim");
     }
 
     @Override

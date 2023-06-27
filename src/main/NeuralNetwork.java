@@ -1,512 +1,642 @@
 package main;
 
+import extraLayer.FullyConnectedLayer;
 import layer.Activation;
-import layer.FullyConnectedLayer;
 import loss.Loss;
-import loss.MSE;
-import optimizer.SGD;
+import optimizer.Optimizer;
 import utils.Array_utils;
+import utils.Matrix;
+import utils.Reader;
 import utils.Utils;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- * This class models a fully connected feed-forward artificial neural network.
- */
 public class NeuralNetwork {
-    private static final Logger LOGGER = Logger.getLogger(NeuralNetwork.class.getName());
 
-    /**
-     * This variable contains the loss function of the neural network.
-     */
-    private final Loss lossFunction = new MSE();
+    private LayerNew fristLayer;
+    private LayerNew lastLayer;
 
-    SGD optimizer = null; // right now not really supported.
+    private Loss loss;
 
-    /**
-     * This variable contains the layers of the neural network.
-     * It does not correspond to the topology used to create the neural network.
-     *
-     * @see NeuralNetwork#topology()
-     */
-    private FullyConnectedLayer[] layers;
+    private Optimizer optimizer;
+    private int size;
+
+
+    public void newExport(String fpath) {
+
+        StringBuilder s = new StringBuilder();
+
+        LayerNew[] layers = getLayers();
+
+        for (int i = 0; i < layers.length; i++) {
+            s.append(layers[i].export()).append("\n");
+        }
+
+
+    }
 
     /**
      * This method initializes the neural network with the given topology and activation function.
      * A {@link FullyConnectedLayer} is created for each edge layer.
      */
     public void create(int[] topology, Activation function) {
-        layers = new FullyConnectedLayer[topology.length - 1];
 
-        for (int i = 0; i < layers.length; i++) {
-            layers[i] = new FullyConnectedLayer(topology[i], topology[i + 1], function);
+        size = topology.length - 1;
+        for (int i = 0; i < size; i++) {
+            this.add(new FullyConnectedLayer(topology[i], topology[i + 1], function));
         }
     }
 
-    /**
-     * This method initializes the neural network with the given topology and activation functions.
-     * A {@link FullyConnectedLayer} is created for each edge layer.
-     * The activation functions can be set in two different ways:
-     *
-     * <ul>
-     *     <li>One activation function is given for each layer.</li>
-     *     <li>
-     *         Two activation functions are given.
-     *         In this case, the second one is used for the output layer, and the first one for all other layers.
-     *     </li>
-     * </ul>
-     * <p>
-     * The method throws an exception if the number of activation functions is not correct.
-     */
-    public void create(int[] topology, Activation[] functions) {
-        int size = topology.length - 1;
+    public void create(int[] topology) {
 
-        if (functions.length != size && !(functions.length == 2 && size > 1)) {
-            throw new IllegalArgumentException("The number of activation functions is not correct.");
+        size = topology.length - 1;
+        for (int i = 0; i < size; i++) {
+            this.add(new FullyConnectedLayer(topology[i], topology[i + 1]));
         }
+    }
 
-        if (functions.length == 2) {
-            create(topology, functions[0]);
+    public void create(int[] topology, int weightGenType) {
 
-            layers[layers.length - 1].setActivation(functions[1]);
+        size = topology.length - 1;
+        for (int i = 0; i < size; i++) {
+            FullyConnectedLayer f = new FullyConnectedLayer(topology[i], topology[i + 1]);
+            f.genWeights(weightGenType);
+            this.add(f);
+        }
+    }
+
+    public void create(String fpath) throws IOException {
+        LayerNew[] layers = Reader.createNew(fpath);
+        this.setLayers(layers);
+
+    }
+
+    public void create(LayerNew[] layers) {
+
+        if (layers.length == 2) {
+            this.size = 2;
+            this.fristLayer = layers[0];
+            this.lastLayer = layers[1];
+            this.fristLayer.setNextLayer(this.lastLayer);
+            this.lastLayer.setPreviousLayer(this.fristLayer);
         } else {
-            layers = new FullyConnectedLayer[topology.length - 1];
-
-            for (int i = 0; i < topology.length - 1; i++) {
-                layers[i] = new FullyConnectedLayer(topology[i], topology[i + 1], functions[i]);
+            for (LayerNew l : layers
+            ) {
+                this.add(l);
             }
+
         }
     }
 
-    /**
-     * This method returns the topology used to create the neural network.
-     */
-    protected int[] topology() {
-        int[] topology = new int[layers.length + 1];
+    public double[] compute(double[] input) {
+        fristLayer.forward(new Matrix(input));
+        return lastLayer.getOutput().getData1D();
 
-        for (int i = 0; i < topology.length - 1; i++) {
-            topology[i] = layers[i].getWeights().length - 1;
-            topology[i + 1] = layers[i].getWeights()[0].length;
+    }
+
+    public double[][] computeAll(double[][] inputs) {
+        fristLayer.forward(new Matrix(inputs));
+        return lastLayer.getOutput().getData2D();
+    }
+
+    public void computeBackward(double[] input, int epochAt) {
+        if (this.lastLayer == null) {
+            this.build();
         }
-        return topology;
+        lastLayer.setIterationAt(epochAt + 1);
+        lastLayer.backward(new Matrix(input));
+    }
+
+    public void computeBackward(double[] input) {
+        if (this.lastLayer == null) {
+            this.build();
+        }
+        lastLayer.backward(new Matrix(input));
+    }
+
+    public void computeBackward(double[] input, int epochAt, double learningRate) {
+        if (this.lastLayer == null) {
+            this.build();
+        }
+        lastLayer.setIterationAt(epochAt + 1); // start with zero.
+        lastLayer.setLearningRate(learningRate);
+        lastLayer.backward(new Matrix(input));
+    }
+
+    public void computeAllBackward(double[][] inputs, int epochAt) {
+        if (this.lastLayer == null) {
+            this.build();
+        }
+
+        lastLayer.setIterationAt(epochAt + 1); // start with zero.
+        lastLayer.backward(new Matrix(inputs));
+    }
+
+    public void computeAllBackward(double[][] inputs, int epochAt, double learningRate) {
+        if (this.lastLayer == null) {
+            this.build();
+        }
+        lastLayer.setIterationAt(epochAt + 1); // start with zero.
+        //lastLayer.setLearningRate(learningRate);
+        lastLayer.backward(new Matrix(inputs), learningRate);
     }
 
     /**
-     * This method returns the {@link NeuralNetwork#layers}.
+     * only needed for training.
      */
-    public FullyConnectedLayer[] getLayers() {
+    public void build() {
+        this.setTrainingsStuff();
+    }
+
+    public int size() {
+        return size;
+    }
+
+    /**
+     * public void addConvLayer(int[] shape, int numbFilter, int kernelSize, int stride){
+     * <p>
+     * if(shape[0] == 1 || shape[0] == 3){
+     * Conv2D  conv2D = new Conv2D(shape, numbFilter, kernelSize, stride);
+     * }else  {
+     * <p>
+     * }
+     * <p>
+     * }
+     **/
+
+
+    public void add(LayerNew l) {
+
+        if (l != null) {
+            if (this.fristLayer == null) {
+                fristLayer = l;
+
+            } else if (lastLayer == null) {
+                lastLayer = l;
+                fristLayer.setNextLayer(lastLayer);
+                lastLayer.setPreviousLayer(lastLayer);
+            } else {
+                LayerNew before = lastLayer;
+                lastLayer = l;
+                before.setNextLayer(lastLayer);
+                lastLayer.setPreviousLayer(before);
+
+            }
+            size++;
+        }
+    }
+
+    public void setLoss(Loss loss) {
+        this.loss = loss;
+    }
+
+    public void setOptimizer(Optimizer optimizer) {
+        this.optimizer = optimizer;
+    }
+
+    private LayerNew[] layers2Array() {
+        LayerNew[] layers = new LayerNew[size];
+
+        layers[0] = fristLayer;
+
+        LayerNew tmp = fristLayer;
+        for (int i = 1; i < layers.length; i++) {
+            tmp = tmp.getNextLayer();
+            layers[i] = tmp;
+
+        }
         return layers;
     }
 
-    /**
-     * This method sets the {@link NeuralNetwork#layers}.
-     * It can be used to initialize a neural network with the return value of {@link utils.Reader#create(String)}.
-     */
-    public void setLayers(FullyConnectedLayer[] layers) {
-        this.layers = layers;
-    }
 
     /**
-     * This method returns the number of layers of the neural network.
-     * The returned value does not correspond to the length of the topology used to create the neural network.
-     *
-     * @see NeuralNetwork#topology()
+     * set Training for all Layers.
+     * Also set Optimizer.
+     * Maybe set new Strides.
      */
-    protected int size() {
-        return layers.length;
-    }
+    private void setTrainingsStuff() {
 
-    /**
-     * This method writes the topology and the weights of the neural network to a file with the given name.
-     * The file has the same format as the files that can be read with {@link utils.Reader#create(String)}.
-     * The method throws an exception if an I/O error occurs.
-     */
-    public void exportWeights(String fileName) throws IOException {
-        StringBuilder s = new StringBuilder("layers");
 
-        for (int i : topology()) {
-            s.append(";").append(i);
+        if (this.optimizer != null) {
+            fristLayer.setOptimizer(this.optimizer);
+
         }
+        fristLayer.setTraining(true);
 
-        s.append("\n");
-
-        for (int i = 0; i < size(); i++) {
-            double[][] weights = layers[i].getWeights();
-
-            if (i != 0) {
-                s.append("\n");
+        LayerNew tmp = fristLayer;
+        for (int i = 1; i < size; i++) {
+            tmp = tmp.getNextLayer();
+            tmp.setTraining(true);
+            if (this.optimizer != null) {
+                tmp.setOptimizer(this.optimizer);
             }
 
-            for (double[] weight : weights) {
-                s.append(weight[0]);
 
-                for (int j = 1; j < weight.length; j++) {
-                    s.append(";").append(weight[j]);
-                }
-
-                s.append("\n");
-            }
-        }
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            writer.write(s.toString());
-        }
-    }
-
-    /**
-     * This method overwrites the {@link Activation} function of the given edge layer.
-     * It throws an exception if the index is out of bounds.
-     */
-    public void setFunction(int index, Activation function) {
-        if (index < 0 || index >= layers.length) {
-            throw new IllegalArgumentException();
-        }
-
-        layers[index].setActivation(function);
-    }
-
-    /**
-     * This method returns the number of parameters of the neural network.
-     */
-    public int parameters() {
-        int parameters = 0;
-
-        for (FullyConnectedLayer layer : layers) {
-            parameters += layer.parameters();
-        }
-
-        return parameters;
-    }
-
-    /**
-     * This method calculates a forward pass through the neural network with the given input.
-     * It throws an exception if the array dimensions are incorrect.
-     */
-    public double[] compute(double[] input) {
-        if (topology()[0] != input.length) {
-            throw new IllegalArgumentException("The dimension of the first layer and that of the input data do not match.");
-        }
-
-        double[] result = input.clone();
-
-        for (FullyConnectedLayer layer : layers) {
-            result = layer.forward(result);
-        }
-
-        return result;
-    }
-
-    /**
-     * This method calculates a forward pass through the neural network with the given inputs.
-     * It throws an exception if the array dimensions are incorrect.
-     */
-    public double[][] compute(double[][] inputs) {
-        int[] topology = topology();
-
-        for (double[] input : inputs) {
-            if (topology[0] != input.length) {
-                throw new IllegalArgumentException("The dimension of the first layer and that of the input data do not match.");
-            }
-        }
-
-        double[][] result = Arrays.stream(inputs).map(double[]::clone).toArray(double[][]::new);
-
-        for (FullyConnectedLayer layer : layers) {
-            result = layer.forward(result);
-        }
-
-        return result;
-    }
-
-    private void test(double[] output) {
-        int[] topology = topology();
-
-        if (topology[topology.length - 1] != output.length) {
-            throw new IllegalArgumentException("The dimension of the last layer and that of the output data do not match.");
-        }
-    }
-
-    /**
-     * This method calculates a backward pass through the neural network with the given output.
-     * It throws an exception if the array dimensions are incorrect.
-     */
-    public void computeBackward(double[] output) {
-        test(output);
-
-        double[] result = output.clone();
-
-        for (int i = 0; i < size(); i++) {
-            result = layers[size() - 1 - i].backward(result);
-        }
-    }
-
-    /**
-     * This method calculates a backward pass through the neural network with the given output and learning rate.
-     * It throws an exception if the array dimensions are incorrect.
-     */
-    public void computeBackward(double[] output, double learningRate) {
-        test(output);
-
-        double[] result = output.clone();
-
-        for (int i = 0; i < size(); i++) {
-            result = layers[size() - 1 - i].backward(result, learningRate);
-        }
-    }
-
-    private void test(double[][] outputs) {
-        int[] topology = topology();
-
-        for (double[] output : outputs) {
-            if (topology[topology.length - 1] != output.length) {
-                throw new IllegalArgumentException("The dimension of the last layer and that of the output data do not match.");
-            }
-        }
-    }
-
-    /**
-     * This method calculates a backward pass through the neural network with the given outputs.
-     * It throws an exception if the array dimensions are incorrect.
-     */
-    public void computeBackward(double[][] outputs) {
-        test(outputs);
-
-        double[][] result = Arrays.stream(outputs).map(double[]::clone).toArray(double[][]::new);
-
-        for (int i = 0; i < size(); i++) {
-            result = layers[size() - i].backward(result);
-        }
-    }
-
-    /**
-     * This method calculates a backward pass through the neural network with the given outputs and learning rate.
-     * It throws an exception if the array dimensions are incorrect.
-     */
-    public void computeBackward(double[][] outputs, double learningRate) {
-        test(outputs);
-
-        double[][] result = Arrays.stream(outputs).map(double[]::clone).toArray(double[][]::new);
-
-        for (int i = 0; i < size(); i++) {
-            result = layers[size() - 1 - i].backward(result, learningRate);
-        }
-    }
-
-    /**
-     * This method trains the neural network with the given data sets, number of epochs and learning rate.
-     * It throws an exception if the array dimensions are incorrect.
-     */
-    public void training(double[][] inputs, double[][] expected, int epochs, double learningRate) {
-        if (inputs.length != expected.length) {
-            throw new IllegalArgumentException("The arrays do not have the same length.");
-        }
-
-        for (int i = 0; i < epochs; i++) {
-            double loss = 0;
-
-            for (int j = 0; j < inputs.length; j++) {
-                double[] result = compute(inputs[j].clone());
-
-                loss += lossFunction.forward(result, expected[j]);
-
-                result = lossFunction.backward(result, expected[j]);
-
-                computeBackward(result, learningRate);
-            }
-
-            LOGGER.log(Level.INFO, "Loss of Epoch {0}: {1}", new Object[]{i + 1, loss / inputs.length});
-        }
-    }
-
-    /**
-     * This method trains the neural network with the given batch of data sets, number of epochs and learning rate.
-     * It throws an exception if the array dimensions are incorrect.
-     */
-    public void training(double[][][] inputs, double[][][] expected, int epochs, double learningRate) {
-        if (inputs.length != expected.length) {
-            throw new IllegalArgumentException("The arrays do not have the same length.");
-        }
-
-        for (int i = 0; i < epochs; i++) {
-            double loss = 0;
-
-            for (int j = 0; j < inputs.length; j++) {
-                double[][] result = compute(inputs[j].clone());
-
-                loss += lossFunction.forward(result, expected[j]);
-
-                result = lossFunction.backward(result, expected[j]);
-
-                computeBackward(result, learningRate);
-            }
-
-            LOGGER.log(Level.INFO, "Loss of Epoch {0}: {1}", new Object[]{i + 1, loss / inputs.length});
-        }
-    }
-
-    /**
-     * train the model with a batch.
-     * has no learning rate because it uses and optimizer.
-     *
-     * @param epoch   epochs to train for
-     * @param x_train input data for the NN.
-     * @param y_train the output the NN shall give.
-     * @throws Exception Shape Error.
-     */
-    public void train_with_batch(int epoch, double[][][] x_train, double[][][] y_train) throws Exception {
-
-        if (this.optimizer == null) {
-            throw new Exception("Got no Optimizer and no Learning rate");
-        } else if (x_train.length != y_train.length) {
-            throw new IllegalArgumentException("x und y Data have diffrent Size.");
-        } else if (this.lossFunction == null) {
-            throw new IllegalArgumentException("loss function is not set.");
-        } else if (topology()[topology().length - 1] != y_train[0][0].length) {
-            throw new IllegalArgumentException("y has " + y_train[0][0].length + " classes but " +
-                    "model output shape is: " + topology()[topology().length - 1]);
-        } else if (topology()[0] != x_train[0].length) {
-            throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + topology()[0]);
-        }
-
-
-        double loss_per_epoch;
-        int step_size = x_train.length;
-
-        double[] step_losses = new double[step_size];
-
-        for (int i = 0; i < epoch; i++) {
-            double[][] outs;
-
-            for (int j = 0; j < step_size; j++) {
-
-                outs = compute(Array_utils.copyArray(x_train[j]));
-                //one epoch is finished.
-                //calculates Loss
-                step_losses[j] = lossFunction.forward(outs, y_train[j]);
-                //calculates prime Loss
-                outs = lossFunction.backward(outs, y_train[j]);
-                // now does back propagation
-                this.computeBackward(outs);
-            }
-            loss_per_epoch = Utils.sumUpLoss(step_losses, step_size);
-            System.out.println("Loss per epoch: " + loss_per_epoch);
         }
 
 
     }
 
-    public void trainTestsingle(int epoch, double[][] x_train, double[][] y_train, double[][] x_test, double[][] y_test, double learning_rate) {
 
-        System.out.println("Train Topologie: " + Arrays.toString(this.topology()));
-        System.out.println("Train Data Length: " + x_train.length);
-        //checks for rxceptions
+    public LayerNew[] getLayers() {
+        return layers2Array();
+    }
+
+    public void setLayers(LayerNew[] layers) {
+
+        fristLayer = layers[0];
+
+        for (int i = 1; i < layers.length; i++) {
+            this.add(layers[i]);
+        }
+
+
+    }
+
+    public void checkTraining(double[][] x_train, double[][] y_train) {
+
+
         if (x_train.length != y_train.length) {
-            throw new IllegalArgumentException("x und y Data have diffrent Size.");
-        } else if (this.lossFunction == null) {
+            throw new IllegalArgumentException("x und y Data have different Size.");
+        } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
-        } else if (this.topology()[topology().length - 1] != y_train[0].length) {
+        } else if (this.lastLayer.getOutputShape()[0] != y_train[0].length) {
             throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
-                    "model output shape is: " + this.topology()[this.topology().length - 1]);
-        } else if (this.topology()[0] != x_train[0].length) {
+                    "model output shape is: " + lastLayer.getOutputShape()[0]);
+        } else if (fristLayer.getInputShape()[0] != x_train[0].length) {
             throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + this.topology()[0]);
+                    "model inputs shape is: " + fristLayer.getInputShape()[0]);
         }
 
-
-        double loss_per_epoch;
-        double step_loss;
-        int step_size = x_train.length;
-        for (int i = 0; i < epoch; i++) {
-            loss_per_epoch = 0;
-
-            double[] outs;
-
-            for (int j = 0; j < step_size; j++) {
-                outs = compute(Array_utils.copyArray(x_train[j]));
-                step_loss = lossFunction.forward(outs, y_train[j]);
-                loss_per_epoch += step_loss;
-                //calculates prime Loss
-                outs = lossFunction.backward(outs, y_train[j]);
-                // now does backpropagation // and updates the weights.
-                computeBackward(outs, learning_rate);
-
-            }
-            loss_per_epoch = loss_per_epoch / x_train.length;
-            System.out.println("Loss per epoch: " + loss_per_epoch);
-        }
-
-        double lossTest = test_single(x_test, y_test);
-        System.out.println("Acc: " + lossTest);
 
     }
 
-    public double test_single(double[][] x_train, double[][] y_train) {
+    public void test(double[][] inputDaten, double[][] classes) {
 
+        int step_size = inputDaten.length;
 
-        System.out.println(Arrays.toString(this.topology()));
-        System.out.println("Test Data Length: " + x_train.length);
-
-
-        double loss_per_epoch = 0;
-        int step_size = x_train.length;
-
-
-        int[] predictions = new int[x_train.length];
-
-        int pred;
-        int ist;
-        double[] outs;
+        double acc = 0;
         for (int j = 0; j < step_size; j++) {
-            outs = compute(x_train[j]);
-            outs = Utils.clean_input(outs, y_train[0].length);
-            pred = Utils.argmax(outs);
-            ist = Utils.argmax(y_train[j]);
+            double[] out;
+            out = compute(Array_utils.copyArray(inputDaten[j]));
 
-
-            if (pred == ist) {
-                loss_per_epoch += 1;
+            if (Utils.argmax(out) == Utils.argmax(classes[j])) {
+                acc += 1;
             }
-            predictions[j] = pred;
 
 
         }
-        loss_per_epoch = loss_per_epoch / x_train.length;
-        System.out.println("Acc ing epoch: " + loss_per_epoch);
 
-        /**
-         for (int i = 0; i < 20; i++) {
-         System.out.println("Predicted Class: " + predictions[i] + " Actual Class: " + Utils.argmax(y_train[i]));
-         }**/
+        System.out.println("Acc: " + acc / inputDaten.length);
 
 
-        return loss_per_epoch;
     }
 
-    /**
-     * This method returns a string representation of the neural network.
-     * It contains the topology, the weights and the number of parameters.
-     *
-     * @see NeuralNetwork#topology()
-     * @see NeuralNetwork#parameters()
-     */
-    @Override
-    public String toString() {
+    public void printTestStats(double[][] inputDaten, double[][] classes) {
+        System.out.println(getTestStats(inputDaten, classes));
+
+    }
+
+    public String getTestStats(double[][] inputDaten, double[][] classes) {
+
         StringBuilder s = new StringBuilder();
+        int step_size = inputDaten.length;
 
-        s.append("Topology: ").append(Arrays.toString(topology())).append("\n");
+        int[][] prediction = new int[classes[0].length][2];
+        double acc = 0;
+        for (int j = 0; j < step_size; j++) {
+            double[] out;
+            out = compute(Array_utils.copyArray(inputDaten[j]));
 
-        for (int i = 0; i < layers.length; i++) {
-            s.append("Weights of Layer ").append(i).append(":\n").append(layers[i]).append("\n");
+            if (Utils.argmax(out) == Utils.argmax(classes[j])) {
+                acc += 1;
+                prediction[Utils.argmax(classes[j])][0] += 1;
+                prediction[Utils.argmax(classes[j])][1] += 1;
+            } else {
+                prediction[Utils.argmax(classes[j])][1] += 1;
+            }
+
+
         }
 
-        s.append("Parameters: ").append(parameters()).append("\n");
+        s.append("Acc Overall: ").append(acc / inputDaten.length).append("\n");
+        for (int i = 0; i < prediction.length; i++) {
+            s.append("class: ").append(i).append(" was correct predicted: ").append(prediction[i][0]).append(" / ").append(prediction[i][1]).append(" per: ").append((prediction[i][0] / prediction[i][1]))
+                    .append("\n");
+        }
 
         return s.toString();
+
     }
+
+
+    public void train(int epochs, double[][] inputDaten, double[][] classes) {
+
+        this.build();
+        this.checkTraining(inputDaten, classes); //check if got valid Arguments for Training.
+
+        long st = 0;
+        long end;
+        int step_size = inputDaten.length;
+
+        for (int i = 0; i < epochs; i++) {
+            st = System.currentTimeMillis();
+            double[] out;
+            double[] stepLosses = new double[step_size];
+
+            for (int j = 0; j < step_size; j++) {
+                out = compute(Array_utils.copyArray(inputDaten[j]));
+                //calculates Loss
+                stepLosses[j] = loss.forward(out, classes[j]);
+                //calculates backward Loss
+                out = loss.backward(out, classes[j]);
+                // now does back propagation
+                this.computeBackward(out, i);
+            }
+            end = System.currentTimeMillis();
+            System.out.println("Time: " + ((end - st) / 1000));
+            System.out.println("Loss: " + Utils.mean(stepLosses));
+
+
+        }
+
+
+    }
+
+
+    public void train(int epochs, double[][] inputDaten, double[][] classes, double[][] testInput, double[][] testClasses) {
+        this.build();
+        this.checkTraining(inputDaten, classes);
+
+
+        this.printSummary();
+        long st = 0;
+        long end;
+        int step_size = inputDaten.length;
+
+        for (int i = 0; i < epochs; i++) {
+            st = System.currentTimeMillis();
+            double[] out;
+            double[] stepLosses = new double[step_size];
+
+            for (int j = 0; j < step_size; j++) {
+                out = compute(Array_utils.copyArray(inputDaten[j]));
+                //calculates Loss
+                stepLosses[j] = loss.forward(out, classes[j]);
+                //calculates backward Loss
+                out = loss.backward(out, classes[j]);
+                // now does back propagation
+                this.computeBackward(out, i);
+            }
+
+            end = System.currentTimeMillis();
+            System.out.println("Time: " + ((end - st) / 1000));
+            System.out.println("Loss: " + Utils.mean(stepLosses));
+            printTestStats(testInput, testClasses);
+        }
+
+
+    }
+
+    public void train(int epochs, double[][] inputDaten, double[][] classes, double[][] testInput, double[][] testClasses, double learningRate) {
+        this.build();
+        this.checkTraining(inputDaten, classes);
+
+
+        long st = 0;
+        long end;
+        int step_size = inputDaten.length;
+
+        for (int i = 0; i < epochs; i++) {
+            st = System.currentTimeMillis();
+            double[] out;
+            double[] stepLosses = new double[step_size];
+
+            for (int j = 0; j < step_size; j++) {
+                out = compute(Array_utils.copyArray(inputDaten[j]));
+                //calculates Loss
+                stepLosses[j] = loss.forward(out, classes[j]);
+                //calculates backward Loss
+                out = loss.backward(out, classes[j]);
+                // now does back propagation
+                this.computeBackward(out, i, learningRate);
+            }
+
+            end = System.currentTimeMillis();
+            System.out.println("Time: " + ((end - st) / 1000));
+            System.out.println("Loss: " + Utils.mean(stepLosses));
+            printTestStats(testInput, testClasses);
+        }
+
+
+    }
+
+    public String trainTesting(int epochs, double[][] inputDaten, double[][] classes, double[][] testInput, double[][] testClasses, double learningRate) {
+        this.build();
+        this.checkTraining(inputDaten, classes);
+
+
+        String s = "";
+
+        s += "learningRate: " + learningRate + "\n";
+        long st = 0;
+        long end;
+        int step_size = inputDaten.length;
+
+        for (int i = 0; i < epochs; i++) {
+            st = System.currentTimeMillis();
+            double[] out;
+            double[] stepLosses = new double[step_size];
+
+            s += "epoch: " + i + "\n";
+            for (int j = 0; j < step_size; j++) {
+                out = compute(Array_utils.copyArray(inputDaten[j]));
+                //calculates Loss
+                stepLosses[j] = loss.forward(out, classes[j]);
+                //calculates backward Loss
+                out = loss.backward(out, classes[j]);
+                // now does back propagation
+                this.computeBackward(out, i, learningRate);
+            }
+
+            end = System.currentTimeMillis();
+            System.out.println("Time: " + ((end - st) / 1000));
+            System.out.println("Loss: " + Utils.mean(stepLosses));
+            s += ("Time: " + ((end - st) / 1000)) + "\n";
+            s += ("Loss: " + Utils.mean(stepLosses)) + "\n";
+            String tmp = getTestStats(testInput, testClasses);
+            System.out.println(tmp);
+            s += tmp;
+            s += "\n\n";
+        }
+
+        return s;
+    }
+
+
+    public void trainNew(int epochs, double[][] inputDaten, double[][] classes, double[][] testInput, double[][] testClasses, double learningRate) {
+        this.build();
+        this.checkTraining(inputDaten, classes);
+
+
+        long st = 0;
+        long end;
+        int step_size = inputDaten.length;
+
+        for (int i = 0; i < epochs; i++) {
+            st = System.currentTimeMillis();
+            double[] out;
+            double[] stepLosses = new double[step_size];
+
+            for (int j = 0; j < step_size; j++) {
+                out = compute(Array_utils.copyArray(inputDaten[j]));
+                //calculates Loss
+                stepLosses[j] = loss.forward(out, classes[j]);
+                //calculates backward Loss
+                out = loss.backward(out, classes[j]);
+                // now does back propagation
+                this.computeBackward(out, i, learningRate);
+            }
+
+            end = System.currentTimeMillis();
+            System.out.println("Time: " + ((end - st) / 1000));
+            System.out.println("Loss: " + Utils.mean(stepLosses));
+            test(testInput, testClasses);
+        }
+
+
+    }
+
+    public void trainNew(int epochs, double[][] inputDaten, double[][] classes, double[][] testInput, double[][] testClasses) {
+        this.build();
+        this.checkTraining(inputDaten, classes);
+
+
+        long st = 0;
+        long end;
+        int step_size = inputDaten.length;
+
+        for (int i = 0; i < epochs; i++) {
+            st = System.currentTimeMillis();
+            double[] out;
+            double[] stepLosses = new double[step_size];
+
+            for (int j = 0; j < step_size; j++) {
+                out = compute(Array_utils.copyArray(inputDaten[j]));
+                //calculates Loss
+                stepLosses[j] = loss.forward(out, classes[j]);
+                //calculates backward Loss
+                out = loss.backward(out, classes[j]);
+                // now does back propagation
+                this.computeBackward(out, i);
+            }
+
+            end = System.currentTimeMillis();
+            System.out.println("Time: " + ((end - st) / 1000));
+            System.out.println("Loss: " + Utils.mean(stepLosses));
+            test(testInput, testClasses);
+        }
+
+
+    }
+
+    public int parameters() {
+        int sum = 0;
+
+        LayerNew tmp = fristLayer;
+        while (tmp != null) {
+            sum += tmp.parameters();
+            tmp = tmp.nextLayer;
+        }
+        return sum;
+    }
+
+    @Override
+    public String toString() {
+        return "NN_New{" +
+                "fristLayer=" + fristLayer.summary() +
+                ", lastLayer=" + lastLayer.summary() +
+                ", loss=" + loss +
+                ", optimizer=" + optimizer +
+                ", size=" + size +
+                ", parameters=" + parameters() +
+                '}';
+    }
+
+    public void printSummary() {
+        StringBuilder s = new StringBuilder();
+        LayerNew tmp = fristLayer;
+        while (tmp != null) {
+            s.append(tmp.summary());
+            tmp = tmp.nextLayer;
+        }
+
+        System.out.println(s);
+
+    }
+
+
+    public String export() {
+
+        LayerNew[] tmp = layers2Array();
+
+        String s = "NN;" + tmp.length + "\n";
+        for (int i = 0; i < tmp.length; i++) {
+            if (i != tmp.length - 1) {
+                s += tmp[i].export() + "\n";
+            } else {
+                s += tmp[i].export();
+            }
+
+        }
+
+        return s;
+    }
+
+    public void writeModel(String fileName) {
+
+        String s = this.export();
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.write(s);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public LayerNew getFristLayer() {
+        return fristLayer;
+    }
+
+    public LayerNew getLastLayer() {
+        return lastLayer;
+    }
+
+
+    public boolean isEqual(NeuralNetwork other) {
+
+        if (other.getLayers().length != this.getLayers().length) {
+            System.out.println("Layers have different Length: this: " + this.getLayers().length + " other: " + other.getLayers().length);
+            return false;
+        }
+
+        LayerNew[] thisLayers = this.getLayers();
+        LayerNew[] otherLayers = other.getLayers();
+        for (int i = 0; i < thisLayers.length; i++) {
+
+            if (!thisLayers[i].isEqual(otherLayers[i])) {
+                System.out.println("Layer on Position: " + i + " was different.");
+                System.out.println("this: " + thisLayers[i].export());
+                System.out.println("other: " + otherLayers[i].export());
+                return false;
+            }
+
+        }
+
+        return true;
+    }
+
+
 }

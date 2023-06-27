@@ -1,25 +1,21 @@
-package main;
+package extraLayer;
 
 import layer.Activation;
 import layer.NewSoftmax;
 import layer.TanH;
+import main.LayerNew;
 import optimizer.Optimizer;
-import utils.Array_utils;
 import utils.Matrix;
 import utils.RandomUtils;
 import utils.Utils;
 
 import java.util.Arrays;
 
-import static utils.Array_utils.getShape;
-
 /**
  * This class models a fully connected layer of the neural network.
  * Each fully connected layer represents two layers of neurons or one edge layer.
- *
- * @see NeuralNetwork#create(int[], Activation)
  */
-public class FullyConnectedLayerNew extends LayerNew {
+public class FullyConnectedLayer extends LayerNew {
     /**
      * This variable contains the weights of the layer.
      */
@@ -46,7 +42,7 @@ public class FullyConnectedLayerNew extends LayerNew {
      * It throws an exception if either layer has a length that is less than <code>1</code>.
      */
 
-    public FullyConnectedLayerNew(int a, int b) {
+    public FullyConnectedLayer(int a, int b) {
         if (a < 1 || b < 1) {
             throw new IllegalArgumentException("Each layer must contain at least one neuron.");
         }
@@ -67,7 +63,7 @@ public class FullyConnectedLayerNew extends LayerNew {
 
     }
 
-    public FullyConnectedLayerNew(int a, int b, boolean useBiases) {
+    public FullyConnectedLayer(int a, int b, boolean useBiases) {
         if (a < 1 || b < 1) {
             throw new IllegalArgumentException("Each layer must contain at least one neuron.");
         }
@@ -85,7 +81,7 @@ public class FullyConnectedLayerNew extends LayerNew {
 
     }
 
-    public FullyConnectedLayerNew(int a, int b, Activation act) {
+    public FullyConnectedLayer(int a, int b, Activation act) {
         if (a < 1 || b < 1) {
             throw new IllegalArgumentException("Each layer must contain at least one neuron.");
         }
@@ -280,32 +276,13 @@ public class FullyConnectedLayerNew extends LayerNew {
         }
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(result);
+            this.getNextLayer().forward(new Matrix(result));
         } else {
             output = new Matrix(result);
         }
 
     }
 
-    @Override
-    public void forward(double[][][] input) {
-        double[] c = Array_utils.flatten(input);
-        this.inputShape = getShape(input);
-        forward(c);
-    }
-
-    @Override
-    public void forward(double[][][][] inputs) {
-        double[][] c = new double[inputs.length][];
-        this.inputShape = getShape(inputs[0]);
-        for (int i = 0; i < inputs.length; i++) {
-            c[i] = Array_utils.flatten(inputs[i]);
-        }
-
-        this.forward(c);
-
-
-    }
 
     @Override
     public LayerNew getNextLayer() {
@@ -328,6 +305,35 @@ public class FullyConnectedLayerNew extends LayerNew {
     }
 
     @Override
+    public void forward(Matrix m) {
+        if (m.getDim() == 2) {
+            this.forward(m.getData2D());
+        } else if (m.getDim() == 1) {
+            this.forward(m.getData1D());
+        }
+    }
+
+
+    @Override
+    public void backward(Matrix m) {
+        if (m.getDim() == 2) {
+            this.backward(m.getData2D());
+        } else if (m.getDim() == 1) {
+            this.backward(m.getData1D());
+        }
+    }
+
+    @Override
+    public void backward(Matrix m, double learningRate) {
+        this.learningRate = learningRate;
+        if (m.getDim() == 2) {
+            this.backward(m.getData2D());
+        } else if (m.getDim() == 1) {
+            this.backward(m.getData1D());
+        }
+    }
+
+
     public void forward(double[] input) {
 
         lastInput = input;
@@ -363,7 +369,7 @@ public class FullyConnectedLayerNew extends LayerNew {
         }
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(out);
+            this.getNextLayer().forward(new Matrix(out));
         } else {
             this.output = new Matrix(out);
         }
@@ -371,7 +377,6 @@ public class FullyConnectedLayerNew extends LayerNew {
     }
 
 
-    @Override
     public void backward(double[] gradientInput) {
 
         double[] grad;
@@ -389,13 +394,12 @@ public class FullyConnectedLayerNew extends LayerNew {
 
         if (this.previousLayer != null) {
             this.previousLayer.setIterationAt(this.iterationAt);
-            this.previousLayer.backward(grad);
+            this.previousLayer.backward(new Matrix(grad));
         }
 
     }
 
 
-    @Override
     public void backward(double[] gradientInput, double learningRate) {
 
         double[] grad;
@@ -412,7 +416,7 @@ public class FullyConnectedLayerNew extends LayerNew {
 
         if (this.previousLayer != null) {
             this.previousLayer.setIterationAt(this.iterationAt);
-            this.previousLayer.backward(grad, learningRate);
+            this.previousLayer.backward(new Matrix(grad), learningRate);
         }
     }
 
@@ -513,7 +517,6 @@ public class FullyConnectedLayerNew extends LayerNew {
                 gradientOutSum += gradientInput[j] * gradAct * tmpW;
             }
 
-
             gradientOutput[i] = gradientOutSum;
         }
 
@@ -565,34 +568,18 @@ public class FullyConnectedLayerNew extends LayerNew {
         }
 
         if (this.getPreviousLayer() != null) {
-            this.getPreviousLayer().backward(grad_out);
+            this.getPreviousLayer().backward(new Matrix(grad_out));
         }
 
     }
 
-    @Override
-    public void backward(double[][][] input) {
-        double[] c;
-        c = Array_utils.flatten(input);
-        this.backward(c);
 
-
-    }
-
-    @Override
-    public void backward(double[][][][] inputs) {
-        double[][] c = new double[inputs.length][];
-        for (int i = 0; i < inputs.length; i++) {
-            c[i] = Array_utils.flatten(inputs[i]);
-        }
-        this.backward(c);
-    }
-
-
-    @Override
     public void backward(double[][] grad, double learningRate) {
         this.learningRate = learningRate;
-        this.getNextLayer().setLearningRate(learningRate);
+        if (this.previousLayer != null) {
+            this.getPreviousLayer().setLearningRate(learningRate);
+        }
+
         this.backward(grad);
     }
 
@@ -675,7 +662,7 @@ public class FullyConnectedLayerNew extends LayerNew {
     @Override
     public boolean isEqual(LayerNew other2) {
 
-        FullyConnectedLayerNew other = (FullyConnectedLayerNew) other2;
+        FullyConnectedLayer other = (FullyConnectedLayer) other2;
 
         if (other.getInputShape() == this.inputShape && this.getWeights() == other.getWeights() && this.act == other.act) {
             return true;

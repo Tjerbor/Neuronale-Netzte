@@ -153,4 +153,8 @@ public class CustomActivation extends Activation {
 
     }
 
+    @Override
+    public String toString() {
+        return "custom_act";
+    }
 }

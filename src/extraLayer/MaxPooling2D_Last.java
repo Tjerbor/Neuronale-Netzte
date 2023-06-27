@@ -1,7 +1,6 @@
 package extraLayer;
 
 import main.LayerNew;
-import utils.Array_utils;
 import utils.Matrix;
 
 import java.util.Arrays;
@@ -21,8 +20,8 @@ public class MaxPooling2D_Last extends LayerNew {
     int kernelSize1 = 2;
     int kernelSize2 = 2;
 
-    int[][][][] inputMaxIndicies_R;
-    int[][][][] inputMaxIndicies_C;
+    int[][][][] inputMaxIndices_R;
+    int[][][][] inputMaxIndices_C;
 
     int inputHeight;
     int inputWidth;
@@ -31,9 +30,6 @@ public class MaxPooling2D_Last extends LayerNew {
 
     int outputHeight;
     int outputWidth;
-    double[][][] backward;
-    double[][][][] backwards;
-
 
     public MaxPooling2D_Last(int[] inputShape, int strides) {
 
@@ -119,14 +115,12 @@ public class MaxPooling2D_Last extends LayerNew {
         return out;
     }
 
-    @Override
     public void forward(double[][][][] inputs) {
 
 
         int channels = inputs[0][0][0].length;
         double[][][][] output = new double[inputs.length][outputHeight][outputWidth][channels];
 
-        backwards = Array_utils.copyArray(inputs);
 
         double[] tmp;
         for (int bs = 0; bs < inputs.length; bs++) {
@@ -142,9 +136,8 @@ public class MaxPooling2D_Last extends LayerNew {
 
                         int h = (int) tmp[1];
                         int w = (int) tmp[2];
-
-
-                        backwards[bs][h][w][ci] = tmp[0];
+                        inputMaxIndices_R[bs][i][j][ci] = h;
+                        inputMaxIndices_C[bs][i][j][ci] = w;
 
 
                     }
@@ -154,20 +147,54 @@ public class MaxPooling2D_Last extends LayerNew {
         }
 
         if (this.nextLayer != null) {
-            nextLayer.forward(output);
+            nextLayer.forward(new Matrix(output));
         } else {
             this.output = new Matrix(output);
         }
     }
 
+
     @Override
-    public void backward(double[] input, double learningRate) {
-        this.backward(input);
+    public void forward(Matrix m) {
+        int dim = m.getDim();
+
+        if (dim == 3) {
+            this.forward(m.getData3D());
+        } else if (dim == 4) {
+            this.forward(m.getData4D());
+        } else {
+            System.out.println("Got unsupported Dimension: " + dim);
+        }
     }
 
     @Override
-    public void backward(double[][] inputs, double learningRate) {
-        this.backward(inputs);
+    public void backward(Matrix m) {
+        int dim = m.getDim();
+
+        if (dim == 3) {
+            this.backward(m.getData3D());
+        } else if (dim == 4) {
+            this.backward(m.getData4D());
+        } else {
+            System.out.println("Got unsupported Dimension: " + dim);
+        }
+    }
+
+    @Override
+    public void backward(Matrix m, double learningRate) {
+
+        if (this.previousLayer != null) {
+            this.previousLayer.setLearningRate(learningRate);
+        }
+
+        int dim = m.getDim();
+        if (dim == 3) {
+            this.backward(m.getData3D(), learningRate);
+        } else if (dim == 4) {
+            this.backward(m.getData4D(), learningRate);
+        } else {
+            System.out.println("Got unsupported Dimension: " + dim);
+        }
     }
 
     @Override
@@ -185,35 +212,16 @@ public class MaxPooling2D_Last extends LayerNew {
      *
      * @param input
      */
-    @Override
-    public void backward(double[] input) {
-        throw new IllegalArgumentException();
-    }
 
-    @Override
-    public void backward(double[][] inputs) {
-        throw new IllegalArgumentException();
-    }
 
-    @Override
-    public void forward(double[] input) {
-        throw new IllegalArgumentException();
-    }
-
-    @Override
-    public void forward(double[][] inputs) {
-        throw new IllegalArgumentException();
-    }
-
-    @Override
     public void forward(double[][][] input) {
 
         int channels = input[0][0].length;
         double[][][] output = new double[outputHeight][outputWidth][channels];
 
         //backward = Array_utils.copyArray(input);
-        inputMaxIndicies_R = new int[1][outputHeight][outputWidth][channels];
-        inputMaxIndicies_C = new int[1][outputHeight][outputWidth][channels];
+        inputMaxIndices_R = new int[1][outputHeight][outputWidth][channels];
+        inputMaxIndices_C = new int[1][outputHeight][outputWidth][channels];
 
         double[] tmp;
 
@@ -228,8 +236,8 @@ public class MaxPooling2D_Last extends LayerNew {
 
                     int h = (int) tmp[1];
                     int w = (int) tmp[2];
-                    inputMaxIndicies_R[0][i][j][ci] = h;
-                    inputMaxIndicies_C[0][i][j][ci] = w;
+                    inputMaxIndices_R[0][i][j][ci] = h;
+                    inputMaxIndices_C[0][i][j][ci] = w;
 
 
                 }
@@ -237,16 +245,16 @@ public class MaxPooling2D_Last extends LayerNew {
             }
         }
         if (this.nextLayer != null) {
-            nextLayer.forward(output);
+            nextLayer.forward(new Matrix(output));
         } else {
             this.output = new Matrix(output);
         }
     }
 
-    @Override
+
     public void backward(double[][][] grad) {
 
-        /**
+        /*
          * channel position last Dim.
          */
         double[][][] grad_output = new double[inputHeight][inputWidth][channels];
@@ -255,8 +263,8 @@ public class MaxPooling2D_Last extends LayerNew {
         for (int i = 0; i < grad[0][0].length; i++) {
             for (int r = 0; r < outputHeight; r++) {
                 for (int c = 0; c < outputWidth; c++) {
-                    int max_i = inputMaxIndicies_R[0][r][c][i];
-                    int max_j = inputMaxIndicies_C[0][r][c][i];
+                    int max_i = inputMaxIndices_R[0][r][c][i];
+                    int max_j = inputMaxIndices_C[0][r][c][i];
 
                     if (max_i != -1) {
                         grad_output[max_i][max_j][i] += grad[r][c][i];
@@ -267,12 +275,12 @@ public class MaxPooling2D_Last extends LayerNew {
         }
 
         if (this.previousLayer != null) {
-            this.getPreviousLayer().backward(grad_output);
+            this.getPreviousLayer().backward(new Matrix(grad_output));
         }
 
     }
 
-    @Override
+
     public void backward(double[][][][] grad) {
 
         double[][][][] grad_output = new double[grad.length][inputHeight][inputWidth][channels];
@@ -281,8 +289,8 @@ public class MaxPooling2D_Last extends LayerNew {
             for (int i = 0; i < grad[0][0].length; i++) {
                 for (int r = 0; r < outputHeight; r++) {
                     for (int c = 0; c < outputWidth; c++) {
-                        int max_i = inputMaxIndicies_R[0][r][c][i];
-                        int max_j = inputMaxIndicies_C[0][r][c][i];
+                        int max_i = inputMaxIndices_R[0][r][c][i];
+                        int max_j = inputMaxIndices_C[0][r][c][i];
 
                         grad_output[bs][max_i][max_j][i] += grad[bs][r][c][i];
 
@@ -292,7 +300,7 @@ public class MaxPooling2D_Last extends LayerNew {
         }
 
         if (this.previousLayer != null) {
-            this.getPreviousLayer().backward(grad_output);
+            this.getPreviousLayer().backward(new Matrix(grad_output));
         }
 
     }
@@ -322,12 +330,8 @@ public class MaxPooling2D_Last extends LayerNew {
 
         MaxPooling2D_Last other2 = (MaxPooling2D_Last) other;
 
-        if (Arrays.equals(other2.getInputShape(), this.inputShape) && other2.stride1 == this.stride1 && other2.stride2 == this.stride2
-                && other2.kernelSize1 == this.kernelSize1 && other2.kernelSize2 == this.kernelSize2) {
-            return true;
-        }
-
-        return false;
+        return Arrays.equals(other2.getInputShape(), this.inputShape) && other2.stride1 == this.stride1 && other2.stride2 == this.stride2
+                && other2.kernelSize1 == this.kernelSize1 && other2.kernelSize2 == this.kernelSize2;
 
 
     }

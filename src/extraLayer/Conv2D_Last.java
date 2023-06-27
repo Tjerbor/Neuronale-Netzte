@@ -313,27 +313,59 @@ public class Conv2D_Last extends LayerNew {
         this.previousLayer = l;
     }
 
-    @Override
-    public void forward(double[] input) {
-        throw new IllegalArgumentException("got input Dim 1.");
-    }
 
-    @Override
-    public void forward(double[][] inputs) {
-        throw new IllegalArgumentException("got input Dim 2.");
-    }
-
-    @Override
     public void backward(double[] input, double learningRate) {
         this.learningRate = learningRate;
         this.backward(Array_utils.reFlat(input, getInputShape()));
 
     }
 
-    @Override
+
     public void backward(double[][] inputs, double learningRate) {
         this.learningRate = learningRate;
         this.backward(Array_utils.reFlat(inputs, getInputShape()));
+    }
+
+    @Override
+    public void forward(Matrix m) {
+        int dim = m.getDim();
+
+        if (dim == 3) {
+            this.forward(m.getData3D());
+        } else if (dim == 4) {
+            this.forward(m.getData4D());
+        } else {
+            System.out.println("Got unsupported Dimension: " + dim);
+        }
+    }
+
+    @Override
+    public void backward(Matrix m) {
+        int dim = m.getDim();
+
+        if (dim == 3) {
+            this.backward(m.getData3D());
+        } else if (dim == 4) {
+            this.backward(m.getData4D());
+        } else {
+            System.out.println("Got unsupported Dimension: " + dim);
+        }
+    }
+
+    @Override
+    public void backward(Matrix m, double learningRate) {
+        if (this.previousLayer != null) {
+            this.previousLayer.setLearningRate(learningRate);
+        }
+        this.learningRate = learningRate;
+        int dim = m.getDim();
+        if (dim == 3) {
+            this.backward(m.getData3D(), learningRate);
+        } else if (dim == 4) {
+            this.backward(m.getData4D(), learningRate);
+        } else {
+            System.out.println("Got unsupported Dimension: " + dim);
+        }
     }
 
     @Override
@@ -375,15 +407,6 @@ public class Conv2D_Last extends LayerNew {
         this.weights = w;
     }
 
-    @Override
-    public void backward(double[] input) {
-        throw new IllegalArgumentException("inpt are 1Dim.");
-    }
-
-    @Override
-    public void backward(double[][] inputs) {
-        throw new IllegalArgumentException("inpt are 1Dim.");
-    }
 
     @Override
     public void setOptimizer(Optimizer optimizer) {
@@ -583,7 +606,7 @@ public class Conv2D_Last extends LayerNew {
 
     }
 
-    @Override
+
     public void forward(double[][][][] inputs) {
 
         double[][][][] output = new double[inputs.length][outputHeight][outputWidth][numFilter];
@@ -618,7 +641,7 @@ public class Conv2D_Last extends LayerNew {
 
         this.output = new Matrix(output);
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(output);
+            this.getNextLayer().forward(new Matrix(output));
         }
     }
 
@@ -648,11 +671,11 @@ public class Conv2D_Last extends LayerNew {
         this.output = new Matrix(output);
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(output);
+            this.getNextLayer().forward(new Matrix(output));
         }
     }
 
-    @Override
+
     public void backward(double[][][][] gradInput) {
 
         this.sumUpAndUpdateBiases(gradInput);
@@ -686,7 +709,7 @@ public class Conv2D_Last extends LayerNew {
         }
 
         if (this.getPreviousLayer() != null) {
-            this.getPreviousLayer().backward(dX);
+            this.getPreviousLayer().backward(new Matrix(dX));
         }
     }
 
@@ -756,7 +779,7 @@ public class Conv2D_Last extends LayerNew {
         this.backward(gradInput);
     }
 
-    @Override
+
     public void backward(double[][][] gradInput) {
 
 
@@ -789,7 +812,7 @@ public class Conv2D_Last extends LayerNew {
 
 
         if (this.getPreviousLayer() != null) {
-            this.getPreviousLayer().backward(dX);
+            this.getPreviousLayer().backward(new Matrix(dX));
         }
     }
 

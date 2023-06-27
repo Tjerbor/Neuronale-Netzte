@@ -1,6 +1,7 @@
 package main;
 
 import layer.Activation;
+import layer.Dropout;
 import optimizer.Optimizer;
 import utils.Matrix;
 
@@ -47,30 +48,16 @@ abstract public class LayerNew {
         this.previousLayer = l;
     }
 
-    abstract public void forward(double[] input);
+    abstract public void forward(Matrix m);
 
-    abstract public void forward(double[][] inputs);
+    abstract public void backward(Matrix m);
 
-    abstract public void forward(double[][][] input);
-
-    abstract public void forward(double[][][][] inputs);
-
-    abstract public void backward(double[] input, double learningRate);
-
-    abstract public void backward(double[][] inputs, double learningRate);
+    abstract public void backward(Matrix m, double learningRate);
 
     abstract public Matrix getWeights();
 
     abstract public void setWeights(Matrix m);
-
-    abstract public void backward(double[] input);
-
-    abstract public void backward(double[][] inputs);
-
-    abstract public void backward(double[][][] input);
-
-    abstract public void backward(double[][][][] inputs);
-
+    
     public void setOptimizer(Optimizer optimizer) {
         this.optimizer = optimizer;
     }

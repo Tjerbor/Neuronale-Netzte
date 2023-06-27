@@ -1,4 +1,6 @@
-package extraLayer;
+package TestLayers;
+
+import extraLayer.Conv2D_Last;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -9,9 +11,10 @@ import java.util.stream.IntStream;
 
 /**
  * can read Weights for the Layer.
+ * missing Testing Scripts. TODO needs to be added.
  */
 
-public class convReader {
+public class TestConv2D {
 
 
     private static List<String[]> read(String path) throws IOException {
@@ -127,4 +130,6 @@ public class convReader {
         return out;
 
     }
+
+
 }

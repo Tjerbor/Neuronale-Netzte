@@ -1,6 +1,7 @@
-package layer;
+package extraLayer;
 
 
+import layer.Activation;
 import main.LayerNew;
 import utils.Array_utils;
 import utils.Matrix;
@@ -32,10 +33,6 @@ public class ActivationLayer extends LayerNew {
         this.act = Utils.getActivation(act);
     }
 
-    @Override
-    public Matrix getOutput() {
-        return output;
-    }
 
     public void forward(double[][][] inputs) {
         this.input3D = Array_utils.copyArray(inputs);
@@ -50,7 +47,7 @@ public class ActivationLayer extends LayerNew {
         }
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(c);
+            this.getNextLayer().forward(new Matrix(c));
         } else {
             this.output = new Matrix(c);
         }
@@ -58,7 +55,7 @@ public class ActivationLayer extends LayerNew {
 
     }
 
-    @Override
+
     public void backward(double[][][] gradInputs) {
 
 
@@ -70,7 +67,7 @@ public class ActivationLayer extends LayerNew {
             }
         }
         if (this.getPreviousLayer() != null) {
-            this.getPreviousLayer().backward(gradInputs);
+            this.getPreviousLayer().backward(new Matrix(gradInputs));
         }
 
 
@@ -92,7 +89,7 @@ public class ActivationLayer extends LayerNew {
         }
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(c);
+            this.getNextLayer().forward(new Matrix(c));
         } else {
             this.output = new Matrix(c);
         }
@@ -112,17 +109,12 @@ public class ActivationLayer extends LayerNew {
         }
 
         if (this.getPreviousLayer() != null) {
-            this.getPreviousLayer().backward(gradInputs);
+            this.getPreviousLayer().backward(new Matrix(gradInputs));
         }
 
     }
 
-    public void backward(double[][][][] gradInputs, double learningRate) {
-        this.backward(gradInputs);
-    }
 
-
-    @Override
     public void forward(double[] input) {
         this.input1D = Array_utils.copyArray(input);
 
@@ -131,13 +123,13 @@ public class ActivationLayer extends LayerNew {
             c[i] = act.definition(input[i]);
         }
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(c);
+            this.getNextLayer().forward(new Matrix(c));
         } else {
             this.output = new Matrix(c);
         }
     }
 
-    @Override
+
     public void forward(double[][] inputs) {
         this.inputs2D = Array_utils.copyArray(inputs);
 
@@ -150,21 +142,53 @@ public class ActivationLayer extends LayerNew {
         }
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(c);
+            this.getNextLayer().forward(new Matrix(c));
         } else {
             this.output = new Matrix(c);
         }
     }
 
+
     @Override
-    public void backward(double[] input, double learningRate) {
-        this.backward(input);
+    public void forward(Matrix m) {
+        int dim = m.getDim();
+        if (dim == 1) {
+            this.forward(m.getData1D());
+        } else if (dim == 2) {
+            this.forward(m.getData2D());
+        } else if (dim == 3) {
+            this.forward(m.getData3D());
+        } else if (dim == 4) {
+            this.forward(m.getData4D());
+        } else {
+            System.out.println("Got unsupported Dimension");
+        }
+
 
     }
 
     @Override
-    public void backward(double[][] inputs, double learningRate) {
-        this.backward(inputs);
+    public void backward(Matrix m) {
+        int dim = m.getDim();
+        if (dim == 1) {
+            this.backward(m.getData1D());
+        } else if (dim == 2) {
+            this.backward(m.getData2D());
+        } else if (dim == 3) {
+            this.backward(m.getData3D());
+        } else if (dim == 4) {
+            this.backward(m.getData4D());
+        } else {
+            System.out.println("Got unsupported Dimension");
+        }
+    }
+
+    @Override
+    public void backward(Matrix m, double learningRate) {
+        if (this.previousLayer != null) {
+            this.previousLayer.setLearningRate(learningRate);
+        }
+        this.backward(m);
     }
 
     @Override
@@ -177,17 +201,17 @@ public class ActivationLayer extends LayerNew {
 
     }
 
-    @Override
+
     public void backward(double[] input) {
         for (int i = 0; i < input.length; i++) {
             input[i] = act.derivative(this.input1D[i]) * input[i];
         }
         if (this.getPreviousLayer() != null) {
-            this.getPreviousLayer().backward(input);
+            this.getPreviousLayer().backward(new Matrix(input));
         }
     }
 
-    @Override
+
     public void backward(double[][] inputs) {
 
         for (int i = 0; i < inputs2D.length; i++) {
@@ -197,7 +221,7 @@ public class ActivationLayer extends LayerNew {
 
         }
         if (this.getPreviousLayer() != null) {
-            this.getPreviousLayer().backward(inputs);
+            this.getPreviousLayer().backward(new Matrix(inputs));
         }
     }
 

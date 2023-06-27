@@ -2,7 +2,7 @@ package examples;
 
 
 import builder.BuildNetwork;
-import main.NN_New;
+import main.NeuralNetwork;
 
 public class ExpBuildModel {
 
@@ -22,8 +22,8 @@ public class ExpBuildModel {
         builder.addFlatten();
         builder.addFastLayer(numClasses);
 
-        NN_New nn = builder.getModel();
-        nn.printLayers();
+        NeuralNetwork nn = builder.getModel();
+        nn.printSummary();
 
 
     }

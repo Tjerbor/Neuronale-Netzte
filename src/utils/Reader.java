@@ -1,7 +1,6 @@
 package utils;
 
-import layer.FullyConnectedLayer;
-import main.FullyConnectedLayerNew;
+import extraLayer.FullyConnectedLayer;
 import main.LayerNew;
 
 import java.io.BufferedReader;
@@ -97,7 +96,7 @@ public class Reader {
         for (int i = 0; i < (topologie.length - 1); i++) {
             double[][] w = Utils.genRandomWeights(topologie[i] + 1, topologie[i + 1]);
 
-            structur[i] = new FullyConnectedLayerNew(topologie[i], topologie[i + 1]);
+            structur[i] = new FullyConnectedLayer(topologie[i], topologie[i + 1]);
 
             for (int j = 0; j < (topologie[i]) + 1; j++) {
                 for (int wi = 0; wi < list.get(list_pos).length; wi++) {

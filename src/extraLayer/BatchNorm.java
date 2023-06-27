@@ -21,6 +21,7 @@ import static load.writeUtils.writeWeights;
 public class BatchNorm extends LayerNew {
 
 
+    Matrix backwardOutput;
     double epsilon = 1e-5;
     double momentum = 0.1;
     double[] gamma;
@@ -79,7 +80,11 @@ public class BatchNorm extends LayerNew {
 
     }
 
-    @Override
+
+    public Matrix getBackwardOutput() {
+        return backwardOutput;
+    }
+
     public void backward(double[][][][] grad_inputs) {
         int N = grad_inputs[0].length;
 
@@ -135,9 +140,11 @@ public class BatchNorm extends LayerNew {
             }
         }
 
+        backwardOutput = new Matrix(dx);
+
         this.updateParameter();
         if (this.getPreviousLayer() != null) {
-            this.getPreviousLayer().backward(dx);
+            this.getPreviousLayer().backward(new Matrix(dx));
         }
 
     }
@@ -186,7 +193,7 @@ public class BatchNorm extends LayerNew {
 
     }
 
-    @Override
+
     public void forward(double[][][][] inputs) {
 
 
@@ -249,23 +256,53 @@ public class BatchNorm extends LayerNew {
         this.output = new Matrix<>(out);
     }
 
-    @Override
-    public void backward(double[] input, double learningRate) {
-        this.backward(input);
-    }
 
-    @Override
     public void backward(double[][] inputs, double learningRate) {
         this.learningRate = learningRate;
         this.backward(inputs);
     }
 
     @Override
-    public void forward(double[] input) {
-        throw new IllegalArgumentException("Batch norm is meant to Normalize Batch.");
+    public void forward(Matrix m) {
+
+        if (m.getDim() == 4) {
+            this.forward(m.getData4D());
+        } else if (m.getDim() == 2) {
+            this.forward(m.getData2D());
+        } else {
+            throw new IllegalArgumentException("Now only supported dim 2 and 4 got Dim: " + m.getDim());
+        }
     }
 
     @Override
+    public void backward(Matrix m) {
+
+        if (m.getDim() == 4) {
+            this.backward(m.getData4D());
+        } else if (m.getDim() == 2) {
+            this.backward(m.getData2D());
+        } else {
+            throw new IllegalArgumentException("Now only supported dim 2 and 4 got Dim: " + m.getDim());
+        }
+
+    }
+
+    @Override
+    public void backward(Matrix m, double learningRate) {
+        if (this.previousLayer != null) {
+            this.previousLayer.setLearningRate(learningRate);
+        }
+        this.learningRate = learningRate;
+
+        if (m.getDim() == 4) {
+            this.backward(m.getData4D(), learningRate);
+        } else if (m.getDim() == 2) {
+            this.backward(m.getData2D(), learningRate);
+        } else {
+            throw new IllegalArgumentException("Now only supported dim 2 and 4 got Dim: " + m.getDim());
+        }
+    }
+
     public void forward(double[][] inputs) {
 
 
@@ -318,15 +355,10 @@ public class BatchNorm extends LayerNew {
         }
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(out);
+            this.getNextLayer().forward(new Matrix(out));
         } else {
             this.output = new Matrix(out);
         }
-    }
-
-    @Override
-    public void forward(double[][][] input) {
-        throw new RuntimeException("Not Implemented");
     }
 
     @Override
@@ -357,20 +389,60 @@ public class BatchNorm extends LayerNew {
 
     }
 
-    @Override
-    public void backward(double[] input) {
-        throw new IllegalArgumentException("Tried to use Batch-Norm with single input");
+    public void backward(double[][] grad_inputs) {
+
+        int N = grad_inputs.length;
+        double[] std = this.stddev;
+        double[][] x_centered = minus_mean;
+        double[][] x_norm = standart_inputs;
+
+        double[] dgama = Array_utils.sum_axis_0(Utils.multiply(grad_inputs, x_norm));
+        double[] dbeta = Array_utils.sum_axis_0(grad_inputs);
+
+
+        double[][] dx_norm = Utils.matmul2D_1D(grad_inputs, gamma);
+        double[][] dx_centered = Array_utils.Matrix2D_div1D(dx_norm, std);
+
+        double[] dmean = Array_utils.addMatrixScalar(Array_utils.sum_axis_0(dx_centered), 2 / N);
+        dmean = Array_utils.multiply1D(dmean, Array_utils.sum_axis_0(x_centered));
+
+        double[][] dstdTmp = Array_utils.zerosLike(dx_norm);
+
+        //(dx_norm * x_centered * -std**(-2))
+        for (int i = 0; i < dx_norm.length; i++) {
+            for (int j = 0; j < dx_norm[0].length; j++) {
+                dstdTmp[i][j] = dx_norm[i][j] * x_centered[i][j] * -Math.pow(std[j], -2);
+            }
+        }
+
+
+        double[] dstd = Array_utils.sum_axis_0(dstdTmp);
+        //double[] dvar = dstd / 2 / std;
+        double[] dvar = Array_utils.zerosLike(dstd);
+        for (int i = 0; i < dstd.length; i++) {
+            dvar[i] = dstd[i] / 2 / std[i];
+        }
+
+        double[][] dx = Array_utils.zerosLike(dx_centered);
+
+        for (int i = 0; i < dx.length; i++) {
+            for (int j = 0; j < dx[0].length; j++) {
+                dx[i][j] = dx_centered[i][j] + (dmean[j] + dvar[j] * 2 * x_centered[i][j]
+                ) / N;
+            }
+        }
+
+        this.updateParameter();
+
+        backwardOutput = new Matrix(dx);
+
+        if (this.previousLayer != null) {
+            this.previousLayer.backward(new Matrix(dx));
+        }
+
+
     }
 
-    @Override
-    public void backward(double[][] inputs) {
-
-    }
-
-    @Override
-    public void backward(double[][][] input) {
-
-    }
 
     public String summary() {
         return "BatchNorm inputSize: " + Arrays.toString(getInputShape())
@@ -401,4 +473,6 @@ public class BatchNorm extends LayerNew {
 
 
     }
+
+
 }

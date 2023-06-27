@@ -1,17 +1,21 @@
-package main;
+package extraLayer;
 
-import layer.Activation;
-import layer.TanH;
+import main.LayerNew;
 import optimizer.Optimizer;
 import utils.Matrix;
 import utils.RandomUtils;
 
 import java.util.Arrays;
 
+/**
+ * naked version used for the builder because all other Layer
+ * kann not be set in her.(dropout, activation )
+ * needed because otherwise function are not rightfully used.
+ * because the fullyConnected layer is speed Optimized.
+ */
+
 public class FCL extends LayerNew {
 
-
-    Activation act = new TanH(); //set to Tanh because is in most cases the desired Activation-function.
     Optimizer optimizer; //can be set in the layer so that every Optimizer can save one previous deltaWeights.
     private double[][] weights;
 
@@ -51,7 +55,46 @@ public class FCL extends LayerNew {
         }
     }
 
-    @Override
+    public void forward(double[][] inputs) {
+        lastInputs = inputs;
+
+        double[][] z = new double[inputs.length][weights[0].length];
+        double[][] out = new double[inputs.length][weights[0].length];
+
+        for (int bs = 0; bs < inputs.length; bs++) {
+
+            for (int j = 0; j < weights[0].length; j++) {
+                for (int i = 0; i < weights.length; i++) {
+
+                    z[bs][j] += inputs[bs][i] * weights[i][j];
+                }
+
+                if (useBiases) {
+                    z[bs][j] += biases[j];
+                }
+            }
+
+        }
+
+        lastActInputs = z;
+
+
+        for (int bs = 0; bs < weights[0].length; bs++) {
+            for (int i = 0; i < weights[0].length; i++) {
+                out[bs][i] = act.definition(z[bs][i]);
+            }
+
+        }
+
+        if (this.getNextLayer() != null) {
+            this.getNextLayer().forward(new Matrix(out));
+        } else {
+            this.output = new Matrix(out);
+
+        }
+
+    }
+
     public void forward(double[] input) {
         lastInput = input;
 
@@ -78,7 +121,7 @@ public class FCL extends LayerNew {
         }
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(out);
+            this.getNextLayer().forward(new Matrix(out));
         } else {
             this.output = new Matrix(out);
 
@@ -86,32 +129,58 @@ public class FCL extends LayerNew {
 
     }
 
-    @Override
-    public void forward(double[][] inputs) {
 
-    }
-
-    @Override
-    public void forward(double[][][] input) {
-
-    }
-
-    @Override
-    public void forward(double[][][][] inputs) {
-
-    }
-
-    @Override
     public void backward(double[] input, double learningRate) {
         this.learningRate = learningRate;
-        this.getNextLayer().setLearningRate(learningRate);
+
+        if (this.previousLayer != null) {
+            this.previousLayer.setLearningRate(learningRate);
+        }
+
         this.backward(input);
 
     }
 
-    @Override
-    public void backward(double[][] inputs, double learningRate) {
 
+    @Override
+    public void forward(Matrix m) {
+        if (m.getDim() == 1) {
+            this.forward(m.getData1D());
+        } else if (m.getDim() == 2) {
+            this.forward(m.getData2D());
+        } else {
+            throw new IllegalArgumentException("Expected flatten Array got Dim: " + m.getDim());
+        }
+    }
+
+
+    @Override
+    public void backward(Matrix m) {
+        if (m.getDim() == 1) {
+            this.backward(m.getData1D());
+        } else if (m.getDim() == 2) {
+            this.backward(m.getData2D());
+        } else {
+            throw new IllegalArgumentException("Expected flatten Array got Dim: " + m.getDim());
+        }
+
+    }
+
+    @Override
+    public void backward(Matrix m, double learningRate) {
+
+        if (this.previousLayer != null) {
+            previousLayer.setLearningRate(learningRate);
+        }
+
+        this.learningRate = learningRate;
+        if (m.getDim() == 1) {
+            this.backward(m.getData1D());
+        } else if (m.getDim() == 2) {
+            this.backward(m.getData2D());
+        } else {
+            throw new IllegalArgumentException("Expected flatten Array got Dim: " + m.getDim());
+        }
     }
 
     public Matrix getWeights() {
@@ -125,7 +194,6 @@ public class FCL extends LayerNew {
             return new Matrix(weights);
 
         }
-        //Stream.of(boxed).mapToDouble(Double::doubleValue).toArray();
 
     }
 
@@ -146,7 +214,7 @@ public class FCL extends LayerNew {
 
     }
 
-    @Override
+
     public void backward(double[] input) {
         double[] gradientOutput = new double[weights.length];
 
@@ -171,7 +239,7 @@ public class FCL extends LayerNew {
             }
 
 
-            gradientOutput[i] = gradientOutSum;
+            gradientOutput[i] += gradientOutSum;
         }
 
         if (useBiases) {
@@ -183,35 +251,64 @@ public class FCL extends LayerNew {
 
 
         if (this.getPreviousLayer() != null) {
-            this.getPreviousLayer().backward(gradientOutput);
+            this.getPreviousLayer().backward(new Matrix(gradientOutput));
         }
 
     }
 
-    @Override
     public void backward(double[][] inputs) {
+        double[][] gradientOutput = new double[inputs.length][weights.length];
+
+        double gradAct;
+        double deltaWeight;
+        double tmpW;
+
+        for (int bs = 0; bs < inputs.length; bs++) {
+
+
+            for (int i = 0; i < weights.length; i++) {
+
+                double gradientOutSum = 0;
+
+                for (int j = 0; j < weights[0].length; j++) {
+
+                    gradAct = act.derivative(lastActInputs[bs][j]) * inputs[bs][j];
+                    tmpW = weights[i][j];
+
+                    deltaWeight = gradAct * lastInputs[bs][i];
+
+                    weights[i][j] -= learningRate * deltaWeight;
+
+                    gradientOutSum += inputs[bs][j] * gradAct * tmpW;
+                }
+
+
+                gradientOutput[bs][i] += gradientOutSum;
+            }
+
+        }
+
+        if (useBiases) {
+
+            for (int bs = 0; bs < inputs.length; bs++) {
+                for (int i = 0; i < biases.length; i++) {
+                    biases[i] -= learningRate * (lastActInputs[bs][i] * inputs[bs][i]);
+                }
+            }
+        }
+
+
+        if (this.getPreviousLayer() != null) {
+            this.getPreviousLayer().backward(new Matrix(gradientOutput));
+        }
 
     }
 
-    @Override
-    public void backward(double[][][] input) {
-
-    }
-
-    @Override
-    public void backward(double[][][][] inputs) {
-
-    }
-
-    @Override
-    public int[] getOutputShape() {
-        return outputShape;
-    }
 
     @Override
     public String export() {
 
-        String s = "FullyConnectedLayer;" + useBiases + ";" + weights.length + ";" + weights[0].length + ";" + act.toString() + ";" + isNull(dropout) + "\n";
+        String s = "fullyconnectedlayer;" + useBiases + ";" + weights.length + ";" + weights[0].length + ";" + act.toString() + ";" + isNull(dropout) + "\n";
 
         for (int i = 0; i < weights.length; i++) {
             for (int j = 0; j < weights[0].length; j++) {
@@ -240,11 +337,6 @@ public class FCL extends LayerNew {
 
         return s + "\n";
 
-    }
-
-    @Override
-    public Matrix getOutput() {
-        return output;
     }
 
     @Override

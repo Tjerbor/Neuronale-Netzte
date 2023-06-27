@@ -1,7 +1,7 @@
 package TestNewModel;
 
-import main.FullyConnectedLayerNew;
-import main.NN_New;
+import extraLayer.FullyConnectedLayer;
+import main.NeuralNetwork;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -12,11 +12,11 @@ public class TestModel {
     void testModelAdd() {
 
 
-        NN_New nn = new NN_New();
+        NeuralNetwork nn = new NeuralNetwork();
 
-        nn.add(new FullyConnectedLayerNew(7, 1));
-        nn.add(new FullyConnectedLayerNew(3, 4));
-        nn.add(new FullyConnectedLayerNew(17, 5));
+        nn.add(new FullyConnectedLayer(7, 1));
+        nn.add(new FullyConnectedLayer(3, 4));
+        nn.add(new FullyConnectedLayer(17, 5));
 
 
         System.out.println(Arrays.toString(nn.getLayers()));
@@ -27,11 +27,11 @@ public class TestModel {
     void testModelCompute() {
 
 
-        NN_New nn = new NN_New();
+        NeuralNetwork nn = new NeuralNetwork();
 
-        nn.add(new FullyConnectedLayerNew(10, 3));
-        nn.add(new FullyConnectedLayerNew(3, 4));
-        nn.add(new FullyConnectedLayerNew(4, 5));
+        nn.add(new FullyConnectedLayer(10, 3));
+        nn.add(new FullyConnectedLayer(3, 4));
+        nn.add(new FullyConnectedLayer(4, 5));
 
 
         double[] a = new double[10];
@@ -46,11 +46,11 @@ public class TestModel {
     void testModelBackward() {
 
 
-        NN_New nn = new NN_New();
+        NeuralNetwork nn = new NeuralNetwork();
 
-        nn.add(new FullyConnectedLayerNew(10, 3));
-        nn.add(new FullyConnectedLayerNew(3, 4));
-        nn.add(new FullyConnectedLayerNew(4, 5));
+        nn.add(new FullyConnectedLayer(10, 3));
+        nn.add(new FullyConnectedLayer(3, 4));
+        nn.add(new FullyConnectedLayer(4, 5));
 
 
         double[] a = new double[10];

@@ -2,9 +2,8 @@ package builder;
 
 import extraLayer.*;
 import layer.Activation;
-import main.FullyConnectedLayerNew;
 import main.LayerNew;
-import main.NN_New;
+import main.NeuralNetwork;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,15 +50,15 @@ public class BuildNetwork {
         return layers;
     }
 
-    public NN_New getModel() {
-        NN_New nn = new NN_New();
+    public NeuralNetwork getModel() {
+        NeuralNetwork nn = new NeuralNetwork();
         nn.create(this.getLayers());
         return nn;
 
     }
 
     public void addFullyConnectedLayer(int inputSize, int outputSize, double rate) {
-        this.layers.add(new FullyConnectedLayerNew(inputSize, outputSize));
+        this.layers.add(new FullyConnectedLayer(inputSize, outputSize));
         int size = layers.size() - 1;
 
         layers.get(size).setDropout(rate);
@@ -70,11 +69,11 @@ public class BuildNetwork {
         if (layers.size() != 0) {
             int position = layers.size() - 1;
             int sizeBefore = getFlattenInputShape(layers.get(position - 1).getOutputShape());
-            this.layers.add(new FullyConnectedLayerNew(sizeBefore, NeuronSize));
+            this.layers.add(new FullyConnectedLayer(sizeBefore, NeuronSize));
 
             layers.get(position).setUseBiases(useBiases);
         } else if (this.inputSize > 0) {
-            this.layers.add(new FullyConnectedLayerNew(inputSize, NeuronSize));
+            this.layers.add(new FullyConnectedLayer(inputSize, NeuronSize));
             int position = layers.size() - 1;
 
             layers.get(position).setUseBiases(useBiases);
@@ -91,12 +90,12 @@ public class BuildNetwork {
         if (layers.size() != 0) {
             int position = layers.size() - 1;
             int sizeBefore = getFlattenInputShape(layers.get(position - 1).getOutputShape());
-            this.layers.add(new FullyConnectedLayerNew(sizeBefore, NeuronSize));
+            this.layers.add(new FullyConnectedLayer(sizeBefore, NeuronSize));
             layers.get(position).setDropout(rate);
             layers.get(position).setActivation(act);
             layers.get(position).setUseBiases(useBiases);
         } else if (this.inputSize > 0) {
-            this.layers.add(new FullyConnectedLayerNew(inputSize, NeuronSize));
+            this.layers.add(new FullyConnectedLayer(inputSize, NeuronSize));
             int position = layers.size() - 1;
             layers.get(position).setDropout(rate);
             layers.get(position).setActivation(act);
@@ -114,11 +113,11 @@ public class BuildNetwork {
         if (layers.size() != 0) {
             int position = layers.size() - 1;
             int sizeBefore = getFlattenInputShape(layers.get(position - 1).getOutputShape());
-            this.layers.add(new FullyConnectedLayerNew(sizeBefore, NeuronSize));
+            this.layers.add(new FullyConnectedLayer(sizeBefore, NeuronSize));
             layers.get(position).setDropout(rate);
             layers.get(position).setActivation(act);
         } else if (this.inputSize > 0) {
-            this.layers.add(new FullyConnectedLayerNew(inputSize, NeuronSize));
+            this.layers.add(new FullyConnectedLayer(inputSize, NeuronSize));
             int position = layers.size() - 1;
             layers.get(position).setDropout(rate);
             layers.get(position).setActivation(act);
@@ -136,10 +135,10 @@ public class BuildNetwork {
         if (layers.size() != 0) {
             int position = layers.size() - 1;
             int sizeBefore = getFlattenInputShape(layers.get(position - 1).getOutputShape());
-            this.layers.add(new FullyConnectedLayerNew(sizeBefore, NeuronSize));
+            this.layers.add(new FullyConnectedLayer(sizeBefore, NeuronSize));
             layers.get(position).setDropout(rate);
         } else if (this.inputSize > 0) {
-            this.layers.add(new FullyConnectedLayerNew(inputSize, NeuronSize));
+            this.layers.add(new FullyConnectedLayer(inputSize, NeuronSize));
             int position = layers.size() - 1;
             layers.get(position).setDropout(rate);
 
@@ -155,9 +154,9 @@ public class BuildNetwork {
         if (layers.size() != 0) {
             int position = layers.size() - 1;
             int sizeBefore = getFlattenInputShape(layers.get(position - 1).getOutputShape());
-            this.layers.add(new FullyConnectedLayerNew(sizeBefore, NeuronSize));
+            this.layers.add(new FullyConnectedLayer(sizeBefore, NeuronSize));
         } else if (this.inputSize > 0) {
-            this.layers.add(new FullyConnectedLayerNew(inputSize, NeuronSize));
+            this.layers.add(new FullyConnectedLayer(inputSize, NeuronSize));
         } else {
             throw new IllegalArgumentException("No previous Layers are set.");
         }
@@ -280,7 +279,7 @@ public class BuildNetwork {
     }
 
 
-    public void addBatchNorm(int inputSize, int[] shape) {
+    public void addBatchNorm(int[] shape, int inputSize) {
         this.layers.add(new BatchNorm(inputSize));
         this.layers.get(layers.size() - 1).setInputShape(shape);
         this.layers.get(layers.size() - 1).setOutputShape(shape);
@@ -291,7 +290,7 @@ public class BuildNetwork {
 
         if (layers.size() != 0) {
             int position = layers.size() - 1;
-            int sizeBefore = getFlattenInputShape(layers.get(position - 1).getOutputShape());
+            int sizeBefore = getFlattenInputShape(layers.get(position).getOutputShape());
             this.layers.add(new FastLinearLayer(sizeBefore, NeuronSize));
         } else if (this.inputSize > 0) {
             this.layers.add(new FastLinearLayer(inputSize, NeuronSize));
@@ -367,6 +366,23 @@ public class BuildNetwork {
 
 
     }
+
+    public void addOnlyFastLayer(int[] topologie) {
+        this.addFastLinearLayer(topologie[0], topologie[1]);
+        for (int i = 2; i < topologie.length; i++) {
+            this.addFastLayer(topologie[i]);
+        }
+
+    }
+
+    public void addOnlyFCL(int[] topologie) {
+        this.addFullyConnectedLayer(topologie[0], topologie[1]);
+        for (int i = 2; i < topologie.length; i++) {
+            this.addFullyConnectedLayer(topologie[i]);
+        }
+
+    }
+
 
     public void addFlatten(int[] inputShape) {
         layers.add(new Flatten(inputShape));

@@ -2,11 +2,10 @@ package load;
 
 import extraLayer.*;
 import layer.Activation;
-import layer.ActivationLayer;
 import layer.ReLu;
 import layer.TanH;
 import main.LayerNew;
-import main.NN_New;
+import main.NeuralNetwork;
 import utils.Matrix;
 
 import java.io.BufferedReader;
@@ -359,7 +358,7 @@ public class LoadModel {
         return d;
     }
 
-    public static NN_New loadModel(String fpath) throws IOException {
+    public static NeuralNetwork loadModel(String fpath) throws IOException {
 
         List<String> lines = read(fpath);
 
@@ -444,7 +443,7 @@ public class LoadModel {
 
         }
 
-        NN_New nn = new NN_New();
+        NeuralNetwork nn = new NeuralNetwork();
 
 
         LayerNew[] l = new LayerNew[layers.size()];

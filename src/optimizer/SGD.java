@@ -1,7 +1,6 @@
 package optimizer;
 
-import layer.Layer;
-import utils.Utils;
+import main.LayerNew;
 
 /**
  * is not really implemented. Shall be in the future.
@@ -56,30 +55,7 @@ public class SGD implements Optimizer {
 
 
     @Override
-    public void update(Layer l) {
-        if (this.momentum != 0) {
-
-
-            if (l.getMomentumWeights() != null) {
-                l.activateMomentum();
-
-            }
-
-            Utils.cal_matrix_mult_scalar(l.getMomentumWeights(), this.momentum);
-            Utils.cal_momentumW_minus_dweights(l.getMomentumWeights(), l.getDeltaWeights(), this.current_learning_rate);
-
-            Utils.cal_baisesMomentum(l.getBiases(), l.getMomentumBiases(), -this.current_learning_rate, momentum);
-
-            Utils.addMatrix(l.getWeights(), l.getMomentumWeights());
-            Utils.addMatrix(l.getBiases(), l.getMomentumBiases());
-
-
-        } else {
-            Utils.cal_matrix_mult_scalar(l.getDeltaWeights(), -this.current_learning_rate);
-            Utils.addMatrix(l.getWeights(), l.getDeltaWeights());
-
-        }
-
+    public void update(LayerNew l) {
     }
 }
 

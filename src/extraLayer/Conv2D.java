@@ -1,19 +1,17 @@
 package extraLayer;
 
 import layer.Activation;
-import main.Dropout;
+import layer.Dropout;
 import main.LayerNew;
 import optimizer.Optimizer;
 import utils.ArrayMathUtils;
 import utils.Matrix;
 import utils.RandomUtils;
-import utils.Utils;
 
 import java.util.Arrays;
 import java.util.Random;
 
 import static load.writeUtils.writeWeights;
-import static utils.Array_utils.getShape;
 import static utils.Array_utils.reFlat;
 
 
@@ -159,25 +157,6 @@ public class Conv2D extends LayerNew {
         return c;
     }
 
-    @Override
-    public void backward(double[] input) {
-
-        double[][][] c = Utils.reshape(input, getOutputShape());
-        this.backward(c);
-
-    }
-
-    @Override
-    public void backward(double[][] inputs) {
-        double[][][][] c = new double[inputs.length][][][];
-        for (int i = 0; i < inputs.length; i++) {
-            c[i] = Utils.reshape(inputs[i], getOutputShape());
-        }
-
-        this.backward(c);
-
-    }
-
 
     @Override
     public void setIterationAt(int iterationAt) {
@@ -270,15 +249,6 @@ public class Conv2D extends LayerNew {
         this.previousLayer = l;
     }
 
-    @Override
-    public void forward(double[] input) {
-        throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
-    }
-
-    @Override
-    public void forward(double[][] inputs) {
-        throw new IllegalArgumentException("Got batch input" + Arrays.toString(getShape(inputs)));
-    }
 
     @Override
     public void setOptimizer(Optimizer optimizer) {
@@ -318,6 +288,7 @@ public class Conv2D extends LayerNew {
 
     }
 
+
     public void activateBias() {
         this.useBiases = true;
         this.biases = new double[numFilters][outputHeight][outputWidth];
@@ -341,7 +312,7 @@ public class Conv2D extends LayerNew {
         }
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(output);
+            this.getNextLayer().forward(new Matrix<>(output));
         } else {
             this.output = new Matrix(output);
         }
@@ -365,14 +336,13 @@ public class Conv2D extends LayerNew {
 
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(output);
+            this.getNextLayer().forward(new Matrix<>(output));
         } else {
             this.output = new Matrix(output);
         }
 
     }
 
-    @Override
     public void backward(double[] input, double learningRate) {
         this.learningRate = learningRate;
         double[][][] c = reFlat(input, getOutputShape());
@@ -380,12 +350,6 @@ public class Conv2D extends LayerNew {
 
     }
 
-    @Override
-    public void backward(double[][] inputs, double learningRate) {
-        this.learningRate = learningRate;
-        double[][][][] c = reFlat(inputs, getOutputShape());
-        backward(c);
-    }
 
     private double[][] convolve(double[][] input, double[][] filter) {
 
@@ -616,14 +580,8 @@ public class Conv2D extends LayerNew {
         }
 
         if (this.getPreviousLayer() != null) {
-            this.getPreviousLayer().backward(dLdOPreviousLayer);
+            this.getPreviousLayer().backward(new Matrix<>(dLdOPreviousLayer));
         }
-    }
-
-    @Override
-    public void backward(double[][][][] inputs) {
-
-
     }
 
     public double[][][] backward(double[][][] gradInput, double learningRate) {
@@ -680,6 +638,28 @@ public class Conv2D extends LayerNew {
 
     }
 
+    public double[][][][] backward(double[][][][] gradInput, double learningRate) {
+
+        this.learningRate = learningRate;
+        for (int i = 0; i < gradInput.length; i++) {
+            this.input = inputs[i];
+            this.backward(gradInput[i]);
+        }
+
+        return gradInput;
+    }
+
+    public double[][][][] backward(double[][][][] gradInput) {
+
+
+        for (int i = 0; i < gradInput.length; i++) {
+            this.input = inputs[i];
+            this.backward(gradInput[i]);
+        }
+
+        return gradInput;
+    }
+
 
     @Override
     public String summary() {
@@ -729,5 +709,48 @@ public class Conv2D extends LayerNew {
         return false;
 
 
+    }
+
+    @Override
+    public void forward(Matrix m) {
+        int dim = m.getDim();
+
+        if (dim == 3) {
+            this.forward(m.getData3D());
+        } else if (dim == 4) {
+            this.forward(m.getData4D());
+        } else {
+            System.out.println("Got unsupported Dimension: " + dim);
+        }
+    }
+
+    @Override
+    public void backward(Matrix m) {
+        int dim = m.getDim();
+
+        if (dim == 3) {
+            this.backward(m.getData3D());
+        } else if (dim == 4) {
+            this.backward(m.getData4D());
+        } else {
+            System.out.println("Got unsupported Dimension: " + dim);
+        }
+    }
+
+    @Override
+    public void backward(Matrix m, double learningRate) {
+
+        if (this.previousLayer != null) {
+            this.previousLayer.setLearningRate(learningRate);
+        }
+        this.learningRate = learningRate;
+        int dim = m.getDim();
+        if (dim == 3) {
+            this.backward(m.getData3D(), learningRate);
+        } else if (dim == 4) {
+            this.backward(m.getData4D(), learningRate);
+        } else {
+            System.out.println("Got unsupported Dimension: " + dim);
+        }
     }
 }

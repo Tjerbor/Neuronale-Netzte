@@ -23,32 +23,21 @@ public class Flatten extends LayerNew {
         this.outputShape = new int[]{outputSize};
     }
 
-    @Override
-    public void forward(double[] input) {
-        throw new IllegalArgumentException("Array is already flat.");
 
-    }
-
-    @Override
-    public void forward(double[][] inputs) {
-        throw new IllegalArgumentException("Array is already flat.");
-    }
-
-    @Override
     public void forward(double[][][] input) {
 
         this.inputShape = getShape(input);
         double[] out = Array_utils.flatten(input);
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(input);
+            this.getNextLayer().forward(new Matrix(input));
         } else {
             this.output = new Matrix(out);
         }
 
     }
 
-    @Override
+
     public void forward(double[][][][] inputs) {
         this.inputShape = getShape(inputs[0]);
         double[][] out = new double[inputs.length][];
@@ -57,22 +46,63 @@ public class Flatten extends LayerNew {
         }
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(inputs);
+            this.getNextLayer().forward(new Matrix(inputs));
         } else {
             this.output = new Matrix(out);
         }
     }
 
-    @Override
+
     public void backward(double[] input, double learningRate) {
         this.nextLayer.setLearningRate(learningRate);
         this.backward(input);
     }
 
-    @Override
+
     public void backward(double[][] inputs, double learningRate) {
         this.nextLayer.setLearningRate(learningRate);
         this.backward(inputs);
+    }
+
+    @Override
+    public void forward(Matrix m) {
+        int dim = m.getDim();
+        if (dim == 3) {
+            this.forward(m.getData3D());
+        } else if (dim == 4) {
+            this.forward(m.getData4D());
+        } else {
+            System.out.println("Got unsupported Dimension");
+        }
+
+    }
+
+    @Override
+    public void backward(Matrix m) {
+        int dim = m.getDim();
+
+        if (dim == 1) {
+            this.backward(m.getData1D());
+        } else if (dim == 2) {
+            this.backward(m.getData2D());
+        } else {
+            System.out.println("Got unsupported Dimension");
+        }
+    }
+
+    @Override
+    public void backward(Matrix m, double learningRate) {
+        if (this.previousLayer != null) {
+            this.previousLayer.setLearningRate(learningRate);
+        }
+        int dim = m.getDim();
+        if (dim == 1) {
+            this.backward(m.getData1D());
+        } else if (dim == 2) {
+            this.backward(m.getData2D());
+        } else {
+            System.out.println("Got unsupported Dimension");
+        }
     }
 
     @Override
@@ -85,35 +115,25 @@ public class Flatten extends LayerNew {
 
     }
 
-    @Override
+
     public void backward(double[] input) {
         double[][][] out = Array_utils.reFlat(input, this.inputShape);
         ;
 
         if (this.getPreviousLayer() != null) {
-            this.getPreviousLayer().backward(out);
+            this.getPreviousLayer().backward(new Matrix(out));
         }
     }
 
-    @Override
+
     public void backward(double[][] inputs) {
         double[][][][] out = new double[inputs.length][][][];
         for (int i = 0; i < inputs.length; i++) {
             out[i] = Array_utils.reFlat(inputs[i], this.inputShape);
         }
         if (this.getPreviousLayer() != null) {
-            this.getPreviousLayer().backward(out);
+            this.getPreviousLayer().backward(new Matrix(out));
         }
-    }
-
-    @Override
-    public void backward(double[][][] input) {
-        throw new IllegalArgumentException("Not supported to reFlat array with Dimension 3");
-    }
-
-    @Override
-    public void backward(double[][][][] inputs) {
-        throw new IllegalArgumentException("Not supported to reFlat array with Dimension 4");
     }
 
     @Override
@@ -132,6 +152,18 @@ public class Flatten extends LayerNew {
     public boolean isEqual(LayerNew other) {
 
         other = (Flatten) other;
+        if (Arrays.equals(other.getInputShape(), this.inputShape)) {
+            return true;
+        }
+
+        return false;
+
+
+    }
+
+
+    public boolean isEqual(Flatten other) {
+
         if (Arrays.equals(other.getInputShape(), this.inputShape)) {
             return true;
         }

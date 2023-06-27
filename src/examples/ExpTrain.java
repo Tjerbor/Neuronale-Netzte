@@ -4,7 +4,7 @@ import builder.BuildNetwork;
 import loss.Loss;
 import loss.MSE;
 import main.MNIST;
-import main.NN_New;
+import main.NeuralNetwork;
 import utils.Array_utils;
 import utils.Matrix;
 import utils.TrainUtils;
@@ -31,7 +31,7 @@ public class ExpTrain {
         builder.addFlatten();
         builder.addFastLayer(numClasses);
 
-        NN_New nn = builder.getModel();
+        NeuralNetwork nn = builder.getModel();
 
 
         double[][][] trainingData = MNIST.read("data/mnist/train-images-idx3-ubyte.gz", "data/mnist/train-labels-idx1-ubyte.gz");
@@ -58,8 +58,8 @@ public class ExpTrain {
                 tmp = TrainUtils.yieldXY_Last(batchSize, trainingData[0], trainingData[1], j);
                 double[][][][] x_train = (double[][][][]) tmp.get(0);
                 double[][] y_train = (double[][]) tmp.get(1);
-                
-                nn.getFristLayer().forward(Array_utils.copyArray(x_train));
+
+                nn.getFristLayer().forward(new Matrix(Array_utils.copyArray(x_train)));
                 //calculates Loss
                 Matrix out2 = nn.getLastLayer().getOutput();
                 System.out.println("print Data: " + out2.getData());
@@ -69,7 +69,7 @@ public class ExpTrain {
                 out = loss.backward(out, y_train);
                 // now does back propagation
                 nn.getLastLayer().setIterationAt(i);
-                nn.getLastLayer().backward(out);
+                nn.getLastLayer().backward(new Matrix(out));
             }
 
             end = System.currentTimeMillis();

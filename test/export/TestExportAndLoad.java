@@ -2,7 +2,7 @@ package export;
 
 import builder.BuildNetwork;
 import extraLayer.*;
-import main.NN_New;
+import main.NeuralNetwork;
 import org.junit.jupiter.api.Test;
 import utils.Matrix;
 
@@ -29,9 +29,9 @@ public class TestExportAndLoad {
         builder.addFlatten();
         builder.addFastLayer(numClasses);
 
-        NN_New nn = builder.getModel();
+        NeuralNetwork nn = builder.getModel();
         nn.writeModel("model.txt");
-        NN_New nn2 = load.LoadModel.loadModel("model.txt");
+        NeuralNetwork nn2 = load.LoadModel.loadModel("model.txt");
 
         assert nn.isEqual(nn2);
 

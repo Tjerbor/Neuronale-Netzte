@@ -1,7 +1,10 @@
-package main;
+package Train;
 
 import extraLayer.FastLinearLayer;
 import loss.MSE;
+import main.LayerNew;
+import main.MNIST;
+import main.NeuralNetwork;
 
 import java.io.IOException;
 
@@ -21,17 +24,18 @@ public class TrainNN {
         double[][] y_test = testData[1];
 
 
-        NN_New nn = new NN_New();
+        NeuralNetwork nn = new NeuralNetwork();
 
 
-        FastLinearLayer f = new FastLinearLayer(784, 40, 0.4);
-        FastLinearLayer f_out = new FastLinearLayer(40, 10, 0.4);
+        FastLinearLayer f = new FastLinearLayer(784, 40, 0.1);
+        FastLinearLayer f_out = new FastLinearLayer(40, 10, 0.1);
 
         f.setUseBiases(false);
         f.setLearningRate(0.4);
         f_out.setUseBiases(false);
         f.setLearningRate(0.4);
 
+        String s = "";
         LayerNew[] ls = new LayerNew[]{f, f_out};
 
         //nn.add(new FullyConnectedLayerNew(784, 80, new TanH()));
@@ -43,7 +47,13 @@ public class TrainNN {
         nn.build();
 
         System.out.println("Started Training");
-        nn.trainNew(10, x_train, y_train, x_test, y_test, 0.4);
+        s += nn.trainTesting(10, x_train, y_train, x_test, y_test, 0.001);
+        s += nn.trainTesting(10, x_train, y_train, x_test, y_test, 0.01);
+        s += nn.trainTesting(10, x_train, y_train, x_test, y_test, 0.1);
+        s += nn.trainTesting(10, x_train, y_train, x_test, y_test, 0.2);
+        s += nn.trainTesting(10, x_train, y_train, x_test, y_test, 0.3);
+        s += nn.trainTesting(10, x_train, y_train, x_test, y_test, 0.4);
 
+        System.out.println(s);
     }
 }

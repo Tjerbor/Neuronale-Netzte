@@ -1,8 +1,8 @@
 package main;
 
+import extraLayer.FullyConnectedLayer;
 import layer.Activation;
 import layer.CustomActivation;
-import layer.FullyConnectedLayer;
 import layer.StepFunc;
 import org.junit.jupiter.api.*;
 import utils.Reader;

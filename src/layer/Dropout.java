@@ -1,13 +1,10 @@
-package main;
+package layer;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class Dropout {
 
-    boolean training = false;
+    boolean training = true;
 
     int size; //the size of the deactivate neurons.
     //no make sure teh number is exact and not rounded.
@@ -50,13 +47,22 @@ public class Dropout {
             generated.add(next);
         }
 
-        Integer[] tmp = (Integer[]) generated.toArray();
+        Integer[] tmp = new Integer[numbersNeeded];
+        Iterator iter = generated.iterator();
+
+        int count = 0;
+        while (iter.hasNext()) {
+            tmp[count] = (Integer) iter.next();
+            count += 1;
+        }
+
+
         this.input1D = new double[maxNumber];
 
         Arrays.fill(input1D, 1);
 
         for (int i = 0; i < numbersNeeded; i++) {
-            input1D[tmp[i]] = 0;
+            input1D[Integer.valueOf(tmp[i])] = 0;
 
         }
     }
@@ -66,6 +72,7 @@ public class Dropout {
 
         if (training) {
 
+            this.input1D = new double[a.length];
             int size;
             if (this.size == 0) {
                 size = (int) Math.floor(a.length * this.rate);
@@ -89,8 +96,7 @@ public class Dropout {
     public double[][] forward(double[][] a) {
 
         if (training) {
-
-            this.input2D = new double[a.length][];
+            this.input2D = new double[a.length][a[0].length];
             for (int i = 0; i < a.length; i++) {
                 a[i] = this.forward(a[i]);
                 this.input2D[i] = this.input1D;

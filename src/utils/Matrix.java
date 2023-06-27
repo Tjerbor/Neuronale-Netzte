@@ -67,5 +67,7 @@ public class Matrix<T> {
 
     }
 
-
+    public int getDim() {
+        return dim;
+    }
 }

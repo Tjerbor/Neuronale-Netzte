@@ -37,6 +37,11 @@ public class TestBatchNorm {
                 6.76916937e-04, 3.17982849e-08, -3.65355306e-05},
                 {-6.76916937e-04, -3.17982836e-08, 3.65355304e-05}};
 
+        B1D.backward(out);
+
+        System.out.println(Arrays.deepToString(B1D.getBackwardOutput().getData2D()));
+        //(B1D.getBackwardOutput().getData2D(), sollBack);
+
     }
 
 
