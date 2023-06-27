@@ -162,14 +162,46 @@ public class FullyConnectedLayer extends LayerNew {
 
     }
 
+    public void setWeights(double[][] weights) {
+
+        if (!useBiases) {
+
+            if (weights.length != this.weights.length || this.weights[0].length != weights[0].length) {
+                throw new IllegalArgumentException("given weights are smaller.");
+            }
+            this.weights = weights;
+
+        } else {
+
+            if (weights.length != this.weights.length + 1 || this.weights[0].length != weights[0].length) {
+                throw new IllegalArgumentException("given weights are smaller.");
+            }
+
+            this.weights = Arrays.copyOf(weights, weights.length - 1);
+            biases = weights[weights.length - 1];
+        }
+    }
+
     @Override
     public void setWeights(Matrix m) {
 
         if (!useBiases) {
+
+            double[][] w = m.getData2D();
+            System.out.println(w.length + " " + w[0].length);
+            if (w.length != weights.length || weights[0].length != w[0].length) {
+                throw new IllegalArgumentException("given weights are smaller.");
+            }
             this.weights = m.getData2D();
 
         } else {
             double[][] tmp = m.getData2D();
+
+            System.out.println(tmp.length + " " + tmp[0].length);
+            if (tmp.length != weights.length + 1 || weights[0].length != tmp[0].length) {
+                throw new IllegalArgumentException("given weights are smaller.");
+            }
+
             weights = Arrays.copyOf(tmp, tmp.length - 1);
             biases = tmp[tmp.length - 1];
 
@@ -184,16 +216,6 @@ public class FullyConnectedLayer extends LayerNew {
      * This method returns the weights of the layer, including the bias nodes.
      */
 
-    public void setWeights(double[][] weights) {
-
-        if (!useBiases) {
-            this.weights = weights;
-
-        } else {
-            this.weights = Arrays.copyOf(weights, weights.length - 1);
-            biases = weights[weights.length - 1];
-        }
-    }
 
     /**
      * This method sets the weights of the layer, including the bias nodes.
@@ -337,7 +359,6 @@ public class FullyConnectedLayer extends LayerNew {
     public void forward(double[] input) {
 
         lastInput = input;
-
         double[] z = new double[weights[0].length];
         double[] out = new double[weights[0].length];
         for (int j = 0; j < weights[0].length; j++) {

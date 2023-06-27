@@ -6,6 +6,7 @@ import main.LayerNew;
 import main.NeuralNetwork;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static utils.Array_utils.getFlattenInputShape;
@@ -301,17 +302,28 @@ public class BuildNetwork {
 
     }
 
-    public void addFastLinearLayer(int inputSize, int NeuronSize) {
+    public void addFastLayer(int NeuronSize, Activation act) {
 
         if (layers.size() != 0) {
             int position = layers.size() - 1;
-            int sizeBefore = getFlattenInputShape(layers.get(position - 1).getOutputShape());
-            this.layers.add(new FastLinearLayer(sizeBefore, NeuronSize));
+            int sizeBefore = getFlattenInputShape(layers.get(position).getOutputShape());
+            this.layers.add(new FastLinearLayer(sizeBefore, NeuronSize, act));
         } else if (this.inputSize > 0) {
-            this.layers.add(new FastLinearLayer(inputSize, NeuronSize));
+            this.layers.add(new FastLinearLayer(inputSize, NeuronSize, act));
         } else {
             throw new IllegalArgumentException("No previous Layers are set.");
         }
+
+
+    }
+
+    public void addFastLinearLayer(int inputSize, int NeuronSize) {
+        this.layers.add(new FastLinearLayer(inputSize, NeuronSize));
+
+    }
+
+    public void addFastLinearLayer(int inputSize, int NeuronSize, Activation act) {
+        this.layers.add(new FastLinearLayer(inputSize, NeuronSize, act));
 
 
     }
@@ -375,9 +387,47 @@ public class BuildNetwork {
 
     }
 
+    public void addOnlyFastLayer(int[] topologie, Activation act) {
+        this.addFastLinearLayer(topologie[0], topologie[1], act);
+        for (int i = 2; i < topologie.length; i++) {
+            this.addFastLayer(topologie[i], act);
+        }
+
+    }
+
+    public void addOnlyFastLayer(int[] topologie, Activation[] activations) {
+
+        if (topologie.length < 2 || activations.length == 0 || (activations.length != 2 && activations.length != topologie.length - 1)) {
+            throw new IllegalArgumentException("got topologie: " + Arrays.toString(topologie) + " and Activation-functions: " + Arrays.toString(activations));
+        }
+
+
+        if (activations.length == topologie.length - 1) {
+            this.addFastLinearLayer(topologie[0], topologie[1], activations[0]);
+            for (int i = 2; i < topologie.length; i++) {
+                this.addFastLayer(topologie[i], activations[i - 2]);
+            }
+
+        } else if (activations.length == 2) {
+            this.addFastLinearLayer(topologie[0], topologie[1], activations[0]);
+            for (int i = 2; i < topologie.length; i++) {
+                if (i == topologie.length - 1) {
+                    this.addFastLayer(topologie[i], activations[1]);
+                } else {
+                    this.addFastLayer(topologie[i], activations[0]);
+                }
+
+            }
+        } else {
+            throw new IllegalArgumentException("got topologie: " + Arrays.toString(topologie) + " and Activation-functions: " + Arrays.toString(activations));
+        }
+
+
+    }
+
     public void addOnlyFCL(int[] topologie) {
         this.addFullyConnectedLayer(topologie[0], topologie[1]);
-        for (int i = 2; i < topologie.length; i++) {
+        for (int i = 1; i < topologie.length; i++) {
             this.addFullyConnectedLayer(topologie[i]);
         }
 

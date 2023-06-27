@@ -1,5 +1,7 @@
 package main;
 
+import extraLayer.FCL;
+import extraLayer.FastLinearLayer;
 import extraLayer.FullyConnectedLayer;
 import layer.Activation;
 import loss.Loss;
@@ -37,6 +39,7 @@ public class NeuralNetwork {
 
     }
 
+
     /**
      * This method initializes the neural network with the given topology and activation function.
      * A {@link FullyConnectedLayer} is created for each edge layer.
@@ -46,6 +49,19 @@ public class NeuralNetwork {
         size = topology.length - 1;
         for (int i = 0; i < size; i++) {
             this.add(new FullyConnectedLayer(topology[i], topology[i + 1], function));
+        }
+    }
+
+    public void create(int[] topology, Activation[] functions) {
+
+
+        if (functions.length != topology.length - 1) {
+            throw new IllegalArgumentException("wrong Activations Size and Topologie shape");
+        }
+
+        size = topology.length - 1;
+        for (int i = 0; i < size; i++) {
+            this.add(new FullyConnectedLayer(topology[i], topology[i + 1], functions[i]));
         }
     }
 
@@ -73,6 +89,25 @@ public class NeuralNetwork {
 
     }
 
+    public int[] topology() {
+
+        LayerNew[] layerNews = this.layers2Array();
+        int[] topologie = new int[size + 1];
+
+        int count = 0;
+        for (LayerNew l : layerNews) {
+            if (l instanceof FastLinearLayer || l instanceof FCL || l instanceof FullyConnectedLayer) {
+                topologie[count] = l.getInputShape()[0];
+                topologie[count + 1] = l.getOutputShape()[0];
+                count += 1;
+
+            }
+        }
+        return topologie;
+
+
+    }
+
     public void create(LayerNew[] layers) {
 
         if (layers.length == 2) {
@@ -90,14 +125,32 @@ public class NeuralNetwork {
         }
     }
 
+    public Matrix compute(Matrix m) {
+
+        fristLayer.forward(m);
+
+        if (this.lastLayer == null) {
+            return fristLayer.getOutput();
+        }
+        return lastLayer.getOutput();
+
+    }
+
     public double[] compute(double[] input) {
         fristLayer.forward(new Matrix(input));
+
+        if (this.lastLayer == null) {
+            return fristLayer.getOutput().getData1D();
+        }
         return lastLayer.getOutput().getData1D();
 
     }
 
-    public double[][] computeAll(double[][] inputs) {
+    public double[][] compute(double[][] inputs) {
         fristLayer.forward(new Matrix(inputs));
+        if (this.lastLayer == null) {
+            return fristLayer.getOutput().getData2D();
+        }
         return lastLayer.getOutput().getData2D();
     }
 
@@ -125,7 +178,7 @@ public class NeuralNetwork {
         lastLayer.backward(new Matrix(input));
     }
 
-    public void computeAllBackward(double[][] inputs, int epochAt) {
+    public void computeBackward(double[][] inputs, int epochAt) {
         if (this.lastLayer == null) {
             this.build();
         }
@@ -134,7 +187,7 @@ public class NeuralNetwork {
         lastLayer.backward(new Matrix(inputs));
     }
 
-    public void computeAllBackward(double[][] inputs, int epochAt, double learningRate) {
+    public void computeBackward(double[][] inputs, int epochAt, double learningRate) {
         if (this.lastLayer == null) {
             this.build();
         }
@@ -328,6 +381,25 @@ public class NeuralNetwork {
         }
 
         return s.toString();
+
+    }
+
+    public void setFunction(int index, Activation act) {
+
+        System.out.println(size);
+        if (index > size() - 1) {
+            throw new IllegalArgumentException("set Activation: index out of bounds");
+        }
+
+        if (index == 0) {
+
+            this.fristLayer.setActivation(act);
+        } else {
+
+            LayerNew[] layers = layers2Array();
+            layers[index].setActivation(act);
+
+        }
 
     }
 

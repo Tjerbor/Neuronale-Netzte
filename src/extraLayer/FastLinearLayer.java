@@ -33,11 +33,31 @@ public class FastLinearLayer extends LayerNew {
 
     }
 
+    public FastLinearLayer(int a, int b, double learningRate, Activation act) {
+        this.learningRate = learningRate;
+
+        weights = new double[a][b];
+        RandomUtils.genTypeWeights(2, weights); //weights between -0.1 bis 0.1
+        this.inputShape = new int[]{a};
+        this.outputShape = new int[]{b};
+        this.act = act;
+
+    }
+
     public FastLinearLayer(int a, int b) {
         weights = new double[a][b];
         RandomUtils.genTypeWeights(2, weights); //weights between -0.1 bis 0.1
         this.inputShape = new int[]{a};
         this.outputShape = new int[]{b};
+
+    }
+
+    public FastLinearLayer(int a, int b, Activation act) {
+        weights = new double[a][b];
+        RandomUtils.genTypeWeights(2, weights); //weights between -0.1 bis 0.1
+        this.inputShape = new int[]{a};
+        this.outputShape = new int[]{b};
+        this.act = act;
 
     }
 
@@ -138,9 +158,26 @@ public class FastLinearLayer extends LayerNew {
 
     }
 
+
+    public void setWeights(double[][] weights) {
+
+        System.out.println(weights.length + " " + weights[0].length);
+        if (weights.length != weights.length || weights[0].length != weights[0].length) {
+            throw new IllegalArgumentException("given weights are smaller.");
+        }
+        this.weights = weights;
+    }
+
     @Override
     public void setWeights(Matrix m) {
+
+        double[][] w = m.getData2D();
+        System.out.println(w.length + " " + w[0].length);
+        if (w.length != weights.length || weights[0].length != w[0].length) {
+            throw new IllegalArgumentException("given weights are smaller.");
+        }
         this.weights = m.getData2D();
+
     }
 
     public void backward(double[] dLdO) {

@@ -58,6 +58,7 @@ public class Reader {
             double[][] w = Utils.genRandomWeights(topologie[i] + 1, topologie[i + 1]);
 
             structur[i] = new FullyConnectedLayer(topologie[i], topologie[i + 1]);
+            structur[i].setUseBiases(true);
 
             for (int j = 0; j < (topologie[i]) + 1; j++) {
                 for (int wi = 0; wi < list.get(list_pos).length; wi++) {
@@ -66,7 +67,6 @@ public class Reader {
 
                 list_pos += 1; //update layer position.
             }
-
 
             list_pos += 1; //wegen der leerzeile.
             //structur[i + count].weights = Utils.split_for_weights(w);

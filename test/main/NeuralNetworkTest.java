@@ -1,5 +1,6 @@
 package main;
 
+import builder.BuildNetwork;
 import extraLayer.FullyConnectedLayer;
 import layer.Activation;
 import layer.CustomActivation;
@@ -31,9 +32,11 @@ class NeuralNetworkTest {
 
     @Test
     void logicalConjunction() throws Exception {
-        neuralNetwork.setLayers(Reader.create("data/weights/logicalConjunction.csv"));
+        LayerNew[] l = Reader.create("data/weights/logicalConjunction.csv");
+        neuralNetwork.create(l);
 
         neuralNetwork.setFunction(0, new StepFunc(1.5));
+
 
         double[][] result = neuralNetwork.compute(new double[][]{{0, 0}, {0, 1}, {1, 0}, {1, 1}});
 
@@ -47,7 +50,11 @@ class NeuralNetworkTest {
 
     @Test
     void trafficLight() throws IOException {
-        neuralNetwork.setLayers(Reader.create("data/weights/trafficLight.csv"));
+
+        LayerNew[] l = Reader.create("data/weights/trafficLight.csv");
+        neuralNetwork.create(l);
+
+        neuralNetwork.printSummary();
 
         neuralNetwork.setFunction(0, new CustomActivation(new String[]{"logi", "logi", "logi", "id"}));
         neuralNetwork.setFunction(1, new CustomActivation(new String[]{"id", "id", "id", "id"}));
@@ -69,7 +76,10 @@ class NeuralNetworkTest {
         void createOne() {
             int[] topology = {3, 3, 4};
 
-            neuralNetwork.create(topology, new Activation());
+
+            BuildNetwork builder = new BuildNetwork();
+            builder.addOnlyFastLayer(topology, new Activation());
+            neuralNetwork = builder.getModel();
 
             assertArrayEquals(topology, neuralNetwork.topology(), "The returned topology is not correct.");
 
@@ -81,7 +91,9 @@ class NeuralNetworkTest {
         void createTwo() {
             int[] topology = {3, 3, 3, 3, 4, 4};
 
-            neuralNetwork.create(topology, new Activation[]{new Activation(), new Activation()});
+            BuildNetwork builder = new BuildNetwork();
+            builder.addOnlyFastLayer(topology, new Activation[]{new Activation(), new Activation()});
+            neuralNetwork = builder.getModel();
 
             assertArrayEquals(topology, neuralNetwork.topology(), "The returned topology is not correct.");
 
@@ -93,7 +105,11 @@ class NeuralNetworkTest {
         void createMultiple() {
             int[] topology = {3, 3, 3, 3, 4, 4};
 
-            neuralNetwork.create(topology, new Activation[]{new Activation(), new Activation(), new Activation(), new Activation(), new Activation()});
+            BuildNetwork builder = new BuildNetwork();
+
+            builder.addOnlyFastLayer(topology, new Activation[]{new Activation(), new Activation(), new Activation(), new Activation(), new Activation()});
+
+            neuralNetwork = builder.getModel();
 
             assertArrayEquals(topology, neuralNetwork.topology(), "The returned topology is not correct.");
 
@@ -109,26 +125,31 @@ class NeuralNetworkTest {
         void denseLayer() {
             FullyConnectedLayer layer = new FullyConnectedLayer(2, 1);
 
+            layer.setUseBiases(true);
             double[][] weights = new double[][]{{1}, {1}, {0.5}};
 
             layer.setWeights(weights);
 
             layer.setActivation(new Activation());
 
-            assertArrayEquals(weights, layer.getWeights(), "The returned weights are not correct.");
+            assertArrayEquals(weights, layer.getWeights().getData2D(), "The returned weights are not correct.");
 
             double[][] inputs = new double[][]{{0, 0}, {0, 1}, {1, 0}, {1, 1}};
             double[][] result = new double[][]{{0.5}, {1.5}, {1.5}, {2.5}};
 
+            layer.forward(inputs);
+            double[][] output = layer.getOutput().getData2D();
             assertAll(
                     "The forward pass did not return the correct values.",
-                    () -> assertArrayEquals(result[0], layer.forward(inputs[0])),
-                    () -> assertArrayEquals(result[1], layer.forward(inputs[1])),
-                    () -> assertArrayEquals(result[2], layer.forward(inputs[2])),
-                    () -> assertArrayEquals(result[3], layer.forward(inputs[3]))
+                    () -> assertArrayEquals(result[0], output[0]),
+                    () -> assertArrayEquals(result[1], output[1]),
+                    () -> assertArrayEquals(result[2], output[2]),
+                    () -> assertArrayEquals(result[3], output[3])
             );
 
-            assertArrayEquals(result, layer.forward(inputs), "The forward pass did not return the correct values.");
+            layer.forward(inputs);
+            double[][] output2 = layer.getOutput().getData2D();
+            assertArrayEquals(result, output2, "The forward pass did not return the correct values.");
 
             assertThrows(IllegalArgumentException.class, () -> layer.setWeights(new double[][]{{1}}));
         }
