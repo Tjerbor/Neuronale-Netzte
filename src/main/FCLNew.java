@@ -271,4 +271,17 @@ public class FCLNew extends LayerNew {
     }
 
 
+    @Override
+    public boolean isEqual(LayerNew other2) {
+
+        FCLNew other = (FCLNew) other2;
+
+        if (other.getInputShape() == this.inputShape && this.getWeights() == other.getWeights() && this.act == other.act) {
+            return true;
+        }
+
+        return false;
+    }
+
+
 }

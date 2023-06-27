@@ -1,5 +1,7 @@
 package utils;
 
+import java.util.Arrays;
+
 public class Matrix<T> {
 
     T data;
@@ -49,6 +51,19 @@ public class Matrix<T> {
 
     public double[][][][] getData4D() {
         return (double[][][][]) this.data;
+
+    }
+
+    public boolean isEquals(Matrix m) {
+
+        if (this.dim != m.dim) {
+            return false;
+        }
+
+        T d = this.getData();
+
+        return Arrays.equals((Object[]) d, (Object[]) this.data);
+
 
     }
 

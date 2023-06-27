@@ -499,7 +499,7 @@ public class NN_New {
 
         LayerNew[] tmp = layers2Array();
 
-        String s = "";
+        String s = "NN;" + tmp.length + "\n";
         for (int i = 0; i < tmp.length; i++) {
             if (i != tmp.length - 1) {
                 s += tmp[i].export() + "\n";
@@ -520,8 +520,6 @@ public class NN_New {
             writer.write(s);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            System.out.println("File could not be written.");
         }
     }
 
@@ -531,5 +529,29 @@ public class NN_New {
 
     public LayerNew getLastLayer() {
         return lastLayer;
+    }
+
+
+    public boolean isEqual(NN_New other) {
+
+        if (other.getLayers().length != this.getLayers().length) {
+            System.out.println("Layers have different Length: this: " + this.getLayers().length + " other: " + other.getLayers().length);
+            return false;
+        }
+
+        LayerNew[] thisLayers = this.getLayers();
+        LayerNew[] otherLayers = other.getLayers();
+        for (int i = 0; i < thisLayers.length; i++) {
+
+            if (!thisLayers[i].isEqual(otherLayers[i])) {
+                System.out.println("Layer on Position: " + i + " was different.");
+                System.out.println("this: " + thisLayers[i].export());
+                System.out.println("other: " + otherLayers[i].export());
+                return false;
+            }
+
+        }
+
+        return true;
     }
 }

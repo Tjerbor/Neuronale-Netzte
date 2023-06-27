@@ -338,11 +338,19 @@ public class LoadModel {
     }
 
     public static LayerNew loadDropout(String[] config) {
-        //config -> name, rate
-        return new DropoutLayer(Double.parseDouble(config[1]));
+        //config -> name, rate, inputShape
+        DropoutLayer d = new DropoutLayer(Double.parseDouble(config[1]));
+
+        int[] shape = new int[config.length - 2];
+        for (int i = 2; i < config.length; i++) {
+            shape[i - 2] = Integer.parseInt(config[i]);
+        }
+        d.setInputShape(shape);
+
+        return d;
     }
 
-    public NN_New loadModel(String fpath) throws IOException {
+    public static NN_New loadModel(String fpath) throws IOException {
 
         List<String> lines = read(fpath);
 
@@ -352,13 +360,18 @@ public class LoadModel {
 
         int LineCount = 1;
 
-        while (true) {
+        int layerSize = Integer.parseInt(lines.get(0).split(";")[1]);
 
-            String[] config = lines.get(LineCount).split(";");
+        
+        for (int i = 0; i < layerSize; i++) {
+
 
             if (LineCount >= lines.size()) {
                 break;
             }
+
+            String[] config = lines.get(LineCount).split(";");
+
 
             if (config[0].equals("conv2d_last")) {
                 if (config[1].equals("true")) {
@@ -405,6 +418,7 @@ public class LoadModel {
 
             } else if (config[0].equals("flatten")) {
                 layers.add(loadFlatten(config));
+                LineCount += 1;
             } else if (config[0].equals("maxpooling2d_last")) {
                 layers.add(loadMaxPooling2D_Last(config));
                 LineCount += 1;
@@ -419,13 +433,14 @@ public class LoadModel {
 
         NN_New nn = new NN_New();
 
+
         LayerNew[] l = new LayerNew[layers.size()];
 
         for (int i = 0; i < l.length; i++) {
             l[i] = layers.get(i);
         }
 
-        nn.setLayers(l);
+        nn.create(l);
         return nn;
     }
 

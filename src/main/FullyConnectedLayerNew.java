@@ -673,6 +673,18 @@ public class FullyConnectedLayerNew extends LayerNew {
 
 
     @Override
+    public boolean isEqual(LayerNew other2) {
+
+        FullyConnectedLayerNew other = (FullyConnectedLayerNew) other2;
+
+        if (other.getInputShape() == this.inputShape && this.getWeights() == other.getWeights() && this.act == other.act) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
     public Matrix getOutput() {
         return output;
     }

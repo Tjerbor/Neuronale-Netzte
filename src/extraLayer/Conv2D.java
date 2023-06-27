@@ -704,4 +704,30 @@ public class Conv2D extends LayerNew {
         return s;
 
     }
+
+    @Override
+    public boolean isEqual(LayerNew other2) {
+
+        Conv2D other = (Conv2D) other2;
+        if (Arrays.equals(other.getInputShape(), this.inputShape) && other.stride1 == this.stride1 && other.stride2 == this.stride2
+                && other.kernelSize1 == this.kernelSize1 && other.kernelSize2 == this.kernelSize2 && this.numFilters == other.numFilters && this.getWeights().isEquals(other.getWeights())) {
+            return true;
+        }
+
+        return false;
+
+
+    }
+
+    public boolean isEqual(Conv2D other) {
+
+        if (other.getInputShape() == this.inputShape && other.stride1 == this.stride1 && other.stride2 == this.stride2
+                && other.kernelSize1 == this.kernelSize1 && other.kernelSize2 == this.kernelSize2 && this.numFilters == other.numFilters && this.getWeights() == other.getWeights()) {
+            return true;
+        }
+
+        return false;
+
+
+    }
 }

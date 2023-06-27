@@ -6,6 +6,8 @@ import utils.Matrix;
 
 import java.util.Arrays;
 
+import static load.writeUtils.writeShape;
+
 public class DropoutLayer extends LayerNew {
 
 
@@ -121,7 +123,7 @@ public class DropoutLayer extends LayerNew {
 
     @Override
     public String export() {
-        return "dropout;" + dropout.getRate();
+        return "dropout;" + dropout.getRate() + ";" + writeShape(inputShape);
     }
 
     @Override
@@ -134,5 +136,46 @@ public class DropoutLayer extends LayerNew {
         return "Dropout inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())
                 + " parameterSize: " + parameters() + "\n";
+    }
+
+    @Override
+    public boolean isEqual(LayerNew other) {
+
+        DropoutLayer other2 = (DropoutLayer) other;
+        if (Arrays.equals(other2.getInputShape(), this.inputShape) && this.dropout.getRate() == other2.dropout.getRate()) {
+            return true;
+        }
+
+        if (!(Arrays.equals(other.getInputShape(), this.inputShape))) {
+            System.out.println("this: " + Arrays.toString(inputShape) + " other: " + Arrays.toString(other.getInputShape()));
+        }
+
+        if (!(this.dropout.getRate() == other2.dropout.getRate())) {
+            System.out.println("this: " + this.dropout.getRate() + " other: " + other2.dropout.getRate());
+        }
+
+
+        return false;
+
+
+    }
+
+    public boolean isEqual(DropoutLayer other) {
+
+        if (Arrays.equals(other.getInputShape(), this.inputShape) && this.dropout.getRate() == other.dropout.getRate()) {
+            return true;
+        }
+
+        if ((Arrays.equals(other.getInputShape(), this.inputShape))) {
+            System.out.println("this: " + writeShape(inputShape) + " other: " + writeShape(getInputShape()));
+        }
+
+        if ((this.dropout.getRate() == other.dropout.getRate())) {
+            System.out.println("this: " + this.dropout.getRate() + " other: " + other.dropout.getRate());
+        }
+
+        return false;
+
+
     }
 }

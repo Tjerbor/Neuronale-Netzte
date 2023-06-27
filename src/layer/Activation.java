@@ -32,6 +32,13 @@ public class Activation {
     }
 
 
+    public boolean isEquals(Activation activation) {
+        if (this.toString().equals(activation.toString())) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return "id";

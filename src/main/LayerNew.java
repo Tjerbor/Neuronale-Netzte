@@ -126,6 +126,7 @@ abstract public class LayerNew {
         return output;
     }
 
+    abstract public boolean isEqual(LayerNew other);
 
     abstract public String summary();
 

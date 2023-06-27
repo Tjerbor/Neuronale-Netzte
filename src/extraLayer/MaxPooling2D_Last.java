@@ -94,7 +94,7 @@ public class MaxPooling2D_Last extends LayerNew {
 
     @Override
     public String export() {
-        return "MaxPooling2D_Last;" + kernelSize1 + ";" + kernelSize2 + ";" + stride1 + ";" + stride2 + ";" + writeShape(inputShape);
+        return "maxpooling2d_last;" + kernelSize1 + ";" + kernelSize2 + ";" + stride1 + ";" + stride2 + ";" + writeShape(inputShape);
     }
 
 
@@ -316,5 +316,20 @@ public class MaxPooling2D_Last extends LayerNew {
                 + " parameterSize: " + parameters() + "\n";
     }
 
+
+    @Override
+    public boolean isEqual(LayerNew other) {
+
+        MaxPooling2D_Last other2 = (MaxPooling2D_Last) other;
+
+        if (Arrays.equals(other2.getInputShape(), this.inputShape) && other2.stride1 == this.stride1 && other2.stride2 == this.stride2
+                && other2.kernelSize1 == this.kernelSize1 && other2.kernelSize2 == this.kernelSize2) {
+            return true;
+        }
+
+        return false;
+
+
+    }
 
 }

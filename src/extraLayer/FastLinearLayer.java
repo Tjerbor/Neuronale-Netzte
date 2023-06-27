@@ -7,6 +7,9 @@ import utils.Array_utils;
 import utils.Matrix;
 import utils.RandomUtils;
 
+import java.util.Arrays;
+
+import static load.writeUtils.writeShape;
 import static load.writeUtils.writeWeights;
 
 public class FastLinearLayer extends LayerNew {
@@ -234,6 +237,40 @@ public class FastLinearLayer extends LayerNew {
         return "FastLinear inputSize: " + getInputShape()[0]
                 + " outputSize: " + getOutputShape()[0]
                 + " parameter: " + parameters() + "\n";
+    }
+
+    @Override
+    public boolean isEqual(LayerNew other) {
+
+        FastLinearLayer other2 = (FastLinearLayer) other;
+
+        if (Arrays.equals(other2.getInputShape(), this.inputShape) && this.getWeights().isEquals(other2.getWeights()) && this.act.isEquals(act)) {
+            return true;
+        }
+
+        if (!(Arrays.equals(other2.getInputShape(), this.inputShape))) {
+            System.out.println("inputShape was different: this: " + writeShape(inputShape) + " other: " + writeShape(other2.getInputShape()));
+        }
+
+        return false;
+
+
+    }
+
+    public boolean isEqual(FastLinearLayer other2) {
+
+        if (Arrays.equals(other2.getInputShape(), this.inputShape) && this.getWeights().isEquals(other2.getWeights()) && this.act.isEquals(other2.act)) {
+            return true;
+        }
+
+        if (!(Arrays.equals(other2.getInputShape(), this.inputShape))) {
+            System.out.println("inputShape was different: this: " + writeShape(inputShape) + " other: " + writeShape(other2.getInputShape()));
+        }
+
+
+        return false;
+
+
     }
 
 

@@ -238,4 +238,17 @@ public class ActivationLayer extends LayerNew {
                 + " parameter" + parameters() + "\n";
     }
 
+
+    @Override
+    public boolean isEqual(LayerNew other2) {
+
+        ActivationLayer other = (ActivationLayer) other2;
+
+        if (Arrays.equals(other.getInputShape(), this.inputShape) && this.act.isEquals(act)) {
+            return true;
+        }
+
+        return false;
+    }
+
 }

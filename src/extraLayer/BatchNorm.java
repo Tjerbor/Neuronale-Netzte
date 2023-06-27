@@ -154,7 +154,7 @@ public class BatchNorm extends LayerNew {
         String s = "batchnorm;" + inputSize;
 
         if (this.inputShape != null) {
-            s += writeShape(inputShape);
+            s += ";" + writeShape(inputShape);
         }
         s += "\n";
 
@@ -376,5 +376,29 @@ public class BatchNorm extends LayerNew {
         return "BatchNorm inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())
                 + " parameterSize: " + parameters() + "\n";
+    }
+
+    @Override
+    public boolean isEqual(LayerNew other2) {
+
+        BatchNorm other = (BatchNorm) other2;
+        if (other.inputSize == this.inputSize && this.getWeights().isEquals(other.getWeights()) && Arrays.equals(other.getInputShape(), this.inputShape)) {
+            return true;
+        }
+
+        return false;
+
+
+    }
+
+    public boolean isEqual(BatchNorm other) {
+
+        if (other.inputSize == this.inputSize && this.getWeights().isEquals(other.getWeights()) && Arrays.equals(other.getInputShape(), this.inputShape)) {
+            return true;
+        }
+
+        return false;
+
+
     }
 }

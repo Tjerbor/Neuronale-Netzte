@@ -127,4 +127,18 @@ public class Flatten extends LayerNew {
                 + " outputSize: " + Arrays.toString(getOutputShape())
                 + " parameterSize: " + parameters() + "\n";
     }
+
+    @Override
+    public boolean isEqual(LayerNew other) {
+
+        other = (Flatten) other;
+        if (Arrays.equals(other.getInputShape(), this.inputShape)) {
+            return true;
+        }
+
+        return false;
+
+
+    }
+
 }

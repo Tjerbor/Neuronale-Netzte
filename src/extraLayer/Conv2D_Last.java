@@ -11,6 +11,7 @@ import utils.Utils;
 
 import java.util.Arrays;
 
+import static load.writeUtils.writeShape;
 import static load.writeUtils.writeWeights;
 import static utils.Array_utils.getShape;
 import static utils.Array_utils.sumUpMult;
@@ -194,7 +195,7 @@ public class Conv2D_Last extends LayerNew {
         outputHeight = (((inputHeight - kernelSize1 + (2 * paddingH)) / (stride1)) + 1);
         outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
 
-        this.inputShape = new int[]{inputHeight, inputWidth, numFilter};
+        this.inputShape = new int[]{inputHeight, inputWidth, channels};
         this.outputShape = new int[]{outputHeight, outputWidth, numFilter};
 
     }
@@ -855,5 +856,46 @@ public class Conv2D_Last extends LayerNew {
                 + " outputSize: " + Arrays.toString(getOutputShape())
                 + " parameterSize: " + parameters() + "\n";
     }
+
+    @Override
+    public boolean isEqual(LayerNew other2) {
+
+        Conv2D_Last other = (Conv2D_Last) other2;
+        if (Arrays.equals(other.getInputShape(), this.inputShape) && other.stride1 == this.stride1 && other.stride2 == this.stride2
+                && other.kernelSize1 == this.kernelSize1 && other.kernelSize2 == this.kernelSize2 && this.numFilter == other.numFilter &&
+                this.getWeights().isEquals(other.getWeights())) {
+            return true;
+        }
+
+        if (other.getInputShape() != this.inputShape) {
+            System.out.println("inputShape was different: this: " + writeShape(inputShape) + " other: " + writeShape(other.getInputShape()));
+
+        }
+
+        if (other.kernelSize1 != this.kernelSize1 || other.kernelSize2 != this.kernelSize2) {
+            System.out.println("KernelSize was different: this: " + kernelSize2 + " : " + kernelSize1);
+        }
+
+        if (!(this.getWeights().isEquals(other.getWeights()))) {
+            System.out.println("Weights was different");
+        }
+
+        return false;
+
+
+    }
+
+    public boolean isEqual(Conv2D_Last other) {
+
+        if (other.getInputShape() == this.inputShape && other.stride1 == this.stride1 && other.stride2 == this.stride2
+                && other.kernelSize1 == this.kernelSize1 && other.kernelSize2 == this.kernelSize2 && this.numFilter == other.numFilter && this.getWeights() == other.getWeights()) {
+            return true;
+        }
+
+        return false;
+
+
+    }
+
 }
 
