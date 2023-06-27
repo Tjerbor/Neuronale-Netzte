@@ -121,7 +121,7 @@ public class LoadModel {
 
     public static LayerNew loadFastLinearLayer(String[] config, String nextLine) {
 
-        /**
+        /*
          * start with the name, weight.length, weight[0].length, act
          */
         int a = Integer.parseInt(config[1]);
@@ -143,7 +143,7 @@ public class LoadModel {
 
     public static LayerNew loadFullyConnectedLayer(String[] config, String nextLine) {
 
-        /**
+        /*
          * start with the name, useBiases, weight.length, weight[0].length, act, dropoutRate
          */
 
@@ -174,7 +174,7 @@ public class LoadModel {
 
     public static LayerNew loadFullyConnectedLayer(String[] config, String nextLine, String biasesLine) {
 
-        /**
+        /*
          * start with the name, useBiases, weight.length, weight[0].length, act, dropoutRate
          */
 
@@ -207,7 +207,7 @@ public class LoadModel {
 
     public static LayerNew loadConv2D_Last(String[] config, String nextLine) {
 
-        //congig -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, inputShape3
+        //config -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, inputShape3
 
         int[] inputShape = new int[]{Integer.parseInt(config[7]), Integer.parseInt(config[8]), Integer.parseInt(config[9])};
 
@@ -229,13 +229,22 @@ public class LoadModel {
     }
 
     public static LayerNew loadActivation(String[] config) {
-        return new ActivationLayer(config[1]);
+
+
+        ActivationLayer act = new ActivationLayer(config[1]);
+
+        int[] shape = new int[config.length - 2];
+        for (int i = 2; i < config.length; i++) {
+            shape[i - 2] = Integer.parseInt(config[i]);
+        }
+        act.setInputShape(shape);
+        return act;
 
     }
 
     public static LayerNew loadConv2D_Last(String[] config, String nextLine, String biasesLine) {
 
-        //congig -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, channels
+        //config -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, channels
 
         int[] inputShape = new int[]{Integer.parseInt(config[7]), Integer.parseInt(config[8]), Integer.parseInt(config[9])};
 
@@ -261,7 +270,7 @@ public class LoadModel {
 
     public static LayerNew loadConv2D(String[] config, String nextLine) {
 
-        //congig -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, inputShape3
+        //config -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, inputShape3
 
         int[] inputShape = new int[]{Integer.parseInt(config[7]), Integer.parseInt(config[8]), Integer.parseInt(config[9])};
 
@@ -284,7 +293,7 @@ public class LoadModel {
 
     public static LayerNew loadConv2D(String[] config, String nextLine, String biasesLine) {
 
-        //congig -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, inputShape3
+        //config -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, inputShape3
 
         int[] inputShape = new int[]{Integer.parseInt(config[7]), Integer.parseInt(config[8]), Integer.parseInt(config[9])};
 
@@ -356,13 +365,11 @@ public class LoadModel {
 
         List<LayerNew> layers = new ArrayList<>();
 
-        int size = lines.size();
-
         int LineCount = 1;
 
         int layerSize = Integer.parseInt(lines.get(0).split(";")[1]);
 
-        
+
         for (int i = 0; i < layerSize; i++) {
 
 
@@ -373,60 +380,66 @@ public class LoadModel {
             String[] config = lines.get(LineCount).split(";");
 
 
-            if (config[0].equals("conv2d_last")) {
-                if (config[1].equals("true")) {
-                    layers.add(loadConv2D_Last(config, lines.get(LineCount + 1), lines.get(LineCount + 2)));
-                    LineCount += 2;
-                } else {
-                    layers.add(loadConv2D_Last(config, lines.get(LineCount + 1)));
+            switch (config[0]) {
+                case "conv2d_last" -> {
+                    if (config[1].equals("true")) {
+                        layers.add(loadConv2D_Last(config, lines.get(LineCount + 1), lines.get(LineCount + 2)));
+                        LineCount += 2;
+                    } else {
+                        layers.add(loadConv2D_Last(config, lines.get(LineCount + 1)));
+                        LineCount += 1;
+                    }
                     LineCount += 1;
                 }
-                LineCount += 1;
-
-            } else if (config[0].equals("fullyconnectedlayer")) {
-                if (config[1].equals("true")) {
-                    layers.add(loadConv2D(config, lines.get(LineCount + 1), lines.get(LineCount + 2)));
-                    LineCount += 2;
-                } else {
-                    layers.add(loadConv2D(config, lines.get(LineCount + 1)));
+                case "fullyconnectedlayer" -> {
+                    if (config[1].equals("true")) {
+                        layers.add(loadConv2D(config, lines.get(LineCount + 1), lines.get(LineCount + 2)));
+                        LineCount += 2;
+                    } else {
+                        layers.add(loadConv2D(config, lines.get(LineCount + 1)));
+                        LineCount += 1;
+                    }
                     LineCount += 1;
                 }
-                LineCount += 1;
-
-            } else if (config[0].equals("conv2d")) {
-                if (config[1].equals("true")) {
-                    layers.add(loadConv2D(config, lines.get(LineCount + 1), lines.get(LineCount + 2)));
-                    LineCount += 2;
-                } else {
-                    layers.add(loadConv2D(config, lines.get(LineCount + 1)));
+                case "conv2d" -> {
+                    if (config[1].equals("true")) {
+                        layers.add(loadConv2D(config, lines.get(LineCount + 1), lines.get(LineCount + 2)));
+                        LineCount += 2;
+                    } else {
+                        layers.add(loadConv2D(config, lines.get(LineCount + 1)));
+                        LineCount += 1;
+                    }
                     LineCount += 1;
                 }
-                LineCount += 1;
-
-            } else if (config[0].equals("batchnorm")) {
-
-                layers.add(loadBatchNorm(config, lines.get(LineCount + 1)));
-                LineCount += 2;
-            } else if (config[0].equals("dropout")) {
-                layers.add(loadDropout(config));
-                LineCount += 1;
-
-            } else if (config[0].equals("fastlinearlayer")) {
-                layers.add(loadFastLinearLayer(config, lines.get(LineCount + 1)));
-                LineCount += 2;
-
-
-            } else if (config[0].equals("flatten")) {
-                layers.add(loadFlatten(config));
-                LineCount += 1;
-            } else if (config[0].equals("maxpooling2d_last")) {
-                layers.add(loadMaxPooling2D_Last(config));
-                LineCount += 1;
-            } else if (config[0].equals("maxpooling2d")) {
-                layers.add(loadMaxPooling2D_Last(config));
-                LineCount += 1;
-            } else {
-                LineCount += 1;
+                case "batchnorm" -> {
+                    layers.add(loadBatchNorm(config, lines.get(LineCount + 1)));
+                    LineCount += 2;
+                }
+                case "dropout" -> {
+                    layers.add(loadDropout(config));
+                    LineCount += 1;
+                }
+                case "fastlinearlayer" -> {
+                    layers.add(loadFastLinearLayer(config, lines.get(LineCount + 1)));
+                    LineCount += 2;
+                }
+                case "flatten" -> {
+                    layers.add(loadFlatten(config));
+                    LineCount += 1;
+                }
+                case "maxpooling2d_last" -> {
+                    layers.add(loadMaxPooling2D_Last(config));
+                    LineCount += 1;
+                }
+                case "maxpooling2d" -> {
+                    layers.add(loadMaxPooling2D_Last(config));
+                    LineCount += 1;
+                }
+                case "activation" -> {
+                    layers.add(loadActivation(config));
+                    LineCount += 1;
+                }
+                default -> LineCount += 1;
             }
 
         }

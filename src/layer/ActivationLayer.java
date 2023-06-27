@@ -8,6 +8,7 @@ import utils.Utils;
 
 import java.util.Arrays;
 
+import static load.writeUtils.writeShape;
 import static utils.Array_utils.getShape;
 
 /**
@@ -228,7 +229,7 @@ public class ActivationLayer extends LayerNew {
 
     @Override
     public String export() {
-        return act.toString().toLowerCase() + ";";
+        return "activation;" + act.toString().toLowerCase() + ";" + writeShape(inputShape);
     }
 
     @Override
