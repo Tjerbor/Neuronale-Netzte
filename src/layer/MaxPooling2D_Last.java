@@ -35,12 +35,16 @@ public class MaxPooling2D_Last extends Layer {
         this.stride1 = strides;
         this.stride2 = strides;
 
+        inputHeight = inputShape[0];
+        inputWidth = inputShape[1];
+        channels = inputShape[2];
+
         outputHeight = (((inputHeight - kernelSize1) / (stride1)) + 1);
         outputWidth = (((inputWidth - kernelSize2) / (stride2)) + 1);
 
 
         this.inputShape = inputShape;
-        this.outputShape = new int[]{outputHeight, outputWidth, channels};
+        outputShape = new int[]{outputHeight, outputWidth, channels};
     }
 
     public MaxPooling2D_Last(int[] shape, int[] kernelSizes, int[] strides) {
@@ -51,11 +55,16 @@ public class MaxPooling2D_Last extends Layer {
         this.kernelSize1 = kernelSizes[0];
         this.kernelSize2 = kernelSizes[1];
 
+        inputHeight = shape[0];
+        inputWidth = shape[1];
+        channels = shape[2];
+
         outputHeight = (((inputHeight - kernelSize1) / (stride1)) + 1);
         outputWidth = (((inputWidth - kernelSize2) / (stride2)) + 1);
 
-        this.inputShape = shape;
-        this.outputShape = new int[]{outputHeight, outputWidth, channels};
+        inputShape = shape;
+        outputShape = new int[]{outputHeight, outputWidth, channels};
+
     }
 
     public MaxPooling2D_Last(int[] shape) {
@@ -68,8 +77,10 @@ public class MaxPooling2D_Last extends Layer {
         outputHeight = (((inputHeight - kernelSize1) / (stride1)) + 1);
         outputWidth = (((inputWidth - kernelSize2) / (stride2)) + 1);
 
+
         this.inputShape = shape;
         this.outputShape = new int[]{outputHeight, outputWidth, channels};
+
 
     }
 
@@ -224,6 +235,7 @@ public class MaxPooling2D_Last extends Layer {
 
         double[] tmp;
 
+
         for (int i = 0; i < outputHeight; i++) {
             for (int j = 0; j < outputWidth; j++) {
                 for (int ci = 0; ci < channels; ci++) {
@@ -243,6 +255,7 @@ public class MaxPooling2D_Last extends Layer {
 
             }
         }
+
         if (this.nextLayer != null) {
             nextLayer.forward(new Matrix(output));
         } else {

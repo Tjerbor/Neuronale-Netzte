@@ -2,33 +2,42 @@ package utils;
 
 import java.util.Arrays;
 
+import static load.writeUtils.writeShape;
+import static utils.Array_utils.getShape;
+
 public class Matrix<T> {
 
     T data;
 
     int dim;
 
+    int[] shape;
+
     public Matrix(double[][][][] d) {
         data = (T) d;
         this.dim = 4;
+        shape = getShape(d);
 
     }
 
     public Matrix(double[][][] d) {
         data = (T) d;
         this.dim = 3;
+        shape = getShape(d);
 
     }
 
     public Matrix(double[][] d) {
         data = (T) d;
         this.dim = 2;
+        shape = getShape(d);
 
     }
 
     public Matrix(double[] d) {
         data = (T) d;
         this.dim = 1;
+        shape = getShape(d);
     }
 
 
@@ -69,5 +78,13 @@ public class Matrix<T> {
 
     public int getDim() {
         return dim;
+    }
+
+
+    @Override
+    public String toString() {
+        String s = "Dim: " + dim + " shape: " + writeShape(shape);
+        s += "\n" + data;
+        return s;
     }
 }

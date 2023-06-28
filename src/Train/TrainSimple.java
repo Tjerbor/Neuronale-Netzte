@@ -1,5 +1,6 @@
 package Train;
 
+import builder.NetworkBuilder;
 import layer.FastLinearLayer;
 import layer.Layer;
 import loss.MSE;
@@ -37,6 +38,13 @@ public class TrainSimple {
 
 
         nn.create(ls);
+
+        NetworkBuilder builder = new NetworkBuilder(784);
+        builder.addFastLayer(80);
+        builder.addFastLayer(40);
+        builder.addFastLayer(10);
+
+        nn = builder.getModel();
 
 
         nn.setLoss(new MSE());

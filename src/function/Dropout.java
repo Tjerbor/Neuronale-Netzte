@@ -56,10 +56,6 @@ public class Dropout {
             count += 1;
         }
 
-        System.out.println("number Needed: " + numbersNeeded);
-        System.out.println("array Length tmp: " + tmp.length);
-        System.out.println("input forward Length: " + maxNumber);
-
 
         this.input1D = new double[maxNumber];
 

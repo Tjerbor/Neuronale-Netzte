@@ -437,5 +437,34 @@ public class NetworkBuilder {
         layers.add(new Flatten(inputShape));
     }
 
+    public void addActivationLayer(Activation act) {
+
+
+        if (layers.size() != 0) {
+            int position = layers.size() - 1;
+            int[] shapeBefore = layers.get(position).getOutputShape();
+            Layer l = new ActivationLayer(act);
+            l.setInputShape(shapeBefore);
+            l.setOutputShape(shapeBefore);
+            layers.add(l);
+
+
+        } else if (inputShape != null) {
+            Layer l = new ActivationLayer(act);
+            l.setInputShape(inputShape);
+            l.setOutputShape(inputShape);
+            layers.add(l);
+
+        } else if (inputSize > 0) {
+            Layer l = new ActivationLayer(act);
+            l.setInputShape(new int[]{inputSize});
+            l.setInputShape(new int[]{inputSize});
+            layers.add(l);
+        } else {
+            throw new IllegalArgumentException("No previous Layers are set for Activation.");
+        }
+
+    }
+
 
 }

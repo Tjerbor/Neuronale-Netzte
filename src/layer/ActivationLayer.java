@@ -231,8 +231,9 @@ public class ActivationLayer extends Layer {
 
     @Override
     public int[] getInputShape() {
-
-        if (input1D != null) {
+        if (inputShape != null) {
+            return inputShape;
+        } else if (input1D != null) {
             return getShape(input1D);
         } else if (inputs2D != null) {
             return getShape(inputs2D);

@@ -68,6 +68,10 @@ public class MaxPooling2D extends Layer {
         this.poolHeight = poolSize;
         this.poolWidth = poolSize;
 
+        this.channels = shape[0];
+        this.inputH = shape[1];
+        this.inputW = shape[2];
+
         out_H = (1 + (inputH - poolHeight) / stride);
         out_W = (1 + (inputW - poolWidth) / stride);
 
@@ -489,7 +493,7 @@ public class MaxPooling2D extends Layer {
     public boolean isEqual(Layer other) {
         return false;
     }
-    
+
     public String summary() {
         return "MaxPooling2D inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())

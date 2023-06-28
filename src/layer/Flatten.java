@@ -29,7 +29,7 @@ public class Flatten extends Layer {
         double[] out = Array_utils.flatten(input);
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(new Matrix(input));
+            this.getNextLayer().forward(new Matrix(out));
         } else {
             this.output = new Matrix(out);
         }
@@ -45,7 +45,7 @@ public class Flatten extends Layer {
         }
 
         if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(new Matrix(inputs));
+            this.getNextLayer().forward(new Matrix(out));
         } else {
             this.output = new Matrix(out);
         }
@@ -71,7 +71,7 @@ public class Flatten extends Layer {
         } else if (dim == 4) {
             this.forward(m.getData4D());
         } else {
-            System.out.println("Got unsupported Dimension");
+            System.out.println("Flatten Got unsupported Dimension");
         }
 
     }

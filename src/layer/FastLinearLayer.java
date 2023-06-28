@@ -79,6 +79,7 @@ public class FastLinearLayer extends Layer {
             out[j] = act.definition(z[j]);
         }
 
+
         if (this.nextLayer != null) {
             this.nextLayer.forward(new Matrix(out));
         } else {
@@ -114,8 +115,6 @@ public class FastLinearLayer extends Layer {
         this.output = new Matrix(out);
         if (this.nextLayer != null) {
             this.nextLayer.forward(new Matrix(out));
-        } else {
-            this.output = new Matrix(out);
         }
 
     }
@@ -123,10 +122,13 @@ public class FastLinearLayer extends Layer {
 
     @Override
     public void forward(Matrix m) {
+
         if (m.getDim() == 2) {
             this.forward(m.getData2D());
         } else if (m.getDim() == 1) {
             this.forward(m.getData1D());
+        } else {
+            throw new IllegalArgumentException("Expected flattened Layer: " + m.getDim());
         }
     }
 

@@ -160,6 +160,13 @@ public class DropoutLayer extends Layer {
         return backwardOutput;
     }
 
+
+    @Override
+    public void setInputShape(int[] inputShape) {
+        super.setInputShape(inputShape);
+        this.outputShape = this.inputShape;
+    }
+
     @Override
     public String export() {
         return "dropout;" + dropout.getRate() + ";" + writeShape(inputShape);
