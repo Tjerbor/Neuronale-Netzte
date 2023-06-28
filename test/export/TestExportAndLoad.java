@@ -1,7 +1,7 @@
 package export;
 
 import builder.BuildNetwork;
-import extraLayer.*;
+import layer.*;
 import main.NeuralNetwork;
 import org.junit.jupiter.api.Test;
 import utils.Matrix;

@@ -1,8 +1,8 @@
 package Train;
 
-import extraLayer.FastLinearLayer;
+import layer.FastLinearLayer;
+import layer.Layer;
 import loss.MSE;
-import main.LayerNew;
 import main.MNIST;
 import main.NeuralNetwork;
 
@@ -36,7 +36,7 @@ public class TrainNN {
         f.setLearningRate(0.4);
 
         String s = "";
-        LayerNew[] ls = new LayerNew[]{f, f_out};
+        Layer[] ls = new Layer[]{f, f_out};
 
         //nn.add(new FullyConnectedLayerNew(784, 80, new TanH()));
         //nn.add(new FullyConnectedLayerNew(80, 10, new TanH()));

@@ -1,6 +1,6 @@
 package optimizer;
 
-import main.LayerNew;
+import layer.Layer;
 
 /**
  * is not really implemented. Shall be in the future.
@@ -55,7 +55,7 @@ public class SGD implements Optimizer {
 
 
     @Override
-    public void update(LayerNew l) {
+    public void update(Layer l) {
     }
 }
 

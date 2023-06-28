@@ -1,6 +1,5 @@
-package extraLayer;
+package layer;
 
-import main.LayerNew;
 import optimizer.Optimizer;
 import utils.Matrix;
 import utils.RandomUtils;
@@ -14,7 +13,7 @@ import java.util.Arrays;
  * because the fullyConnected layer is speed Optimized.
  */
 
-public class FCL extends LayerNew {
+public class FCL extends Layer {
 
     Optimizer optimizer; //can be set in the layer so that every Optimizer can save one previous deltaWeights.
     private double[][] weights;
@@ -347,7 +346,7 @@ public class FCL extends LayerNew {
     }
 
     @Override
-    public boolean isEqual(LayerNew other2) {
+    public boolean isEqual(Layer other2) {
 
         FCL other = (FCL) other2;
 

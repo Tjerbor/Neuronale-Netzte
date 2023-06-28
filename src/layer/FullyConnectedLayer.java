@@ -1,9 +1,8 @@
-package extraLayer;
+package layer;
 
-import layer.Activation;
-import layer.NewSoftmax;
-import layer.TanH;
-import main.LayerNew;
+import function.Activation;
+import function.NewSoftmax;
+import function.TanH;
 import optimizer.Optimizer;
 import utils.Matrix;
 import utils.RandomUtils;
@@ -15,7 +14,7 @@ import java.util.Arrays;
  * This class models a fully connected layer of the neural network.
  * Each fully connected layer represents two layers of neurons or one edge layer.
  */
-public class FullyConnectedLayer extends LayerNew {
+public class FullyConnectedLayer extends Layer {
     /**
      * This variable contains the weights of the layer.
      */
@@ -307,22 +306,22 @@ public class FullyConnectedLayer extends LayerNew {
 
 
     @Override
-    public LayerNew getNextLayer() {
+    public Layer getNextLayer() {
         return this.nextLayer;
     }
 
     @Override
-    public void setNextLayer(LayerNew l) {
+    public void setNextLayer(Layer l) {
         this.nextLayer = l;
     }
 
     @Override
-    public LayerNew getPreviousLayer() {
+    public Layer getPreviousLayer() {
         return this.previousLayer;
     }
 
     @Override
-    public void setPreviousLayer(LayerNew l) {
+    public void setPreviousLayer(Layer l) {
         this.previousLayer = l;
     }
 
@@ -681,7 +680,7 @@ public class FullyConnectedLayer extends LayerNew {
 
 
     @Override
-    public boolean isEqual(LayerNew other2) {
+    public boolean isEqual(Layer other2) {
 
         FullyConnectedLayer other = (FullyConnectedLayer) other2;
 

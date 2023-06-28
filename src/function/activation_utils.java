@@ -1,4 +1,4 @@
-package layer;
+package function;
 
 /**
  * The CustomActivation uses this function to calculate the activation of a node.

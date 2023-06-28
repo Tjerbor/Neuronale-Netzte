@@ -1,8 +1,7 @@
-package extraLayer;
+package layer;
 
-import layer.Activation;
-import layer.Dropout;
-import main.LayerNew;
+import function.Activation;
+import function.Dropout;
 import optimizer.Optimizer;
 import utils.ArrayMathUtils;
 import utils.Matrix;
@@ -20,7 +19,7 @@ import static utils.Array_utils.reFlat;
  * Is important because the Output Shape is (numFilter, OutputHeight, OutputWidth)
  */
 
-public class Conv2D extends LayerNew {
+public class Conv2D extends Layer {
 
     final private int kernelSize1;
     final private int kernelSize2;
@@ -36,8 +35,8 @@ public class Conv2D extends LayerNew {
     final private int paddingW = 0;
     boolean training = false;
     boolean useBiases = false;
-    LayerNew previousLayer;
-    LayerNew nextLayer;
+    Layer previousLayer;
+    Layer nextLayer;
 
     int iterationAt;
 
@@ -230,22 +229,22 @@ public class Conv2D extends LayerNew {
     }
 
     @Override
-    public LayerNew getNextLayer() {
+    public Layer getNextLayer() {
         return this.nextLayer;
     }
 
     @Override
-    public void setNextLayer(LayerNew l) {
+    public void setNextLayer(Layer l) {
         this.nextLayer = l;
     }
 
     @Override
-    public LayerNew getPreviousLayer() {
+    public Layer getPreviousLayer() {
         return this.previousLayer;
     }
 
     @Override
-    public void setPreviousLayer(LayerNew l) {
+    public void setPreviousLayer(Layer l) {
         this.previousLayer = l;
     }
 
@@ -686,7 +685,7 @@ public class Conv2D extends LayerNew {
     }
 
     @Override
-    public boolean isEqual(LayerNew other2) {
+    public boolean isEqual(Layer other2) {
 
         Conv2D other = (Conv2D) other2;
         if (Arrays.equals(other.getInputShape(), this.inputShape) && other.stride1 == this.stride1 && other.stride2 == this.stride2

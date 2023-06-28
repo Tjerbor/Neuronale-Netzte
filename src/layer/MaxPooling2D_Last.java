@@ -1,6 +1,5 @@
-package extraLayer;
+package layer;
 
-import main.LayerNew;
 import utils.Matrix;
 
 import java.util.Arrays;
@@ -13,7 +12,7 @@ import static load.writeUtils.writeShape;
  * is important because that Dimension is not pooled.
  */
 
-public class MaxPooling2D_Last extends LayerNew {
+public class MaxPooling2D_Last extends Layer {
 
     int stride1 = 2;
     int stride2 = 2;
@@ -326,7 +325,7 @@ public class MaxPooling2D_Last extends LayerNew {
 
 
     @Override
-    public boolean isEqual(LayerNew other) {
+    public boolean isEqual(Layer other) {
 
         MaxPooling2D_Last other2 = (MaxPooling2D_Last) other;
 

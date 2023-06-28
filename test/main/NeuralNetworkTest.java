@@ -1,10 +1,11 @@
 package main;
 
 import builder.BuildNetwork;
-import extraLayer.FullyConnectedLayer;
-import layer.Activation;
-import layer.CustomActivation;
-import layer.StepFunc;
+import function.Activation;
+import function.CustomActivation;
+import function.StepFunc;
+import layer.FullyConnectedLayer;
+import layer.Layer;
 import org.junit.jupiter.api.*;
 import utils.Reader;
 
@@ -32,7 +33,7 @@ class NeuralNetworkTest {
 
     @Test
     void logicalConjunction() throws Exception {
-        LayerNew[] l = Reader.create("data/weights/logicalConjunction.csv");
+        Layer[] l = Reader.create("data/weights/logicalConjunction.csv");
         neuralNetwork.create(l);
 
         neuralNetwork.setFunction(0, new StepFunc(1.5));
@@ -51,7 +52,7 @@ class NeuralNetworkTest {
     @Test
     void trafficLight() throws IOException {
 
-        LayerNew[] l = Reader.create("data/weights/trafficLight.csv");
+        Layer[] l = Reader.create("data/weights/trafficLight.csv");
         neuralNetwork.create(l);
 
         neuralNetwork.printSummary();

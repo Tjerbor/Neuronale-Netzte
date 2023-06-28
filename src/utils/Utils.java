@@ -1,7 +1,7 @@
 package utils;
 
 import autograd.Tensor;
-import layer.*;
+import function.*;
 
 import java.util.Arrays;
 import java.util.Random;

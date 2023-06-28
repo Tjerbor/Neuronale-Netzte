@@ -1,4 +1,4 @@
-package layer;
+package function;
 
 /**
  * This class models the hyperbolic tangent function.

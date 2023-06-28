@@ -1,8 +1,7 @@
-package extraLayer;
+package layer;
 
 
-import layer.Activation;
-import main.LayerNew;
+import function.Activation;
 import utils.Array_utils;
 import utils.Matrix;
 import utils.Utils;
@@ -15,7 +14,7 @@ import static utils.Array_utils.getShape;
 /**
  * this Activation Layer is used for more flexibility for the Model Usage.
  */
-public class ActivationLayer extends LayerNew {
+public class ActivationLayer extends Layer {
 
     double[] input1D;
     double[][] inputs2D;
@@ -265,7 +264,7 @@ public class ActivationLayer extends LayerNew {
 
 
     @Override
-    public boolean isEqual(LayerNew other2) {
+    public boolean isEqual(Layer other2) {
 
         ActivationLayer other = (ActivationLayer) other2;
 

@@ -1,7 +1,7 @@
 package utils;
 
-import extraLayer.FullyConnectedLayer;
-import main.LayerNew;
+import layer.FullyConnectedLayer;
+import layer.Layer;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -78,7 +78,7 @@ public class Reader {
         return structur;
     }
 
-    public static LayerNew[] createNew(String path) throws IOException {
+    public static Layer[] createNew(String path) throws IOException {
         List<String[]> list = read(path);
 
         if (!list.get(0)[0].equals("layers")) {
@@ -88,7 +88,7 @@ public class Reader {
         int[] topologie = IntStream.range(1, list.get(0).length).map(i -> Integer.parseInt(list.get(0)[i])).toArray();
 
         System.out.println(Arrays.toString(topologie));
-        LayerNew[] structur = new LayerNew[topologie.length - 1];
+        Layer[] structur = new Layer[topologie.length - 1];
 
         int count = 0;
         int list_pos = 1; //da die erste Zeile die Topologie bestimmt.
