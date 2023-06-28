@@ -1,16 +1,16 @@
-package layer;
+package function;
 
 import utils.Array_utils;
 import utils.Utils;
 
-public class Softmax extends Activation {
+public class NewSoftmax {
 
-    static double[][] outputs = new double[][]{{0.09003057, 0.24472847, 0.66524096},
-            {0.09003057, 0.24472847, 0.66524096},
-            {0.09003057, 0.24472847, 0.66524096}};
-    double exp = 0;
-    double[][] outputsForward;
+
     double[] outputForward;
+    double[][] outputsForward;
+    double[][][] input3D;
+    double[][][][] inputs3D;
+
 
     public static double[][] diagflat(double[] a) {
 
@@ -40,7 +40,7 @@ public class Softmax extends Activation {
 
         double[][] tmp;
 
-        int l = outputs[0].length;
+        int l = outputsForward[0].length;
         double[][] singleOutputsTmpT = new double[1][l];
         double[][] singleOutputsTmp;
         double[][] tmp2;
@@ -48,10 +48,10 @@ public class Softmax extends Activation {
 
         for (int i = 0; i < dvalues.length; i++) {
 
-            tmp = diagflat(outputs[i]);
+            tmp = diagflat(outputsForward[i]);
 
-            singleOutputsTmp = reshapeMinusOne(outputs[i]);
-            singleOutputsTmpT[0] = outputs[i]; //Transposed
+            singleOutputsTmp = reshapeMinusOne(outputsForward[i]);
+            singleOutputsTmpT[0] = outputsForward[i]; //Transposed
             tmp2 = Utils.matmul2D(singleOutputsTmp, singleOutputsTmpT);
 
 
@@ -72,6 +72,7 @@ public class Softmax extends Activation {
 
     public double[][] forward(double[][] inputs) {
 
+        double exp = 0;
         double sum = 0;
         for (int i = 0; i < inputs.length; i++) {
             for (int j = 0; j < inputs[0].length; j++) {
@@ -87,26 +88,28 @@ public class Softmax extends Activation {
 
         }
 
-        outputsForward = inputs.clone();
+        outputsForward = Array_utils.copyArray(inputs);
         return inputs;
 
     }
 
     public double[] forward(double[] input) {
 
-        double sum = 0;
+        outputForward = new double[input.length];
+        double sumUp = 0;
+        double[] tmp = new double[input.length];
+        double[] out = new double[input.length];
         for (int i = 0; i < input.length; i++) {
-            exp += this.softmax(input[i], 1);
-
+            tmp[i] = Math.exp(input[i]);
+            sumUp += tmp[i];
         }
         for (int i = 0; i < input.length; i++) {
 
-            input[i] += this.softmax(input[i], exp);
+            out[i] = tmp[i] / sumUp;
         }
 
-
-        outputForward = Array_utils.copyArray(input);
-        return input;
+        outputForward = Array_utils.copyArray(out);
+        return out;
 
     }
 

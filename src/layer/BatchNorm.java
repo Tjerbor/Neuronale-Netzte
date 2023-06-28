@@ -1,6 +1,5 @@
-package extraLayer;
+package layer;
 
-import main.LayerNew;
 import utils.Array_utils;
 import utils.Matrix;
 import utils.Utils;
@@ -18,7 +17,7 @@ import static load.writeUtils.writeWeights;
  * Should be used with a larger BatchSize to make normalizing more powerful.
  * forward[][][] is not supported because RNNs are nor supported.
  */
-public class BatchNorm extends LayerNew {
+public class BatchNorm extends Layer {
 
 
     Matrix backwardOutput;
@@ -451,7 +450,7 @@ public class BatchNorm extends LayerNew {
     }
 
     @Override
-    public boolean isEqual(LayerNew other2) {
+    public boolean isEqual(Layer other2) {
 
         BatchNorm other = (BatchNorm) other2;
         if (other.inputSize == this.inputSize && this.getWeights().isEquals(other.getWeights()) && Arrays.equals(other.getInputShape(), this.inputShape)) {

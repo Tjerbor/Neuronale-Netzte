@@ -1,8 +1,7 @@
 package builder;
 
-import extraLayer.*;
-import layer.Activation;
-import main.LayerNew;
+import function.Activation;
+import layer.*;
 import main.NeuralNetwork;
 
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ public class NetworkBuilder {
 
     int inputSize;
     int[] inputShape;
-    private List<LayerNew> layers = new ArrayList<>();
+    private List<Layer> layers = new ArrayList<>();
 
 
     public NetworkBuilder(int inputSize) {
@@ -40,9 +39,9 @@ public class NetworkBuilder {
     public NetworkBuilder() {
     }
 
-    public LayerNew[] getLayers() {
+    public Layer[] getLayers() {
 
-        LayerNew[] layers = new LayerNew[this.layers.size()];
+        Layer[] layers = new Layer[this.layers.size()];
 
         for (int i = 0; i < layers.length; i++) {
             layers[i] = this.layers.get(i);

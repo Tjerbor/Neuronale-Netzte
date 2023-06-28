@@ -1,6 +1,6 @@
 package optimizer;
 
-import main.LayerNew;
+import layer.Layer;
 
 public interface Optimizer {
 
@@ -10,7 +10,7 @@ public interface Optimizer {
     default void past_epoch() {
     }
 
-    default void update(LayerNew l) {
+    default void update(Layer l) {
     }
 
     default void updateParameter(double[][][][] weights, double[][][][] deltaWeights) {

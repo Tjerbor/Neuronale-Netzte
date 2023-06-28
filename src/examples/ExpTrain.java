@@ -48,7 +48,7 @@ public class ExpTrain {
         int step_size = trainingData[0].length / batchSize;
 
         List tmp;
-        nn.getLastLayer().setLearningRate(learningRate);
+        nn.getOutputLayer().setLearningRate(learningRate);
         for (int i = 0; i < epochs; i++) {
             st = System.currentTimeMillis();
             double[][] out;
@@ -59,17 +59,17 @@ public class ExpTrain {
                 double[][][][] x_train = (double[][][][]) tmp.get(0);
                 double[][] y_train = (double[][]) tmp.get(1);
 
-                nn.getFristLayer().forward(new Matrix(Array_utils.copyArray(x_train)));
+                nn.getInputLayer().forward(new Matrix(Array_utils.copyArray(x_train)));
                 //calculates Loss
-                Matrix out2 = nn.getLastLayer().getOutput();
+                Matrix out2 = nn.getOutputLayer().getOutput();
                 System.out.println("print Data: " + out2.getData());
                 out = out2.getData2D();
                 stepLosses[j] = loss.forward(out, y_train);
                 //calculates backward Loss
                 out = loss.backward(out, y_train);
                 // now does back propagation
-                nn.getLastLayer().setIterationAt(i);
-                nn.getLastLayer().backward(new Matrix(out));
+                nn.getOutputLayer().setIterationAt(i);
+                nn.getOutputLayer().backward(new Matrix(out));
             }
 
             end = System.currentTimeMillis();

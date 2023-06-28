@@ -1,14 +1,13 @@
-package extraLayer;
+package layer;
 
-import layer.Dropout;
-import main.LayerNew;
+import function.Dropout;
 import utils.Matrix;
 
 import java.util.Arrays;
 
 import static load.writeUtils.writeShape;
 
-public class DropoutLayer extends LayerNew {
+public class DropoutLayer extends Layer {
 
 
     Dropout dropout;
@@ -179,7 +178,7 @@ public class DropoutLayer extends LayerNew {
     }
 
     @Override
-    public boolean isEqual(LayerNew other) {
+    public boolean isEqual(Layer other) {
 
         DropoutLayer other2 = (DropoutLayer) other;
         if (Arrays.equals(other2.getInputShape(), this.inputShape) && this.dropout.getRate() == other2.dropout.getRate()) {

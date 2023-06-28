@@ -1,7 +1,6 @@
-package extraLayer;
+package layer;
 
 import load.writeUtils;
-import main.LayerNew;
 import utils.Array_utils;
 import utils.Matrix;
 
@@ -9,7 +8,7 @@ import java.util.Arrays;
 
 import static utils.Array_utils.getShape;
 
-public class Flatten extends LayerNew {
+public class Flatten extends Layer {
 
     public Flatten(int[] inputShape) {
 
@@ -149,7 +148,7 @@ public class Flatten extends LayerNew {
     }
 
     @Override
-    public boolean isEqual(LayerNew other) {
+    public boolean isEqual(Layer other) {
 
         other = (Flatten) other;
         if (Arrays.equals(other.getInputShape(), this.inputShape)) {

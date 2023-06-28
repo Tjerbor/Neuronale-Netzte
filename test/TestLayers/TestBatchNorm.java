@@ -1,6 +1,6 @@
 package TestLayers;
 
-import extraLayer.BatchNorm;
+import layer.BatchNorm;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

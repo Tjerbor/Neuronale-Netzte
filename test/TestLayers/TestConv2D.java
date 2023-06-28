@@ -1,6 +1,6 @@
 package TestLayers;
 
-import extraLayer.Conv2D_Last;
+import layer.Conv2D_Last;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

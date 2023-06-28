@@ -1,4 +1,4 @@
-package layer;
+package function;
 
 /**
  * This class models a piecewise constant function with two parts.

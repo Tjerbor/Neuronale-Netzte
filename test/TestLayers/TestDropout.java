@@ -1,6 +1,6 @@
 package TestLayers;
 
-import extraLayer.DropoutLayer;
+import layer.DropoutLayer;
 import org.junit.jupiter.api.Test;
 import utils.RandomUtils;
 

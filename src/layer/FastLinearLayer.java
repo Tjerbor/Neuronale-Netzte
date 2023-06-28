@@ -1,8 +1,7 @@
-package extraLayer;
+package layer;
 
-import layer.Activation;
-import layer.TanH;
-import main.LayerNew;
+import function.Activation;
+import function.TanH;
 import utils.Array_utils;
 import utils.Matrix;
 import utils.RandomUtils;
@@ -12,7 +11,7 @@ import java.util.Arrays;
 import static load.writeUtils.writeShape;
 import static load.writeUtils.writeWeights;
 
-public class FastLinearLayer extends LayerNew {
+public class FastLinearLayer extends Layer {
 
 
     Activation act = new TanH();
@@ -275,7 +274,7 @@ public class FastLinearLayer extends LayerNew {
     }
 
     @Override
-    public boolean isEqual(LayerNew other) {
+    public boolean isEqual(Layer other) {
 
         FastLinearLayer other2 = (FastLinearLayer) other;
 

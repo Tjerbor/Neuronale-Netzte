@@ -1,6 +1,6 @@
 package TestNewModel;
 
-import extraLayer.FullyConnectedLayer;
+import layer.FullyConnectedLayer;
 import main.NeuralNetwork;
 import org.junit.jupiter.api.Test;
 

@@ -1,18 +1,16 @@
-package main;
+package layer;
 
-import layer.Activation;
-import layer.Dropout;
+import function.Activation;
+import function.Dropout;
 import optimizer.Optimizer;
 import utils.Matrix;
 
-abstract public class LayerNew {
+public abstract class Layer {
 
+    public Layer nextLayer;
     protected Matrix output;
-
     protected Optimizer optimizer;
-    protected LayerNew previousLayer;
-    protected LayerNew nextLayer;
-
+    protected Layer previousLayer;
     protected boolean training = false;
     protected boolean useBiases = false;
     protected int iterationAt;
@@ -31,20 +29,20 @@ abstract public class LayerNew {
         this.training = training;
     }
 
-    public LayerNew getNextLayer() {
+    public Layer getNextLayer() {
         return this.nextLayer;
     }
 
-    public void setNextLayer(LayerNew l) {
+    public void setNextLayer(Layer l) {
         this.nextLayer = l;
 
     }
 
-    public LayerNew getPreviousLayer() {
+    public Layer getPreviousLayer() {
         return this.previousLayer;
     }
 
-    public void setPreviousLayer(LayerNew l) {
+    public void setPreviousLayer(Layer l) {
         this.previousLayer = l;
     }
 
@@ -57,7 +55,7 @@ abstract public class LayerNew {
     abstract public Matrix getWeights();
 
     abstract public void setWeights(Matrix m);
-    
+
     public void setOptimizer(Optimizer optimizer) {
         this.optimizer = optimizer;
     }
@@ -113,7 +111,7 @@ abstract public class LayerNew {
         return output;
     }
 
-    abstract public boolean isEqual(LayerNew other);
+    abstract public boolean isEqual(Layer other);
 
     abstract public String summary();
 

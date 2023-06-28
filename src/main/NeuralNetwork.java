@@ -1,9 +1,10 @@
 package main;
 
-import extraLayer.FCL;
-import extraLayer.FastLinearLayer;
-import extraLayer.FullyConnectedLayer;
-import layer.Activation;
+import function.Activation;
+import layer.FCL;
+import layer.FastLinearLayer;
+import layer.FullyConnectedLayer;
+import layer.Layer;
 import loss.Loss;
 import optimizer.Optimizer;
 import utils.Array_utils;
@@ -15,62 +16,83 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * This class models a fully connected feed-forward artificial neural network.
+ */
 public class NeuralNetwork {
-
-    private LayerNew fristLayer;
-    private LayerNew lastLayer;
-
-    private Loss loss;
-
-    private Optimizer optimizer;
+    /**
+     * This variable contains the first layer of the neural network.
+     */
+    private Layer inputLayer;
+    /**
+     * This variable contains the last layer of the neural network.
+     */
+    private Layer outputLayer;
+    /**
+     * This variable contains the number of layers of the neural network.
+     */
     private int size;
+    /**
+     * This variable contains the loss function of the neural network.
+     */
+    private Loss loss;
+    /**
+     * This variable contains the optimizer of the neural network.
+     */
+    private Optimizer optimizer;
 
+    /**
+     * This method initializes the neural network with the given topology.
+     * A {@link FullyConnectedLayer} is created for each edge layer.
+     */
+    public void create(int[] topology) {
+        size = topology.length - 1;
 
-    public void newExport(String fpath) {
-
-        StringBuilder s = new StringBuilder();
-
-        LayerNew[] layers = getLayers();
-
-        for (int i = 0; i < layers.length; i++) {
-            s.append(layers[i].export()).append("\n");
+        for (int i = 0; i < size; i++) {
+            add(new FullyConnectedLayer(topology[i], topology[i + 1]));
         }
-
-
     }
-
 
     /**
      * This method initializes the neural network with the given topology and activation function.
      * A {@link FullyConnectedLayer} is created for each edge layer.
      */
     public void create(int[] topology, Activation function) {
-
         size = topology.length - 1;
+
         for (int i = 0; i < size; i++) {
-            this.add(new FullyConnectedLayer(topology[i], topology[i + 1], function));
+            add(new FullyConnectedLayer(topology[i], topology[i + 1], function));
         }
     }
 
+    /**
+     * This method initializes the neural network with the given topology and activation functions.
+     * A {@link FullyConnectedLayer} is created for each edge layer.
+     * The method throws an exception if the number of activation functions is not correct.
+     */
     public void create(int[] topology, Activation[] functions) {
-
-
         if (functions.length != topology.length - 1) {
-            throw new IllegalArgumentException("wrong Activations Size and Topologie shape");
+            throw new IllegalArgumentException("The number of activation functions is not correct.");
         }
 
         size = topology.length - 1;
+
         for (int i = 0; i < size; i++) {
-            this.add(new FullyConnectedLayer(topology[i], topology[i + 1], functions[i]));
+            add(new FullyConnectedLayer(topology[i], topology[i + 1], functions[i]));
         }
     }
 
-    public void create(int[] topology) {
+    public void newExport(String fpath) {
 
-        size = topology.length - 1;
-        for (int i = 0; i < size; i++) {
-            this.add(new FullyConnectedLayer(topology[i], topology[i + 1]));
+        StringBuilder s = new StringBuilder();
+
+        Layer[] layers = getLayers();
+
+        for (int i = 0; i < layers.length; i++) {
+            s.append(layers[i].export()).append("\n");
         }
+
+
     }
 
     public void create(int[] topology, int weightGenType) {
@@ -84,18 +106,18 @@ public class NeuralNetwork {
     }
 
     public void create(String fpath) throws IOException {
-        LayerNew[] layers = Reader.createNew(fpath);
+        Layer[] layers = Reader.createNew(fpath);
         this.setLayers(layers);
 
     }
 
     public int[] topology() {
 
-        LayerNew[] layerNews = this.layers2Array();
+        Layer[] layerNews = this.layers2Array();
         int[] topologie = new int[size + 1];
 
         int count = 0;
-        for (LayerNew l : layerNews) {
+        for (Layer l : layerNews) {
             if (l instanceof FastLinearLayer || l instanceof FCL || l instanceof FullyConnectedLayer) {
                 topologie[count] = l.getInputShape()[0];
                 topologie[count + 1] = l.getOutputShape()[0];
@@ -108,16 +130,16 @@ public class NeuralNetwork {
 
     }
 
-    public void create(LayerNew[] layers) {
+    public void create(Layer[] layers) {
 
         if (layers.length == 2) {
             this.size = 2;
-            this.fristLayer = layers[0];
-            this.lastLayer = layers[1];
-            this.fristLayer.setNextLayer(this.lastLayer);
-            this.lastLayer.setPreviousLayer(this.fristLayer);
+            this.inputLayer = layers[0];
+            this.outputLayer = layers[1];
+            this.inputLayer.setNextLayer(this.outputLayer);
+            this.outputLayer.setPreviousLayer(this.inputLayer);
         } else {
-            for (LayerNew l : layers
+            for (Layer l : layers
             ) {
                 this.add(l);
             }
@@ -127,73 +149,73 @@ public class NeuralNetwork {
 
     public Matrix compute(Matrix m) {
 
-        fristLayer.forward(m);
+        inputLayer.forward(m);
 
-        if (this.lastLayer == null) {
-            return fristLayer.getOutput();
+        if (this.outputLayer == null) {
+            return inputLayer.getOutput();
         }
-        return lastLayer.getOutput();
+        return outputLayer.getOutput();
 
     }
 
     public double[] compute(double[] input) {
-        fristLayer.forward(new Matrix(input));
+        inputLayer.forward(new Matrix(input));
 
-        if (this.lastLayer == null) {
-            return fristLayer.getOutput().getData1D();
+        if (this.outputLayer == null) {
+            return inputLayer.getOutput().getData1D();
         }
-        return lastLayer.getOutput().getData1D();
+        return outputLayer.getOutput().getData1D();
 
     }
 
     public double[][] compute(double[][] inputs) {
-        fristLayer.forward(new Matrix(inputs));
-        if (this.lastLayer == null) {
-            return fristLayer.getOutput().getData2D();
+        inputLayer.forward(new Matrix(inputs));
+        if (this.outputLayer == null) {
+            return inputLayer.getOutput().getData2D();
         }
-        return lastLayer.getOutput().getData2D();
+        return outputLayer.getOutput().getData2D();
     }
 
     public void computeBackward(double[] input, int epochAt) {
-        if (this.lastLayer == null) {
+        if (this.outputLayer == null) {
             this.build();
         }
-        lastLayer.setIterationAt(epochAt + 1);
-        lastLayer.backward(new Matrix(input));
+        outputLayer.setIterationAt(epochAt + 1);
+        outputLayer.backward(new Matrix(input));
     }
 
     public void computeBackward(double[] input) {
-        if (this.lastLayer == null) {
+        if (this.outputLayer == null) {
             this.build();
         }
-        lastLayer.backward(new Matrix(input));
+        outputLayer.backward(new Matrix(input));
     }
 
     public void computeBackward(double[] input, int epochAt, double learningRate) {
-        if (this.lastLayer == null) {
+        if (this.outputLayer == null) {
             this.build();
         }
-        lastLayer.setIterationAt(epochAt + 1); // start with zero.
-        lastLayer.setLearningRate(learningRate);
-        lastLayer.backward(new Matrix(input));
+        outputLayer.setIterationAt(epochAt + 1); // start with zero.
+        outputLayer.setLearningRate(learningRate);
+        outputLayer.backward(new Matrix(input));
     }
 
     public void computeBackward(double[][] inputs, int epochAt) {
-        if (this.lastLayer == null) {
+        if (this.outputLayer == null) {
             this.build();
         }
 
-        lastLayer.setIterationAt(epochAt + 1); // start with zero.
-        lastLayer.backward(new Matrix(inputs));
+        outputLayer.setIterationAt(epochAt + 1); // start with zero.
+        outputLayer.backward(new Matrix(inputs));
     }
 
     public void computeBackward(double[][] inputs, int epochAt, double learningRate) {
-        if (this.lastLayer == null) {
+        if (this.outputLayer == null) {
             this.build();
         }
-        lastLayer.setIterationAt(epochAt + 1); // start with zero.
+        outputLayer.setIterationAt(epochAt + 1); // start with zero.
         //lastLayer.setLearningRate(learningRate);
-        lastLayer.backward(new Matrix(inputs), learningRate);
+        outputLayer.backward(new Matrix(inputs), learningRate);
     }
 
     /**
@@ -220,21 +242,21 @@ public class NeuralNetwork {
      **/
 
 
-    public void add(LayerNew l) {
+    public void add(Layer l) {
 
         if (l != null) {
-            if (this.fristLayer == null) {
-                fristLayer = l;
+            if (this.inputLayer == null) {
+                inputLayer = l;
 
-            } else if (lastLayer == null) {
-                lastLayer = l;
-                fristLayer.setNextLayer(lastLayer);
-                lastLayer.setPreviousLayer(lastLayer);
+            } else if (outputLayer == null) {
+                outputLayer = l;
+                inputLayer.setNextLayer(outputLayer);
+                outputLayer.setPreviousLayer(outputLayer);
             } else {
-                LayerNew before = lastLayer;
-                lastLayer = l;
-                before.setNextLayer(lastLayer);
-                lastLayer.setPreviousLayer(before);
+                Layer before = outputLayer;
+                outputLayer = l;
+                before.setNextLayer(outputLayer);
+                outputLayer.setPreviousLayer(before);
 
             }
             size++;
@@ -249,12 +271,12 @@ public class NeuralNetwork {
         this.optimizer = optimizer;
     }
 
-    private LayerNew[] layers2Array() {
-        LayerNew[] layers = new LayerNew[size];
+    private Layer[] layers2Array() {
+        Layer[] layers = new Layer[size];
 
-        layers[0] = fristLayer;
+        layers[0] = inputLayer;
 
-        LayerNew tmp = fristLayer;
+        Layer tmp = inputLayer;
         for (int i = 1; i < layers.length; i++) {
             tmp = tmp.getNextLayer();
             layers[i] = tmp;
@@ -273,12 +295,12 @@ public class NeuralNetwork {
 
 
         if (this.optimizer != null) {
-            fristLayer.setOptimizer(this.optimizer);
+            inputLayer.setOptimizer(this.optimizer);
 
         }
-        fristLayer.setTraining(true);
+        inputLayer.setTraining(true);
 
-        LayerNew tmp = fristLayer;
+        Layer tmp = inputLayer;
         for (int i = 1; i < size; i++) {
             tmp = tmp.getNextLayer();
             tmp.setTraining(true);
@@ -293,13 +315,13 @@ public class NeuralNetwork {
     }
 
 
-    public LayerNew[] getLayers() {
+    public Layer[] getLayers() {
         return layers2Array();
     }
 
-    public void setLayers(LayerNew[] layers) {
+    public void setLayers(Layer[] layers) {
 
-        fristLayer = layers[0];
+        inputLayer = layers[0];
 
         for (int i = 1; i < layers.length; i++) {
             this.add(layers[i]);
@@ -315,12 +337,12 @@ public class NeuralNetwork {
             throw new IllegalArgumentException("x und y Data have different Size.");
         } else if (this.loss == null) {
             throw new IllegalArgumentException("loss function is not set.");
-        } else if (this.lastLayer.getOutputShape()[0] != y_train[0].length) {
+        } else if (this.outputLayer.getOutputShape()[0] != y_train[0].length) {
             throw new IllegalArgumentException("y has " + y_train[0].length + " classes but " +
-                    "model output shape is: " + lastLayer.getOutputShape()[0]);
-        } else if (fristLayer.getInputShape()[0] != x_train[0].length) {
+                    "model output shape is: " + outputLayer.getOutputShape()[0]);
+        } else if (inputLayer.getInputShape()[0] != x_train[0].length) {
             throw new IllegalArgumentException("x has " + x_train[0].length + " input shape but " +
-                    "model inputs shape is: " + fristLayer.getInputShape()[0]);
+                    "model inputs shape is: " + inputLayer.getInputShape()[0]);
         }
 
 
@@ -393,10 +415,10 @@ public class NeuralNetwork {
 
         if (index == 0) {
 
-            this.fristLayer.setActivation(act);
+            this.inputLayer.setActivation(act);
         } else {
 
-            LayerNew[] layers = layers2Array();
+            Layer[] layers = layers2Array();
             layers[index].setActivation(act);
 
         }
@@ -650,7 +672,7 @@ public class NeuralNetwork {
     public int parameters() {
         int sum = 0;
 
-        LayerNew tmp = fristLayer;
+        Layer tmp = inputLayer;
         while (tmp != null) {
             sum += tmp.parameters();
             tmp = tmp.nextLayer;
@@ -661,8 +683,8 @@ public class NeuralNetwork {
     @Override
     public String toString() {
         return "NN_New{" +
-                "fristLayer=" + fristLayer.summary() +
-                ", lastLayer=" + lastLayer.summary() +
+                "fristLayer=" + inputLayer.summary() +
+                ", lastLayer=" + outputLayer.summary() +
                 ", loss=" + loss +
                 ", optimizer=" + optimizer +
                 ", size=" + size +
@@ -672,7 +694,7 @@ public class NeuralNetwork {
 
     public void printSummary() {
         StringBuilder s = new StringBuilder();
-        LayerNew tmp = fristLayer;
+        Layer tmp = inputLayer;
         while (tmp != null) {
             s.append(tmp.summary());
             tmp = tmp.nextLayer;
@@ -685,7 +707,7 @@ public class NeuralNetwork {
 
     public String export() {
 
-        LayerNew[] tmp = layers2Array();
+        Layer[] tmp = layers2Array();
 
         String s = "NN;" + tmp.length + "\n";
         for (int i = 0; i < tmp.length; i++) {
@@ -711,12 +733,12 @@ public class NeuralNetwork {
         }
     }
 
-    public LayerNew getFristLayer() {
-        return fristLayer;
+    public Layer getInputLayer() {
+        return inputLayer;
     }
 
-    public LayerNew getLastLayer() {
-        return lastLayer;
+    public Layer getOutputLayer() {
+        return outputLayer;
     }
 
 
@@ -727,8 +749,8 @@ public class NeuralNetwork {
             return false;
         }
 
-        LayerNew[] thisLayers = this.getLayers();
-        LayerNew[] otherLayers = other.getLayers();
+        Layer[] thisLayers = this.getLayers();
+        Layer[] otherLayers = other.getLayers();
         for (int i = 0; i < thisLayers.length; i++) {
 
             if (!thisLayers[i].isEqual(otherLayers[i])) {

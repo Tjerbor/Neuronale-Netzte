@@ -1,10 +1,9 @@
 package load;
 
-import extraLayer.*;
-import layer.Activation;
-import layer.ReLu;
-import layer.TanH;
-import main.LayerNew;
+import function.Activation;
+import function.ReLu;
+import function.TanH;
+import layer.*;
 import main.NeuralNetwork;
 import utils.Matrix;
 
@@ -103,7 +102,7 @@ public class LoadModel {
 
     }
 
-    public static LayerNew loadMaxPooling2D_Last(String[] config) {
+    public static Layer loadMaxPooling2D_Last(String[] config) {
         //first Starts with name, poolSize1, poolSize2, stride1, stride2,inputShape(1, 2, 3)
         int[] inputShape = new int[]{Integer.parseInt(config[5]), Integer.parseInt(config[6]), Integer.parseInt(config[7])};
         int[] poolSize = new int[]{Integer.parseInt(config[1]), Integer.parseInt(config[2])};
@@ -113,12 +112,12 @@ public class LoadModel {
 
     }
 
-    public static LayerNew loadFlatten(String[] config) {
+    public static Layer loadFlatten(String[] config) {
         int[] inputShape = new int[]{Integer.parseInt(config[1]), Integer.parseInt(config[2]), Integer.parseInt(config[3])};
         return new Flatten(inputShape);
     }
 
-    public static LayerNew loadFastLinearLayer(String[] config, String nextLine) {
+    public static Layer loadFastLinearLayer(String[] config, String nextLine) {
 
         /*
          * start with the name, weight.length, weight[0].length, act
@@ -140,7 +139,7 @@ public class LoadModel {
 
     }
 
-    public static LayerNew loadFullyConnectedLayer(String[] config, String nextLine) {
+    public static Layer loadFullyConnectedLayer(String[] config, String nextLine) {
 
         /*
          * start with the name, useBiases, weight.length, weight[0].length, act, dropoutRate
@@ -171,7 +170,7 @@ public class LoadModel {
 
     }
 
-    public static LayerNew loadFullyConnectedLayer(String[] config, String nextLine, String biasesLine) {
+    public static Layer loadFullyConnectedLayer(String[] config, String nextLine, String biasesLine) {
 
         /*
          * start with the name, useBiases, weight.length, weight[0].length, act, dropoutRate
@@ -204,7 +203,7 @@ public class LoadModel {
 
     }
 
-    public static LayerNew loadConv2D_Last(String[] config, String nextLine) {
+    public static Layer loadConv2D_Last(String[] config, String nextLine) {
 
         //config -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, inputShape3
 
@@ -227,7 +226,7 @@ public class LoadModel {
 
     }
 
-    public static LayerNew loadActivation(String[] config) {
+    public static Layer loadActivation(String[] config) {
 
 
         ActivationLayer act = new ActivationLayer(config[1]);
@@ -241,7 +240,7 @@ public class LoadModel {
 
     }
 
-    public static LayerNew loadConv2D_Last(String[] config, String nextLine, String biasesLine) {
+    public static Layer loadConv2D_Last(String[] config, String nextLine, String biasesLine) {
 
         //config -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, channels
 
@@ -267,7 +266,7 @@ public class LoadModel {
 
     }
 
-    public static LayerNew loadConv2D(String[] config, String nextLine) {
+    public static Layer loadConv2D(String[] config, String nextLine) {
 
         //config -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, inputShape3
 
@@ -290,7 +289,7 @@ public class LoadModel {
 
     }
 
-    public static LayerNew loadConv2D(String[] config, String nextLine, String biasesLine) {
+    public static Layer loadConv2D(String[] config, String nextLine, String biasesLine) {
 
         //config -> name, useBiases, numFilter, kernelSize1, kernelSize2, strides1, strides2, inputShape1, inputShape2, inputShape3
 
@@ -317,7 +316,7 @@ public class LoadModel {
 
     }
 
-    public static LayerNew loadBatchNorm(String[] config, String nextLine) {
+    public static Layer loadBatchNorm(String[] config, String nextLine) {
 
         //config name, Size, inputShape Length 1 oder 3
         int inputSize = Integer.parseInt(config[1]);
@@ -345,7 +344,7 @@ public class LoadModel {
         return b;
     }
 
-    public static LayerNew loadDropout(String[] config) {
+    public static Layer loadDropout(String[] config) {
         //config -> name, rate, inputShape
         DropoutLayer d = new DropoutLayer(Double.parseDouble(config[1]));
 
@@ -362,7 +361,7 @@ public class LoadModel {
 
         List<String> lines = read(fpath);
 
-        List<LayerNew> layers = new ArrayList<>();
+        List<Layer> layers = new ArrayList<>();
 
         int LineCount = 1;
 
@@ -446,7 +445,7 @@ public class LoadModel {
         NeuralNetwork nn = new NeuralNetwork();
 
 
-        LayerNew[] l = new LayerNew[layers.size()];
+        Layer[] l = new Layer[layers.size()];
 
         for (int i = 0; i < l.length; i++) {
             l[i] = layers.get(i);

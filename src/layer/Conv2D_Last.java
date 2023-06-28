@@ -1,8 +1,7 @@
-package extraLayer;
+package layer;
 
 
-import layer.Activation;
-import main.LayerNew;
+import function.Activation;
 import optimizer.Optimizer;
 import utils.Array_utils;
 import utils.Matrix;
@@ -21,7 +20,7 @@ import static utils.Array_utils.sumUpMult;
  * Outputs has Shape (outputHeight, outputWidth,  NUM_FILTERS)
  */
 
-public class Conv2D_Last extends LayerNew {
+public class Conv2D_Last extends Layer {
 
     Optimizer optimizer;
 
@@ -294,22 +293,22 @@ public class Conv2D_Last extends LayerNew {
     }
 
     @Override
-    public LayerNew getNextLayer() {
+    public Layer getNextLayer() {
         return this.nextLayer;
     }
 
     @Override
-    public void setNextLayer(LayerNew l) {
+    public void setNextLayer(Layer l) {
         this.nextLayer = l;
     }
 
     @Override
-    public LayerNew getPreviousLayer() {
+    public Layer getPreviousLayer() {
         return this.previousLayer;
     }
 
     @Override
-    public void setPreviousLayer(LayerNew l) {
+    public void setPreviousLayer(Layer l) {
         this.previousLayer = l;
     }
 
@@ -881,7 +880,7 @@ public class Conv2D_Last extends LayerNew {
     }
 
     @Override
-    public boolean isEqual(LayerNew other2) {
+    public boolean isEqual(Layer other2) {
 
         Conv2D_Last other = (Conv2D_Last) other2;
         if (Arrays.equals(other.getInputShape(), this.inputShape) && other.stride1 == this.stride1 && other.stride2 == this.stride2

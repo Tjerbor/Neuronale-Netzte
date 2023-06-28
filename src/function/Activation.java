@@ -1,4 +1,4 @@
-package layer;
+package function;
 
 /**
  * This class is the superclass for all activation functions and models the identity function.

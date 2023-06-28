@@ -1,7 +1,7 @@
 package Train;
 
-import extraLayer.FullyConnectedLayer;
-import layer.TanH;
+import function.TanH;
+import layer.FullyConnectedLayer;
 import main.NeuralNetwork;
 import utils.Reader;
 

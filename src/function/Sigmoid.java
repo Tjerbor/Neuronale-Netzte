@@ -1,4 +1,4 @@
-package layer;
+package function;
 
 /**
  * This class models a sigmoid function, namely the logistic function.
