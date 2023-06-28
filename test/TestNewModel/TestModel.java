@@ -57,6 +57,9 @@ public class TestModel {
         Arrays.fill(a, 1);
 
         a = nn.compute(a);
+
+        nn.printSummary();
+
         System.out.println(Arrays.toString((a)));
         nn.computeBackward(a);
         System.out.println(Arrays.toString(a));

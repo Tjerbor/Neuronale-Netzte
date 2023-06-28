@@ -92,7 +92,7 @@ public class BatchNorm extends Layer {
         double[][][][] x_norm = standart_inputs4D;
 
         double[] dgama = Array_utils.sum_axis_0_2_3(Utils.multiply(grad_inputs, x_norm));
-        double[] dbeta = Array_utils.sum_axis_0_2_3(grad_inputs);
+        biasesGrad = Array_utils.sum_axis_0_2_3(grad_inputs);
 
         double[][][][] dx_norm = Array_utils.multiply_axis1(grad_inputs, gamma);
         double[][][][] dx_centered = Array_utils.Matrix_div_axis_1(dx_norm, std);
@@ -186,8 +186,8 @@ public class BatchNorm extends Layer {
 
     public void updateParameter() {
         // gamma -= gammaGrad * learningRate
-        Utils.updateParameter(this.biases, this.biasesGrad, learningRate);
-        Utils.updateParameter(this.gamma, this.gammaGrad, learningRate);
+        Utils.updateParameter(biases, biasesGrad, learningRate);
+        Utils.updateParameter(gamma, gammaGrad, learningRate);
 
 
     }
@@ -395,8 +395,8 @@ public class BatchNorm extends Layer {
         double[][] x_centered = minus_mean;
         double[][] x_norm = standart_inputs;
 
-        double[] dgama = Array_utils.sum_axis_0(Utils.multiply(grad_inputs, x_norm));
-        double[] dbeta = Array_utils.sum_axis_0(grad_inputs);
+        gammaGrad = Array_utils.sum_axis_0(Utils.multiply(grad_inputs, x_norm));
+        biasesGrad = Array_utils.sum_axis_0(grad_inputs);
 
 
         double[][] dx_norm = Utils.matmul2D_1D(grad_inputs, gamma);

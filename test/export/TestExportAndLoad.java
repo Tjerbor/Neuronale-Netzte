@@ -79,6 +79,7 @@ public class TestExportAndLoad {
 
         DropoutLayer b = new DropoutLayer(0.4);
 
+        b.setInputShape(new int[]{28, 28, 3});
         String s = b.export();
 
         String[] strings = s.split("\n");

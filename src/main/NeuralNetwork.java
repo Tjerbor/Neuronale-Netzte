@@ -9,7 +9,6 @@ import loss.Loss;
 import optimizer.Optimizer;
 import utils.Array_utils;
 import utils.Matrix;
-import utils.Reader;
 import utils.Utils;
 
 import java.io.BufferedWriter;
@@ -82,18 +81,6 @@ public class NeuralNetwork {
         }
     }
 
-    public void newExport(String fpath) {
-
-        StringBuilder s = new StringBuilder();
-
-        Layer[] layers = getLayers();
-
-        for (int i = 0; i < layers.length; i++) {
-            s.append(layers[i].export()).append("\n");
-        }
-
-
-    }
 
     public void create(int[] topology, int weightGenType) {
 
@@ -103,12 +90,6 @@ public class NeuralNetwork {
             f.genWeights(weightGenType);
             this.add(f);
         }
-    }
-
-    public void create(String fpath) throws IOException {
-        Layer[] layers = Reader.createNew(fpath);
-        this.setLayers(layers);
-
     }
 
     public int[] topology() {
@@ -251,7 +232,7 @@ public class NeuralNetwork {
             } else if (outputLayer == null) {
                 outputLayer = l;
                 inputLayer.setNextLayer(outputLayer);
-                outputLayer.setPreviousLayer(outputLayer);
+                outputLayer.setPreviousLayer(inputLayer);
             } else {
                 Layer before = outputLayer;
                 outputLayer = l;

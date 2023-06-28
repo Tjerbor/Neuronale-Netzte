@@ -10,6 +10,8 @@ import utils.Utils;
 
 import java.util.Arrays;
 
+import static utils.Array_utils.printShape;
+
 /**
  * This class models a fully connected layer of the neural network.
  * Each fully connected layer represents two layers of neurons or one edge layer.
@@ -427,6 +429,7 @@ public class FullyConnectedLayer extends Layer {
             this.previousLayer.backward(new Matrix(grad));
         }
 
+
     }
 
 
@@ -515,6 +518,7 @@ public class FullyConnectedLayer extends Layer {
 
         double[] gradientOutput = new double[weights.length];
 
+        printShape(weights);
         double gradAct;
         double deltaWeight;
         double tmpW;

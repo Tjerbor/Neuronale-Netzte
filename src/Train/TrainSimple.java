@@ -1,6 +1,6 @@
 package Train;
 
-import layer.FCL;
+import layer.FastLinearLayer;
 import layer.Layer;
 import loss.MSE;
 import main.MNIST;
@@ -24,8 +24,8 @@ public class TrainSimple {
 
         NeuralNetwork nn = new NeuralNetwork();
 
-        FCL f = new FCL(784, 40);
-        FCL f_out = new FCL(40, 10);
+        FastLinearLayer f = new FastLinearLayer(784, 40);
+        FastLinearLayer f_out = new FastLinearLayer(40, 10);
 
         f.setUseBiases(true);
         f.setLearningRate(0.4);
@@ -41,7 +41,7 @@ public class TrainSimple {
 
         //nn = LoadModel.loadModel("nn_weights.txt");
         nn.setLoss(new MSE());
-        nn.train(5, x_train, y_train, x_test, y_test, 0.4);
+        nn.train(1, x_train, y_train, x_test, y_test, 0.4);
         nn.writeModel("nn_weights.txt");
         //nn.test(x_test, y_test);
 

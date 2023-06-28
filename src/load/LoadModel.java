@@ -451,6 +451,11 @@ public class LoadModel {
             l[i] = layers.get(i);
         }
 
+        for (int i = 0; i < l.length; i++) {
+            l[i].summary();
+        }
+
+
         nn.create(l);
         return nn;
     }

@@ -12,10 +12,8 @@ public class TestDropout {
     @Test
     public void testDropout() {
 
-
         DropoutLayer dropoutLayer = new DropoutLayer(0.5);
-
-
+        
         double[] a = new double[10];
         RandomUtils.genTypeWeights(2, a);
         dropoutLayer.forward(a);

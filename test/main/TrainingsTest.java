@@ -6,7 +6,7 @@ import utils.Reader;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class TrainingsTest {
 
@@ -44,8 +44,8 @@ public class TrainingsTest {
                 {0.01, 1.1, 0.1}, {0.0, 0.99, -0.01}};
 
         assertAll(
-                () -> assertEquals(y_train_soll, y_train),
-                () -> assertEquals(x_train_soll, x_train)
+                () -> assertArrayEquals(y_train_soll, y_train),
+                () -> assertArrayEquals(x_train_soll, x_train)
         );
 
 

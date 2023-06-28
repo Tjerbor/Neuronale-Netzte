@@ -56,6 +56,10 @@ public class Dropout {
             count += 1;
         }
 
+        System.out.println("number Needed: " + numbersNeeded);
+        System.out.println("array Length tmp: " + tmp.length);
+        System.out.println("input forward Length: " + maxNumber);
+
 
         this.input1D = new double[maxNumber];
 
@@ -72,7 +76,7 @@ public class Dropout {
 
         if (training) {
 
-            this.input1D = new double[a.length];
+            //this.input1D = new double[a.length];
             int size;
             if (this.size == 0) {
                 size = (int) Math.floor(a.length * this.rate);
