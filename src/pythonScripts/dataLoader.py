@@ -34,6 +34,7 @@ def writeData(train_filepath, x_train, y_train):
 
 def preprocess_data(x, y):
     # reshape and normalize input data
+    (X_train, Y_train), (X_test, Y_test) = tf.keara.mnist.load_data()
     x = x.reshape(x.shape[0], 28 * 28)
     x = x.astype("float32") / 255
     # encode output which is a number in range [0,9] into a vector of size 10

@@ -16,14 +16,16 @@ public class ImageReader {
     }
 
     public static double[][] convertRGBImageToGrayscaleArray(BufferedImage image) {
-        double[][] grayscale = new double[image.getHeight()][image.getWidth()];
+        double[][] grayscale = new double[image.getWidth()][image.getHeight()];
 
-        for (int y = 0; y < image.getHeight(); y++) {
-            for (int x = 0; x < image.getWidth(); x++) {
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
                 int rgb = image.getRGB(x, y);
-                grayscale[x][y] = 0.299 * (double) ((rgb & 0x00ff0000) >> 16) + //Red
+                grayscale[y][x] = 0.299 * (double) ((rgb & 0x00ff0000) >> 16) + //Red
                         0.587 * (double) ((rgb & 0x0000ff00) >> 8) + //Green
                         0.114 * (double) (rgb & 0x000000ff); //Blue
+
+                grayscale[y][x] /= 255;
             }
         }
         return grayscale;

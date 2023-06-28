@@ -39,9 +39,8 @@ public class TrainSimple {
         nn.create(ls);
 
 
-        //nn = LoadModel.loadModel("nn_weights.txt");
         nn.setLoss(new MSE());
-        nn.train(1, x_train, y_train, x_test, y_test, 0.4);
+        nn.train(5, x_train, y_train, x_test, y_test, 0.3);
         nn.writeModel("nn_weights.txt");
         //nn.test(x_test, y_test);
 
