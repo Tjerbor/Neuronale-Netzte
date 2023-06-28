@@ -23,6 +23,8 @@ public class FullyConnectedLayer extends LayerNew {
     NewSoftmax softmax = null; //needs to be handled differently
     Optimizer optimizer; //can be set in the layer so that every Optimizer can save one previous deltaWeights.
     private double[][] weights;
+
+
     /**
      * This variable contains the biases of the layer.
      */
@@ -59,6 +61,8 @@ public class FullyConnectedLayer extends LayerNew {
 
         this.inputShape = new int[]{a};
         this.outputShape = new int[]{b};
+
+        this.learningRate = 0.4;
 
 
     }
@@ -106,8 +110,14 @@ public class FullyConnectedLayer extends LayerNew {
 
     public void setUseBiases(boolean useBiases) {
         this.useBiases = useBiases;
-        this.biases = null;
-        this.dbiases = null;
+        if (!useBiases) {
+            this.biases = null;
+            this.dbiases = null;
+        } else {
+            this.biases = new double[weights[0].length];
+            this.dbiases = new double[weights[0].length];
+        }
+
     }
 
     public void setSoftmax() {
