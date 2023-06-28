@@ -41,8 +41,8 @@ public class Dropout {
         Random rng = new Random(); // Ideally just create one instance globally
 // Note: use LinkedHashSet to maintain insertion order
         Set<Integer> generated = new LinkedHashSet<Integer>();
-        while (generated.size() < numbersNeeded) {
-            Integer next = rng.nextInt(maxNumber) + 1;
+        while (generated.size() != numbersNeeded) {
+            Integer next = rng.nextInt(maxNumber);
             // As we're adding to a set, this will automatically do a containment check
             generated.add(next);
         }
