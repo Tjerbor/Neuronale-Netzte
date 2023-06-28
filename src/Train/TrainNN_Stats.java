@@ -8,7 +8,7 @@ import main.NeuralNetwork;
 
 import java.io.IOException;
 
-public class TrainNN {
+public class TrainNN_Stats {
 
 
     public static void main(String[] args) throws IOException {

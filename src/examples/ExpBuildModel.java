@@ -1,7 +1,7 @@
 package examples;
 
 
-import builder.BuildNetwork;
+import builder.NetworkBuilder;
 import main.NeuralNetwork;
 
 public class ExpBuildModel {
@@ -14,7 +14,7 @@ public class ExpBuildModel {
         int[] inputShape = new int[]{28, 28, 1};
         int kernelSize = 5;
         int strides = 2; //stepSize.
-        BuildNetwork builder = new BuildNetwork(inputShape);
+        NetworkBuilder builder = new NetworkBuilder(inputShape);
         builder.addConv2D_Last(numFilter, kernelSize, strides);
         builder.addDropout(0.5);
         builder.addMaxPooling2D_Last(); //uses for standard strides2 and poolSize2

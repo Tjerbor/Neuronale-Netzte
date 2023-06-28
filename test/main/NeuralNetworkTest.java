@@ -1,6 +1,6 @@
 package main;
 
-import builder.BuildNetwork;
+import builder.NetworkBuilder;
 import extraLayer.FullyConnectedLayer;
 import layer.Activation;
 import layer.CustomActivation;
@@ -77,7 +77,7 @@ class NeuralNetworkTest {
             int[] topology = {3, 3, 4};
 
 
-            BuildNetwork builder = new BuildNetwork();
+            NetworkBuilder builder = new NetworkBuilder();
             builder.addOnlyFastLayer(topology, new Activation());
             neuralNetwork = builder.getModel();
 
@@ -91,7 +91,7 @@ class NeuralNetworkTest {
         void createTwo() {
             int[] topology = {3, 3, 3, 3, 4, 4};
 
-            BuildNetwork builder = new BuildNetwork();
+            NetworkBuilder builder = new NetworkBuilder();
             builder.addOnlyFastLayer(topology, new Activation[]{new Activation(), new Activation()});
             neuralNetwork = builder.getModel();
 
@@ -105,7 +105,7 @@ class NeuralNetworkTest {
         void createMultiple() {
             int[] topology = {3, 3, 3, 3, 4, 4};
 
-            BuildNetwork builder = new BuildNetwork();
+            NetworkBuilder builder = new NetworkBuilder();
 
             builder.addOnlyFastLayer(topology, new Activation[]{new Activation(), new Activation(), new Activation(), new Activation(), new Activation()});
 

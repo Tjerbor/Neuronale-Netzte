@@ -19,7 +19,7 @@ import static utils.Array_utils.getFlattenInputShape;
  * also has a Method to return a finished Model.
  */
 
-public class BuildNetwork {
+public class NetworkBuilder {
 
 
     int inputSize;
@@ -27,17 +27,17 @@ public class BuildNetwork {
     private List<LayerNew> layers = new ArrayList<>();
 
 
-    public BuildNetwork(int inputSize) {
+    public NetworkBuilder(int inputSize) {
         this.inputSize = inputSize;
 
     }
 
-    public BuildNetwork(int[] inputShape) {
+    public NetworkBuilder(int[] inputShape) {
         this.inputShape = inputShape;
 
     }
 
-    public BuildNetwork() {
+    public NetworkBuilder() {
     }
 
     public LayerNew[] getLayers() {

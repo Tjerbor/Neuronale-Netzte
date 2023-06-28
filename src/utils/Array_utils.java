@@ -88,7 +88,6 @@ public class Array_utils {
 
     }
 
-
     public static double[] copyArray(double[] a) {
         double[] c = zerosLike(a);
 
@@ -1161,6 +1160,132 @@ public class Array_utils {
         return c;
     }
 
+    public static double[][][][] add(double[][][][] a, double b) {
+
+        double[][][][] c = new double[a.length][a[0].length][a[0][0].length][a[0][0][0].length];
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        c[i][j][k][l] += a[i][j][k][l] + b;
+                    }
+                }
+
+            }
+        }
+
+        return c;
+    }
+
+    public static double[][][] add(double[][][] a, double b) {
+
+        double[][][] c = new double[a.length][a[0].length][a[0][0].length];
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+
+                    c[i][j][k] += a[i][j][k] + b;
+
+                }
+
+            }
+        }
+
+        return c;
+    }
+
+    public static double[][][][] mult(double[][][][] a, double b) {
+
+        double[][][][] c = new double[a.length][a[0].length][a[0][0].length][a[0][0][0].length];
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        c[i][j][k][l] = a[i][j][k][l] * b;
+                    }
+                }
+
+            }
+        }
+
+        return c;
+    }
+
+    public static double[][][] mult(double[][][] a, double b) {
+
+        double[][][] c = new double[a.length][a[0].length][a[0][0].length];
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+
+                    c[i][j][k] = a[i][j][k] * b;
+
+                }
+
+            }
+        }
+
+        return c;
+    }
+
+    public static double[][][][] sub4D(double[][][][] a, double[][][][] b) {
+
+        double[][][][] c = new double[a.length][a[0].length][a[0][0].length][a[0][0][0].length];
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        c[i][j][k][l] = a[i][j][k][l] - b[i][j][k][l];
+                    }
+                }
+
+            }
+        }
+
+        return c;
+    }
+
+    public static double[][][][] sub4D(double[][][][] a, double[][][] b) {
+
+        double[][][][] c = new double[a.length][a[0].length][a[0][0].length][a[0][0][0].length];
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        c[i][j][k][l] = a[i][j][k][l] - b[j][k][l];
+                    }
+                }
+
+            }
+        }
+
+        return c;
+    }
+
+    public static double[][][] sub3D(double[][][] a, double[][][] b) {
+
+        double[][][] c = new double[a.length][a[0].length][a[0][0].length];
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+
+                    c[i][j][k] = a[i][j][k] - b[i][j][k];
+
+                }
+
+            }
+        }
+
+        return c;
+    }
+
     public static boolean checkMultiShape(double[][][] a, double[][][] b) {
 
 
@@ -1305,7 +1430,107 @@ public class Array_utils {
 
     }
 
+    public static double[][][] sum_axis_0(double[][][][] a) {
 
+        double[][][] c = new double[a[0].length][a[0][0].length][a[0][0][0].length];
+
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0].length; k++) {
+                    for (int l = 0; l < a[0].length; l++) {
+                        c[i][j][k] += a[i][j][k][l];
+                    }
+                }
+            }
+        }
+
+        return c;
+    }
+
+    public static double[] sum_axis_1_2_3(double[][][][] a) {
+
+        double[] c = new double[a.length];
+
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0].length; k++) {
+                    for (int l = 0; l < a[0].length; l++) {
+                        c[i] += a[i][j][k][l];
+                    }
+                }
+            }
+        }
+
+        return c;
+    }
+
+    public static double[] sum_axis_1_2(double[][][] a) {
+
+        double[] c = new double[a.length];
+
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0].length; k++) {
+                    c[i] += a[i][j][k];
+                }
+
+            }
+        }
+
+        return c;
+    }
+
+    public static double[][][] sum_axis_0_4D(double[][][][] a) {
+
+        double[][][] c = new double[a[0].length][a[0][0].length][a[0][0][0].length];
+
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0].length; k++) {
+                    for (int l = 0; l < a[0][0].length; l++) {
+                        c[j][k][l] = a[i][j][k][l];
+                    }
+
+                }
+
+            }
+        }
+
+        return c;
+    }
+
+
+    public static double[][][] sqrtArrayRE(double[][][] a) {
+
+        double[][][] c = zerosLike(a);
+
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0].length; k++) {
+                    c[i][j][k] = Math.sqrt(a[i][j][k]);
+                }
+
+            }
+        }
+        return c;
+    }
+
+    public static double[] sqrtArray1D(double[] a) {
+
+        double[] c = zerosLike(a);
+
+        for (int i = 0; i < a.length; i++) {
+            c[i] = Math.sqrt(a[i]);
+        }
+
+
+        return c;
+    }
 }
 
 

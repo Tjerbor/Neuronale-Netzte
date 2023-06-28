@@ -1,6 +1,6 @@
 package Train;
 
-import builder.BuildNetwork;
+import builder.NetworkBuilder;
 import loss.MSE;
 import main.MNIST;
 import main.NeuralNetwork;
@@ -14,7 +14,7 @@ public class TrainBuilder {
 
 
         int[] topologie = new int[]{784, 20, 10};
-        BuildNetwork builder = new BuildNetwork(topologie[0]);
+        NetworkBuilder builder = new NetworkBuilder(topologie[0]);
 
         for (int i = 1; i < topologie.length; i++) {
             builder.addFastLayer(topologie[i]);
