@@ -1,7 +1,7 @@
 package export;
 
 import builder.NetworkBuilder;
-import extraLayer.*;
+import layer.*;
 import main.NeuralNetwork;
 import org.junit.jupiter.api.Test;
 import utils.Matrix;
@@ -59,7 +59,6 @@ public class TestExportAndLoad {
 
     @Test
     public void test_FastLinearLayer_ExportAndLoad() {
-
 
         FastLinearLayer b = new FastLinearLayer(4, 8);
 

@@ -1,13 +1,14 @@
 package extraLayer;
 
-import main.LayerNew;
+
+import layer.Layer;
 import utils.Matrix;
 
 import java.util.Arrays;
 
 import static load.writeUtils.writeShape;
 
-public class MaxPooling2D extends LayerNew {
+public class MaxPooling2D extends Layer {
 
     double[][][][] inputs;
     double[][][] input;
@@ -485,10 +486,10 @@ public class MaxPooling2D extends LayerNew {
     }
 
     @Override
-    public boolean isEqual(LayerNew other) {
+    public boolean isEqual(Layer other) {
         return false;
     }
-
+    
     public String summary() {
         return "MaxPooling2D inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())

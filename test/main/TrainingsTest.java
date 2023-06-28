@@ -17,9 +17,9 @@ public class TrainingsTest {
     void readTrainData() throws IOException {
 
 
-        double[][] x_train = Reader.getTrainDataInputs("data/trainData/KW16_traindata_trafficlights_classification(1).csv", 3);
+        double[][] x_train = Reader.getTrainDataInputs("data/training/trafficLight.csv", 3);
 
-        double[][] y_train = Reader.getTrainDataOutputs("data/trainData/KW16_traindata_trafficlights_classification(1).csv", 4);
+        double[][] y_train = Reader.getTrainDataOutputs("data/training/trafficLight.csv", 4);
 
 
         double[][] y_train_soll = new double[][]{

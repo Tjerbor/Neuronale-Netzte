@@ -1,8 +1,8 @@
 package Train;
 
-import extraLayer.FCL;
+import layer.FCL;
+import layer.Layer;
 import loss.MSE;
-import main.LayerNew;
 import main.MNIST;
 import main.NeuralNetwork;
 
@@ -33,7 +33,7 @@ public class TrainSimple {
         f.setLearningRate(0.4);
 
         String s = "";
-        LayerNew[] ls = new LayerNew[]{f, f_out};
+        Layer[] ls = new Layer[]{f, f_out};
 
 
         nn.create(ls);
