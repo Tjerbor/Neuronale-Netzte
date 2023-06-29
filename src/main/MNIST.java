@@ -1,6 +1,8 @@
 package main;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,11 +13,7 @@ import java.util.zip.GZIPInputStream;
  * It can also be used to read the <a href="https://www.nist.gov/itl/products-and-services/emnist-dataset">EMNIST database</a>.
  */
 public final class MNIST {
-    private MNIST() {
-    }
-
     private static final Logger LOGGER = Logger.getLogger(MNIST.class.getName());
-
     /**
      * Each image in the MNIST database is 28 by 28 pixels, for a total of 784 pixels.
      */
@@ -24,6 +22,9 @@ public final class MNIST {
      * The MNIST database classifies the digits 0 to 9.
      */
     private static final int DIGITS = 10;
+
+    private MNIST() {
+    }
 
     /**
      * This method converts a byte array into an integer.
@@ -121,57 +122,5 @@ public final class MNIST {
      */
     public static double[][][] read(String idx3, String idx1) throws IOException {
         return read(idx3, idx1, DIGITS);
-    }
-
-    public static double[][][] x_train_2_batch(double[][] x_train, int batch_size) throws Exception {
-
-        int data_size = x_train.length;
-
-        if (data_size % batch_size != 0) {
-            throw new IllegalArgumentException("Batch size must be equally dividable");
-        }
-
-
-        int firstShape = data_size / batch_size;
-        double[][][] x_train_out = new double[firstShape][batch_size][x_train[0].length];
-        int count = 0;
-        double[][] tmp = new double[batch_size][x_train[0].length];
-        for (int i = 0; i < data_size; i += batch_size) {
-            for (int j = 0; j < batch_size; j++) {
-                x_train_out[count][j] = x_train[i + j];
-
-            }
-
-            count += 1;
-        }
-
-
-        return x_train_out;
-    }
-
-    public static double[][][] y_train_2_batch(double[][] y_train, int batch_size) throws Exception {
-
-        int data_size = y_train.length;
-
-        if (data_size % batch_size != 0) {
-            throw new IllegalArgumentException("Batch size musst be equally dividable");
-        }
-
-
-        int firstShape = data_size / batch_size;
-        double[][][] y_train_out = new double[firstShape][batch_size][y_train[0].length];
-        int count = 0;
-        double[][] tmp = new double[batch_size][y_train[0].length];
-        for (int i = 0; i < data_size; i += batch_size) {
-            for (int j = 0; j < batch_size; j++) {
-                y_train_out[count][j] = y_train[i + j];
-
-            }
-
-            count += 1;
-        }
-
-
-        return y_train_out;
     }
 }
