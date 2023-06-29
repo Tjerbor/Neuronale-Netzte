@@ -102,7 +102,7 @@ public final class MNIST {
                     throw new IllegalArgumentException("The length of the file " + idx1 + " does not match the metadata.");
                 }
 
-                labels[i][bytesToInt(buffer)] = 1;
+                labels[i][bytesToInt(buffer) - (number == DIGITS ? 0 : 1)] = 1;
             }
 
             LOGGER.log(Level.INFO, "{0} Images & Labels were read successfully.", length);

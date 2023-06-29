@@ -1,44 +1,35 @@
 package main;
 
-import Train.LoadOwn;
 import load.LoadModel;
 import utils.ImageReader;
-import utils.Utils;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-//        NeuralNetwork neuralNetwork = LoadModel.loadModel("mnist.csv");
-//
-//
-//        String dirFpath2 = "data/selfmade_data";
-//        double[][][] testData = LoadOwn.getImages(dirFpath2);
-//
-//        double[][] y_testOwn = testData[1];
-//        double[][] x_testOwn = testData[0];
-//
-//
-//        int count = 0;
-//        for (int j = 1; j < 4; j++) {
-//            for (int i = 0; i < 10; i++) {
-//                double[] result = neuralNetwork.compute(ImageReader.ImageToArray("data/selfmade_data/sample0" + j + "_" + i + ".png"));
-//
-//                System.out.println("Soll: " + i + " predicted: " + Utils.argmax(result)
-//                        + " confidence: " + result[Utils.argmax(result)]);
-//
-//
-//            }
-//        }
-//        System.out.println("right: ");
-//
-//        neuralNetwork.printTestStats(x_testOwn, y_testOwn);
-
+        mnist();
+        emnist();
     }
 
-    public static void mnistTrain_mnistTest(){
-        //TODO
+    public static void mnist() throws IOException {
+        NeuralNetwork neuralNetwork = LoadModel.loadModel("mnist.csv");
+
+        double[][][] training = MNIST.read("data/mnist/train-images-idx3-ubyte.gz", "data/mnist/train-labels-idx1-ubyte.gz");
+        double[][][] test = MNIST.read("data/mnist/t10k-images-idx3-ubyte.gz", "data/mnist/t10k-labels-idx1-ubyte.gz");
+
+        neuralNetwork.printTestStats(training[0], training[1]);
+        neuralNetwork.printTestStats(test[0], test[1]);
+    }
+
+    public static void emnist() throws IOException {
+        NeuralNetwork neuralNetwork = LoadModel.loadModel("mnist.csv");
+
+        double[][][] training = MNIST.read("data/emnist/emnist-letters-train-images-idx3-ubyte.gz", "data/emnist/emnist-letters-train-labels-idx1-ubyte.gz", 26);
+        double[][][] test = MNIST.read("data/emnist/emnist-letters-test-images-idx3-ubyte.gz", "data/emnist/emnist-letters-test-labels-idx1-ubyte.gz", 26);
+
+        neuralNetwork.printTestStats(training[0], training[1]);
+        neuralNetwork.printTestStats(test[0], test[1]);
     }
 
     public static void ImageOnTheFLyTest() throws IOException {
