@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        NeuralNetwork neuralNetwork = LoadModel.loadModel("nn_weights.txt");
+        NeuralNetwork neuralNetwork = LoadModel.loadModel("mnist.csv");
 
 
         String dirFpath2 = "data/selfmade_data";

@@ -10,7 +10,7 @@ public class TestData {
 
     public static void main(String[] args) throws IOException {
 
-        NeuralNetwork nn = LoadModel.loadModel("nn_weights.txt");
+        NeuralNetwork nn = LoadModel.loadModel("mnist.csv");
 
         double[][][] trainingData = MNIST.read("data/mnist/train-images-idx3-ubyte.gz", "data/mnist/train-labels-idx1-ubyte.gz");
         double[][] x_train = trainingData[0];

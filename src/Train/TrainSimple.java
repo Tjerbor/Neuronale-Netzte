@@ -49,7 +49,7 @@ public class TrainSimple {
 
         nn.setLoss(new MSE());
         nn.train(5, x_train, y_train, x_test, y_test, 0.3);
-        nn.writeModel("nn_weights.txt");
+        nn.writeModel("mnist.csv");
         //nn.test(x_test, y_test);
 
 
