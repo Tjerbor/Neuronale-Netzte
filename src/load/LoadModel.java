@@ -211,7 +211,7 @@ public class LoadModel {
 
         int a = Integer.parseInt(config[2]);
         int b = Integer.parseInt(config[3]);
-        FastLinearLayer f = new FastLinearLayer(a, b);
+        FCL f = new FCL(a, b);
 
         f.setUseBiases(false);
 
@@ -232,7 +232,7 @@ public class LoadModel {
 
         int a = Integer.parseInt(config[2]);
         int b = Integer.parseInt(config[3]);
-        FastLinearLayer f = new FastLinearLayer(a, b);
+        FCL f = new FCL(a, b);
 
         f.setUseBiases(true);
 

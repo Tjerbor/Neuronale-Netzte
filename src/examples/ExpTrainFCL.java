@@ -44,7 +44,7 @@ public class ExpTrainFCL {
 
         nn.setLoss(new MSE());
         nn.train(20, trainingData[0], trainingData[1], testData[0], testData[1], learningRate);
-        nn.writeModel("fcl_emnist_letters.csv");
+        nn.writeModel("weights.csv");
 
     }
 

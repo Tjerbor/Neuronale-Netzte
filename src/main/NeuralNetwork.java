@@ -953,10 +953,39 @@ public class NeuralNetwork {
         return s;
     }
 
+    public void writeModelFast(String fileName) {
+
+
+        Layer[] tmp = layers2Array();
+
+        System.out.println("Started Writing weights.");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            String s = "NN;" + tmp.length + ";" + parameters() + "\n";
+            writer.write(s);
+            for (int i = 0; i < tmp.length; i++) {
+                if (i != tmp.length - 1) {
+                    s = tmp[i].export() + "\n";
+                    writer.write(s);
+                } else {
+                    s = tmp[i].export();
+                    writer.write(s);
+                }
+
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        System.out.println("wrote weights: " + fileName);
+
+    }
+
     public void writeModel(String fileName) {
 
         String s = this.export();
 
+        System.out.println("Started Writing weights.");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             writer.write(s);
             System.out.println("wrote weights: " + fileName);

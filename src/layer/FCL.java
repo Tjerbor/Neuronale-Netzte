@@ -321,34 +321,34 @@ public class FCL extends Layer {
     @Override
     public String export() {
 
-        String s = "fcl;" + useBiases + ";" + weights.length + ";" + weights[0].length + ";" + isNull(dropout) + "\n";
+        StringBuilder s = new StringBuilder("fcl;" + useBiases + ";" + weights.length + ";" + weights[0].length + "\n");
 
         for (int i = 0; i < weights.length; i++) {
             for (int j = 0; j < weights[0].length; j++) {
                 if (i == weights.length - 1 && j == weights[0].length - 1) {
-                    s += weights[i][j];
+                    s.append(weights[i][j]);
                 } else {
-                    s += weights[i][j] + ";";
+                    s.append(weights[i][j]).append(";");
                 }
             }
         }
 
 
         if (useBiases) {
-            s += "\n";
+            s.append("\n");
 
             for (int i = 0; i < biases.length; i++) {
 
                 if (i == biases.length - 1) {
-                    s += biases[i];
+                    s.append(biases[i]);
                 } else {
-                    s += biases[i] + ";";
+                    s.append(biases[i]).append(";");
                 }
             }
 
         }
 
-        return s + "\n";
+        return s.toString();
 
     }
 

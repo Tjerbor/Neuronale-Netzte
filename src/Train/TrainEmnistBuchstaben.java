@@ -28,13 +28,15 @@ public class TrainEmnistBuchstaben {
         builder.addOnlyFCL(new int[]{784, 25 * 25, 15 * 15, 10 * 10, numClasses * 4, numClasses}, new TanH(), true);
         //builder.addOnlyFastLayer(new int[]{784, 25 * 25, numClasses * 2, numClasses}, new TanH());
 
+
         NeuralNetwork nn = builder.getModel();
+        nn.test(x_test, y_test);
 
 
-        System.out.println(x_train.length + " : " + y_train.length);
+        System.out.println("Train Data Size: " + x_train.length);
         nn.setLoss(new MSE());
         nn.train(10, x_train, y_train, x_test, y_test, 0.1);
-        nn.writeModel("nn_emnist_letter_weights.txt");
+        nn.writeModelFast("fcl_emnist_letter_weights.csv");
 
 
     }

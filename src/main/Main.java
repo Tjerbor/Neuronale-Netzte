@@ -8,8 +8,9 @@ import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        mnist();
+        //mnist();
         emnist();
+
     }
 
     public static void mnist() throws IOException {
@@ -27,6 +28,9 @@ public class Main {
 
         double[][][] training = MNIST.read("data/emnist/emnist-letters-train-images-idx3-ubyte.gz", "data/emnist/emnist-letters-train-labels-idx1-ubyte.gz", 26);
         double[][][] test = MNIST.read("data/emnist/emnist-letters-test-images-idx3-ubyte.gz", "data/emnist/emnist-letters-test-labels-idx1-ubyte.gz", 26);
+
+
+        neuralNetwork.printSummary();
 
         neuralNetwork.printTestStats(training[0], training[1]);
         neuralNetwork.printTestStats(test[0], test[1]);
