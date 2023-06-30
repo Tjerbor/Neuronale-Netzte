@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 //        mnist();
 //        emnist();
-//        ImageOnTheFLyTest();
+    ImageOnTheFLyTest();
     }
 
     public static void mnist() throws IOException {
@@ -37,7 +37,7 @@ public class Main {
     public static void ImageOnTheFLyTest() throws IOException {
         NeuralNetwork neuralNetwork = LoadModel.loadModel("mnist.csv");
 
-        String path = "data/test/1.png";
+        String path = "data/test/2.png";
         double[] testData = ImageReader.ImageToArray(path);
 
         double[] probabilities = neuralNetwork.compute(testData);
