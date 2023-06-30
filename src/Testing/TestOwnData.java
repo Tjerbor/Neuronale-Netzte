@@ -3,6 +3,7 @@ package Testing;
 import Train.LoadOwn;
 import function.TanH;
 import layer.FullyConnectedLayer;
+import load.LoadModel;
 import main.NeuralNetwork;
 import utils.Reader;
 
@@ -53,11 +54,13 @@ public class TestOwnData {
 
         NeuralNetwork nn = new NeuralNetwork();
 
+        NeuralNetwork neuralNetwork = LoadModel.loadModel("nn_emnist_digits_weights.txt");
 
         nn.create(layers);
 
         //nn.test(test, y_test);
-        nn.test(x_test, y_test);
+        neuralNetwork.test(x_test, y_test);
+        neuralNetwork.test(test, y_test);
 
 
     }

@@ -40,7 +40,7 @@ public class ActivationLayer extends Layer {
         for (int i = 0; i < inputs.length; i++) {
             for (int j = 0; j < inputs[0].length; j++) {
                 for (int k = 0; k < inputs[0][0].length; k++) {
-                    inputs[i][j][k] = act.definition(inputs[i][j][k]);
+                    c[i][j][k] = act.definition(inputs[i][j][k]);
                 }
             }
         }
@@ -122,7 +122,7 @@ public class ActivationLayer extends Layer {
             c[i] = act.definition(input[i]);
         }
 
-  
+
         if (this.getNextLayer() != null) {
             this.getNextLayer().forward(new Matrix(c));
         } else {

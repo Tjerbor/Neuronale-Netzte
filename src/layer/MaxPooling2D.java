@@ -1,7 +1,6 @@
-package extraLayer;
+package layer;
 
 
-import layer.Layer;
 import utils.Matrix;
 
 import java.util.Arrays;
@@ -420,26 +419,40 @@ public class MaxPooling2D extends Layer {
     public void forward(Matrix m) {
         int dim = m.getDim();
 
+        System.out.println(Arrays.deepToString(m.getData3D()));
+        Matrix out;
         if (dim == 3) {
-            this.forward(m.getData3D());
+            out = new Matrix(this.forward(m.getData3D()));
         } else if (dim == 4) {
-            this.forward(m.getData4D());
+            out = new Matrix(this.forward(m.getData4D()));
         } else {
-            System.out.println("Got unsupported Dimension: " + dim);
+            throw new IllegalArgumentException("Got unsupported Dimension: " + dim);
         }
+
+        if (this.nextLayer != null) {
+            this.nextLayer.forward(out);
+        } else {
+            this.output = out;
+        }
+
     }
 
     @Override
     public void backward(Matrix m) {
         int dim = m.getDim();
+        Matrix out;
 
         if (dim == 3) {
-            this.backward(m.getData3D());
+            out = new Matrix(this.backward(m.getData3D()));
         } else if (dim == 4) {
-            this.backward(m.getData4D());
+            out = new Matrix(this.backward(m.getData4D()));
         } else {
-            System.out.println("Got unsupported Dimension: " + dim);
+            throw new IllegalArgumentException("Got unsupported Dimension: " + dim);
         }
+        if (this.previousLayer != null) {
+            this.previousLayer.backward(out);
+        }
+
     }
 
     @Override
@@ -449,13 +462,19 @@ public class MaxPooling2D extends Layer {
             this.previousLayer.setLearningRate(learningRate);
         }
 
+        Matrix out;
+
+        this.learningRate = learningRate;
         int dim = m.getDim();
         if (dim == 3) {
-            this.backward(m.getData3D());
+            out = new Matrix(this.backward(m.getData3D()));
         } else if (dim == 4) {
-            this.backward(m.getData4D());
+            out = new Matrix(this.backward(m.getData4D()));
         } else {
-            System.out.println("Got unsupported Dimension: " + dim);
+            throw new IllegalArgumentException("Got unsupported Dimension: " + dim);
+        }
+        if (this.previousLayer != null) {
+            this.previousLayer.backward(out, learningRate);
         }
 
 

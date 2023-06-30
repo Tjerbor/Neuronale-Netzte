@@ -35,8 +35,6 @@ public class Conv2D extends Layer {
     final private int paddingW = 0;
     boolean training = false;
     boolean useBiases = false;
-    Layer previousLayer;
-    Layer nextLayer;
 
     int iterationAt;
 
@@ -67,7 +65,7 @@ public class Conv2D extends Layer {
 
         this.numFilters = numFilters;
         weights = new double[kernelSize1][kernelSize2][channels][numFilters];
-        generateRandomFilters(numFilters);
+        RandomUtils.genTypeWeights(2, weights);
 
     }
 
@@ -85,7 +83,7 @@ public class Conv2D extends Layer {
         outputWidth = (((inputWidth - kernelSize2 + (2 * paddingW)) / (stride2)) + 1);
 
         weights = new double[kernelSize1][kernelSize2][channels][numFilters];
-        generateRandomFilters(numFilters);
+        RandomUtils.genTypeWeights(2, weights);
 
         if (useBiases) {
             this.biases = new double[numFilters][outputHeight][outputWidth];
@@ -115,7 +113,7 @@ public class Conv2D extends Layer {
 
 
         this.weights = new double[kernelSize1][kernelSize2][channels][numFilters];
-        RandomUtils.genGaussianRandomWeight(weights);
+        RandomUtils.genTypeWeights(2, weights);
 
     }
 
@@ -138,7 +136,7 @@ public class Conv2D extends Layer {
 
 
         this.weights = new double[kernelSize1][kernelSize2][channels][this.numFilters];
-        RandomUtils.genGaussianRandomWeight(weights);
+        RandomUtils.genTypeWeights(2, weights);
 
     }
 
@@ -310,8 +308,8 @@ public class Conv2D extends Layer {
             }
         }
 
-        if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(new Matrix<>(output));
+        if (this.nextLayer != null) {
+            this.nextLayer.forward(new Matrix(output));
         } else {
             this.output = new Matrix(output);
         }
@@ -334,8 +332,8 @@ public class Conv2D extends Layer {
         }
 
 
-        if (this.getNextLayer() != null) {
-            this.getNextLayer().forward(new Matrix<>(output));
+        if (this.nextLayer != null) {
+            this.nextLayer.forward(new Matrix(output));
         } else {
             this.output = new Matrix(output);
         }
@@ -713,6 +711,7 @@ public class Conv2D extends Layer {
     @Override
     public void forward(Matrix m) {
         int dim = m.getDim();
+
 
         if (dim == 3) {
             this.forward(m.getData3D());

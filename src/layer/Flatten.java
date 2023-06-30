@@ -66,6 +66,7 @@ public class Flatten extends Layer {
     @Override
     public void forward(Matrix m) {
         int dim = m.getDim();
+
         if (dim == 3) {
             this.forward(m.getData3D());
         } else if (dim == 4) {
@@ -117,7 +118,7 @@ public class Flatten extends Layer {
 
     public void backward(double[] input) {
         double[][][] out = Array_utils.reFlat(input, this.inputShape);
-        ;
+
 
         if (this.getPreviousLayer() != null) {
             this.getPreviousLayer().backward(new Matrix(out));

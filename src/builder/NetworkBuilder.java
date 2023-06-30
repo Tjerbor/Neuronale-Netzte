@@ -351,6 +351,17 @@ public class NetworkBuilder {
 
     }
 
+    public void addMaxPooling2D(int strides, int poolSize) {
+        if (layers.size() != 0) {
+            int position = layers.size() - 1;
+            int[] shapeBefore = (layers.get(position).getOutputShape());
+            layers.add(new MaxPooling2D(shapeBefore, strides, poolSize));
+        } else {
+            throw new IllegalArgumentException("No previous Layers are set.");
+        }
+
+    }
+
     public void addMaxPooling2D_Last(int[] inputShape) {
         if (layers.size() != 0) {
             int position = layers.size() - 1;

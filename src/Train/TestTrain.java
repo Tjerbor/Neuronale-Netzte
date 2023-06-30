@@ -28,7 +28,7 @@ public class TestTrain {
         nn = builder.getModel();
 
         nn.setLoss(new MSE());
-        nn.train(4, x_train, y_train, 0.1);
+        nn.train(3, x_train, y_train, 0.1);
         nn.test(x_train, y_train);
         nn.writeModel("weights_selfdata.csv");
 
