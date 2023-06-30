@@ -37,13 +37,13 @@ public class Main {
     public static void ImageOnTheFLyTest() throws IOException {
         NeuralNetwork neuralNetwork = LoadModel.loadModel("mnist.csv");
 
-        String path = "data/test.png";
+        String path = "data/test/1.png";
         double[] testData = ImageReader.ImageToArray(path);
 
         double[] probabilities = neuralNetwork.compute(testData);
 
         //System.out.println(Arrays.toString(probabilities));
-        System.out.println(Utils.argmax(probabilities));
+        System.out.println("Klasse: "+Utils.argmax(probabilities));
     }
 
 
