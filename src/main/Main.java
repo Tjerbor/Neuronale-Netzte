@@ -35,9 +35,9 @@ public class Main {
     }
 
     public static void ImageOnTheFLyTest() throws IOException {
-        NeuralNetwork neuralNetwork = LoadModel.loadModel("weights_selfdata.csv");
+        NeuralNetwork neuralNetwork = LoadModel.loadModel("mnist.csv");
 
-        String path = "uwu.png";
+        String path = "data/test.png";
         double[] testData = ImageReader.ImageToArray(path);
 
         double[] probabilities = neuralNetwork.compute(testData);
@@ -45,4 +45,6 @@ public class Main {
         System.out.println(Arrays.toString(probabilities));
         System.out.println(Utils.argmax(probabilities));
     }
+
+
 }
