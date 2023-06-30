@@ -33,7 +33,6 @@ public class TrainUtils {
         return generated.toArray();
     }
 
-
     public static double[][][] reshapeToChannelsLast(double[] x, int[] shape) {
         int count = 0;
         double[][][] c = new double[shape[0]][shape[1]][shape[2]];
@@ -63,7 +62,7 @@ public class TrainUtils {
         }
 
         int s = x_train.length / batchSize;
-        
+
         List e = new ArrayList();
 
         e.add(tmpX);
@@ -72,6 +71,20 @@ public class TrainUtils {
 
         return e;
 
+    }
+
+    public static double[][][] getBatch(double[][] a, int batchSize) {
+
+        double[][][] c = new double[a.length / batchSize][batchSize][a[0].length];
+        for (int i = 0; i < a.length / batchSize; i++) {
+
+            for (int j = 0; j < batchSize; j++) {
+                c[i][j] = a[(i * batchSize) + j];
+            }
+
+        }
+
+        return c;
     }
 
 }

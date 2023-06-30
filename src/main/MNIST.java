@@ -111,6 +111,57 @@ public final class MNIST {
         }
     }
 
+    public static double[][][] readBalanced(String idx3, String idx1, int number) throws IOException {
+        try (
+                InputStream imagesIn = new GZIPInputStream(new FileInputStream(idx3));
+                InputStream labelsIn = new GZIPInputStream(new FileInputStream(idx1))
+        ) {
+
+            byte[] imagesMeta = new byte[16];
+            byte[] labelsMeta = new byte[8];
+
+            if (imagesIn.read(imagesMeta, 0, 16) != 16) {
+                throw new IllegalArgumentException("The metadata of the file " + idx3 + " does not comply with the MNIST idx3 format.");
+            }
+
+            if (labelsIn.read(labelsMeta, 0, 8) != 8) {
+                throw new IllegalArgumentException("The metadata of the file " + idx1 + " does not comply with the MNIST idx1 format.");
+            }
+
+            int length = bytesToInt(Arrays.copyOfRange(imagesMeta, 4, 8));
+
+            if (length != bytesToInt(Arrays.copyOfRange(labelsMeta, 4, 8))) {
+                throw new IllegalArgumentException("The number of items in the two files does not match.");
+            }
+
+            byte[] buffer = new byte[1];
+
+            double[][] images = new double[length][PIXELS];
+
+            double[][] labels = new double[length][number];
+
+            for (int i = 0; i < length; i++) {
+                for (int j = 0; j < PIXELS; j++) {
+                    if (imagesIn.read(buffer, 0, 1) != 1) {
+                        throw new IllegalArgumentException("The length of the file " + idx3 + " does not match the metadata.");
+                    }
+
+                    images[i][j] = bytesToInt(buffer) / 255.;
+                }
+
+                if (labelsIn.read(buffer, 0, 1) != 1) {
+                    throw new IllegalArgumentException("The length of the file " + idx1 + " does not match the metadata.");
+                }
+
+                labels[i][bytesToInt(buffer) - (number == 47 ? 0 : 1)] = 1;
+            }
+
+            LOGGER.log(Level.INFO, "{0} Images & Labels were read successfully.", length);
+
+            return new double[][][]{images, labels};
+        }
+    }
+
     /**
      * This method attempts to read the given MNIST data sets.
      * It throws an exception if the file does not exist, an I/O error occurs, or the format is not correct.

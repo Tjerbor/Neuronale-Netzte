@@ -121,6 +121,8 @@ public class ActivationLayer extends Layer {
         for (int i = 0; i < input.length; i++) {
             c[i] = act.definition(input[i]);
         }
+
+  
         if (this.getNextLayer() != null) {
             this.getNextLayer().forward(new Matrix(c));
         } else {

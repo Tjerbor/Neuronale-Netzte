@@ -166,7 +166,7 @@ public class RandomUtils {
                 for (int j = 0; j < weights[0].length; j++) {
                     for (int k = 0; k < weights[0][0].length; k++) {
                         for (int l = 0; l < weights[0][0][0].length; l++) {
-                            weights[i][j][k][l] = r.nextGaussian();
+                            weights[i][j][k][l] = r.nextGaussian(0, 1);
                         }
 
                     }

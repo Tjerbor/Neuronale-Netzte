@@ -1,8 +1,6 @@
 package Train;
 
 import builder.NetworkBuilder;
-import layer.FastLinearLayer;
-import layer.Layer;
 import loss.MSE;
 import main.NeuralNetwork;
 
@@ -20,16 +18,6 @@ public class TestTrain {
 
         NeuralNetwork nn = new NeuralNetwork();
 
-        FastLinearLayer f = new FastLinearLayer(784, 40);
-        FastLinearLayer f_out = new FastLinearLayer(40, 10);
-
-        f.setUseBiases(true);
-        f.setLearningRate(0.4);
-        f_out.setUseBiases(true);
-        f.setLearningRate(0.4);
-
-        String s = "";
-        Layer[] ls = new Layer[]{f, f_out};
 
         NetworkBuilder builder = new NetworkBuilder(784);
 
@@ -41,6 +29,8 @@ public class TestTrain {
 
         nn.setLoss(new MSE());
         nn.train(4, x_train, y_train, 0.1);
+        nn.test(x_train, y_train);
+        nn.writeModel("weights_selfdata.csv");
 
 
     }

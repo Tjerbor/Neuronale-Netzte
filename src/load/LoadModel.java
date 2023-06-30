@@ -145,8 +145,8 @@ public class LoadModel {
          * start with the name, useBiases, weight.length, weight[0].length, act, dropoutRate
          */
 
-        int a = Integer.parseInt(config[1]);
-        int b = Integer.parseInt(config[2]);
+        int a = Integer.parseInt(config[2]);
+        int b = Integer.parseInt(config[3]);
         FastLinearLayer f = new FastLinearLayer(a, b);
         if (config.length >= 5) {
             Activation act = getActivation(config[3]);
@@ -176,8 +176,8 @@ public class LoadModel {
          * start with the name, useBiases, weight.length, weight[0].length, act, dropoutRate
          */
 
-        int a = Integer.parseInt(config[1]);
-        int b = Integer.parseInt(config[2]);
+        int a = Integer.parseInt(config[2]);
+        int b = Integer.parseInt(config[3]);
         FastLinearLayer f = new FastLinearLayer(a, b);
         if (config.length >= 5) {
             Activation act = getActivation(config[3]);
@@ -190,8 +190,51 @@ public class LoadModel {
             f.setDropout(Double.parseDouble(config[5]));
         }
 
+        f.setUseBiases(true);
+
+
+        double[][] w = new double[a][b];
+        double[] biases = new double[b];
+        getWeightsFromLine(w, nextLine);
+        getWeightsFromLine(biases, biasesLine);
+
+        f.setWeights(new Matrix<>(w));
+        return f;
+
+    }
+
+    public static Layer loadFCL(String[] config, String nextLine) {
+
+        /*
+         * start with the name, useBiases, weight.length, weight[0].length
+         */
+
+        int a = Integer.parseInt(config[2]);
+        int b = Integer.parseInt(config[3]);
+        FastLinearLayer f = new FastLinearLayer(a, b);
+
         f.setUseBiases(false);
 
+
+        double[][] w = new double[a][b];
+        getWeightsFromLine(w, nextLine);
+
+        f.setWeights(new Matrix<>(w));
+        return f;
+
+    }
+
+    public static Layer loadFCL(String[] config, String nextLine, String biasesLine) {
+
+        /*
+         * start with the name, useBiases, weight.length, weight[0].length
+         */
+
+        int a = Integer.parseInt(config[2]);
+        int b = Integer.parseInt(config[3]);
+        FastLinearLayer f = new FastLinearLayer(a, b);
+
+        f.setUseBiases(true);
 
         double[][] w = new double[a][b];
         double[] biases = new double[b];
@@ -391,10 +434,20 @@ public class LoadModel {
                 }
                 case "fullyconnectedlayer" -> {
                     if (config[1].equals("true")) {
-                        layers.add(loadConv2D(config, lines.get(LineCount + 1), lines.get(LineCount + 2)));
+                        layers.add(loadFullyConnectedLayer(config, lines.get(LineCount + 1), lines.get(LineCount + 2)));
                         LineCount += 2;
                     } else {
-                        layers.add(loadConv2D(config, lines.get(LineCount + 1)));
+                        layers.add(loadFullyConnectedLayer(config, lines.get(LineCount + 1)));
+                        LineCount += 1;
+                    }
+                    LineCount += 1;
+                }
+                case "fcl" -> {
+                    if (config[1].equals("true")) {
+                        layers.add(loadFCL(config, lines.get(LineCount + 1), lines.get(LineCount + 2)));
+                        LineCount += 2;
+                    } else {
+                        layers.add(loadFCL(config, lines.get(LineCount + 1)));
                         LineCount += 1;
                     }
                     LineCount += 1;

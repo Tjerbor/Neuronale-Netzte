@@ -86,6 +86,7 @@ public class FullyConnectedLayer extends Layer {
 
     }
 
+
     public FullyConnectedLayer(int a, int b, Activation act) {
         if (a < 1 || b < 1) {
             throw new IllegalArgumentException("Each layer must contain at least one neuron.");
@@ -100,12 +101,13 @@ public class FullyConnectedLayer extends Layer {
         genWeights(2);
     }
 
+    @Override
     public void genWeights(int type) {
-        RandomUtils.genTypeWeights(2, weights);
+        RandomUtils.genTypeWeights(type, weights);
 
         if (useBiases) {
             biases = new double[weights[0].length];
-            RandomUtils.genTypeWeights(2, biases);
+            RandomUtils.genTypeWeights(type, biases);
         }
     }
 
@@ -126,6 +128,7 @@ public class FullyConnectedLayer extends Layer {
         this.softmax = new NewSoftmax(); //needs to be an extra class because it is a global function.
         //it means considers all inputData and not x itself.
     }
+
 
     public void setOptimizer(Optimizer optimizer) {
         this.optimizer = optimizer;
@@ -535,11 +538,9 @@ public class FullyConnectedLayer extends Layer {
 
             for (int j = 0; j < weights[0].length; j++) {
 
-                if (softmax != null) {
-                    gradAct = lastActInput[j];
-
-                } else {
-                    gradAct = act.derivative(lastActInput[j]) * gradientInput[j];
+                gradAct = act.derivative(lastActInput[j]) * gradientInput[j];
+                if (dropout != null) {
+                    gradAct = dropout.backward(gradAct, j);
                 }
 
                 tmpW = weights[i][j];
@@ -661,7 +662,7 @@ public class FullyConnectedLayer extends Layer {
             optName = "null;";
         }
 
-        s.append("FCL;" + weights.length + ";" + weights[0].length + ";" + useBiases + ";" + optName);
+        s.append("fullyconnectedlayer;" + weights.length + ";" + weights[0].length + ";" + useBiases + ";" + optName);
         for (int i = 0; i < weights.length; i++) {
             for (int j = 0; j < weights[0].length; j++) {
                 if (j != weights[0].length - 1) {
@@ -687,7 +688,7 @@ public class FullyConnectedLayer extends Layer {
 
     @Override
     public String summary() {
-        return "Fully-Connected-Layer inputSize: " + Arrays.toString(getInputShape())
+        return "Fully Connected Layer inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())
                 + " parameter: " + parameters() + "\n";
     }

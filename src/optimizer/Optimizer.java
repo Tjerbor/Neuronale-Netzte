@@ -4,6 +4,7 @@ import layer.Layer;
 
 public interface Optimizer {
 
+
     default void pre_epoch() {
     }
 
@@ -12,6 +13,10 @@ public interface Optimizer {
 
     default void update(Layer l) {
     }
+
+    default void setIterationAt(int t) {
+    }
+    
 
     default void updateParameter(double[][][][] weights, double[][][][] deltaWeights) {
     }

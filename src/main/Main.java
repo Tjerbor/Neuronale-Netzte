@@ -23,7 +23,7 @@ public class Main {
     }
 
     public static void emnist() throws IOException {
-        NeuralNetwork neuralNetwork = LoadModel.loadModel("mnist.csv");
+        NeuralNetwork neuralNetwork = LoadModel.loadModel("nn_emnist_letter_weights.txt");
 
         double[][][] training = MNIST.read("data/emnist/emnist-letters-train-images-idx3-ubyte.gz", "data/emnist/emnist-letters-train-labels-idx1-ubyte.gz", 26);
         double[][][] test = MNIST.read("data/emnist/emnist-letters-test-images-idx3-ubyte.gz", "data/emnist/emnist-letters-test-labels-idx1-ubyte.gz", 26);
@@ -34,7 +34,7 @@ public class Main {
 
     public static void ImageOnTheFLyTest() throws IOException {
         //TODO
-        NeuralNetwork neuralNetwork = LoadModel.loadModel(null);
+        NeuralNetwork neuralNetwork = LoadModel.loadModel("weights_selfdata.csv");
 
         String path = "uwu.png";
         double[] testData = ImageReader.ImageToArray(path);

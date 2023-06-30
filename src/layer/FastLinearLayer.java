@@ -13,7 +13,7 @@ import static load.writeUtils.writeWeights;
 
 public class FastLinearLayer extends Layer {
 
-
+    Matrix backwardOutput;
     Activation act = new TanH();
     double learningRate = 0.4;
     double[][] weights;
@@ -132,6 +132,16 @@ public class FastLinearLayer extends Layer {
         }
     }
 
+    @Override
+    public void genWeights(int type) {
+        RandomUtils.genTypeWeights(type, weights);
+
+    }
+
+    @Override
+    public int parameters() {
+        return weights.length * weights[0].length;
+    }
 
     @Override
     public void backward(Matrix m) {
@@ -145,6 +155,7 @@ public class FastLinearLayer extends Layer {
     @Override
     public void backward(Matrix m, double learningRate) {
         this.learningRate = learningRate;
+
         if (m.getDim() == 2) {
             this.backward(m.getData2D());
         } else if (m.getDim() == 1) {
@@ -210,11 +221,15 @@ public class FastLinearLayer extends Layer {
             dLdX[k] = dLdX_sum;
         }
 
+        backwardOutput = new Matrix(dLdX);
         if (this.previousLayer != null) {
             this.previousLayer.backward(new Matrix(dLdX));
         }
     }
 
+    public Matrix getBackwardOutput() {
+        return this.backwardOutput;
+    }
 
     public void backward(double[][] inputs) {
 

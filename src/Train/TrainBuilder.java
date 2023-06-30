@@ -4,7 +4,6 @@ import builder.NetworkBuilder;
 import loss.MSE;
 import main.MNIST;
 import main.NeuralNetwork;
-import optimizer.AdamNew;
 
 import java.io.IOException;
 
@@ -36,7 +35,7 @@ public class TrainBuilder {
         int epochs = 5;
         double learningRate = 0.3;
 
-        nn.setOptimizer(new AdamNew());
+
         nn.setLoss(new MSE());
         nn.train(epochs, x_train, y_train, x_test, y_test, learningRate);
 

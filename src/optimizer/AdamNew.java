@@ -46,6 +46,13 @@ public class AdamNew implements Optimizer {
     double beta2 = 0.999;
     double epsilon = 1e-7;
 
+    int iterationAt;
+
+
+    @Override
+    public void setIterationAt(int iterationAt) {
+        this.iterationAt = iterationAt + 1;
+    }
 
     @Override
     public String export() {
@@ -94,6 +101,35 @@ public class AdamNew implements Optimizer {
 
             }
         }
+    }
+
+    public void updateParameter(double[] w, double[] dw) {
+
+        //has to only check for one because then teh other one is also null
+        //frist call to the optimizer.
+        if (dw_prev1_1d == null) {
+            dw_prev1_1d = Array_utils.zerosLike(w);
+            dw_prev2_1d = Array_utils.zerosLike(w);
+
+        }
+
+        int t = iterationAt;
+
+        double dw_prev1New_corrected;
+        double dw_prev2New_corrected;
+
+        double[] wNew = new double[w.length];
+        for (int i = 0; i < w.length; i++) {
+            dw_prev1_1d[i] = (beta1 * dw_prev1_1d[i]) + ((1 - beta1) * dw[i]);
+            dw_prev1New_corrected = dw_prev1_1d[i] / (1 - Math.pow(beta1, t));
+
+            dw_prev2_1d[i] = (beta2 * dw_prev2_1d[i]) + ((1 - beta2) * Math.pow(dw[i], 2));
+            dw_prev2New_corrected = dw_prev2_1d[i] / (1 - Math.pow(beta2, t));
+
+            w[i] = w[i] - alpha * (dw_prev1New_corrected / ((Math.pow(dw_prev2New_corrected, 0.5)) + epsilon));
+        }
+
+
     }
 
 

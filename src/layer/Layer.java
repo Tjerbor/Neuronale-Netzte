@@ -115,4 +115,8 @@ public abstract class Layer {
 
     abstract public String summary();
 
+    public void genWeights(int type) {
+    }
+
+
 }

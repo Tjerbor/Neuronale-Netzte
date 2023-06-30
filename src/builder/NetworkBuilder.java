@@ -424,10 +424,68 @@ public class NetworkBuilder {
 
     }
 
-    public void addOnlyFCL(int[] topologie) {
-        this.addFullyConnectedLayer(topologie[0], topologie[1]);
-        for (int i = 1; i < topologie.length; i++) {
-            this.addFullyConnectedLayer(topologie[i]);
+    public void addFCL(int NeuronSize) {
+
+        if (layers.size() != 0) {
+            int position = layers.size() - 1;
+            int sizeBefore = getFlattenInputShape(layers.get(position).getOutputShape());
+            this.layers.add(new FCL(sizeBefore, NeuronSize));
+        } else if (this.inputSize > 0) {
+            this.layers.add(new FCL(inputSize, NeuronSize));
+        } else {
+            throw new IllegalArgumentException("No previous Layers are set.");
+        }
+
+
+    }
+
+    public void addFCL(int NeuronSize, boolean useBias) {
+
+        if (layers.size() != 0) {
+            int position = layers.size() - 1;
+            int sizeBefore = getFlattenInputShape(layers.get(position).getOutputShape());
+            FCL l = new FCL(sizeBefore, NeuronSize);
+            l.setUseBiases(useBias);
+            this.layers.add(l);
+        } else if (this.inputSize > 0) {
+            FCL l = new FCL(inputSize, NeuronSize);
+            l.setUseBiases(useBias);
+            this.layers.add(l);
+        } else {
+            throw new IllegalArgumentException("No previous Layers are set.");
+        }
+
+
+    }
+
+    public void addFCL(int inputSize, int NeuronSize) {
+        this.layers.add(new FCL(inputSize, NeuronSize));
+
+    }
+
+    public void addFCL(int inputSize, int NeuronSize, boolean useBias) {
+        FCL l = new FCL(inputSize, NeuronSize);
+        l.setUseBiases(useBias);
+        this.layers.add(l);
+
+    }
+
+    public void addOnlyFCL(int[] topologie, Activation act) {
+        this.addFCL(topologie[0], topologie[1]);
+        this.addActivationLayer(act);
+        for (int i = 2; i < topologie.length; i++) {
+            this.addFCL(topologie[i]);
+            this.addActivationLayer(act);
+        }
+
+    }
+
+    public void addOnlyFCL(int[] topologie, Activation act, boolean useBias) {
+        this.addFCL(topologie[0], topologie[1]);
+        this.addActivationLayer(act);
+        for (int i = 2; i < topologie.length; i++) {
+            this.addFCL(topologie[i], useBias);
+            this.addActivationLayer(act);
         }
 
     }
