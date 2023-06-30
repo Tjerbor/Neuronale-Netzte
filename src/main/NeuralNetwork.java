@@ -913,6 +913,7 @@ public class NeuralNetwork {
 
     public void printSummary() {
         StringBuilder s = new StringBuilder();
+        s.append("NN: Parameters: ").append(parameters()).append("\n");
         Layer tmp = inputLayer;
         while (tmp != null) {
             s.append(tmp.summary());

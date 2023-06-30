@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class LoadModel {
@@ -241,7 +242,9 @@ public class LoadModel {
         getWeightsFromLine(w, nextLine);
         getWeightsFromLine(biases, biasesLine);
 
-        f.setWeights(new Matrix<>(w));
+        double[][] result = Arrays.copyOf(w, w.length + 1);
+        result[w.length] = biases;
+        f.setWeights(new Matrix<>(result));
         return f;
 
     }

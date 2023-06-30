@@ -2,11 +2,13 @@ package Train;
 
 import builder.NetworkBuilder;
 import function.TanH;
+import load.LoadModel;
 import loss.MSE;
 import main.MNIST;
 import main.NeuralNetwork;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class TrainEmnistBuchstaben {
 
@@ -25,19 +27,26 @@ public class TrainEmnistBuchstaben {
         double[][] y_test = testData[1];
 
         NetworkBuilder builder = new NetworkBuilder();
-        builder.addOnlyFCL(new int[]{784, 25 * 25, 15 * 15, 10 * 10, numClasses * 4, numClasses}, new TanH(), true);
+        int[] top = new int[]{784, 25 * 25, 10 * 10, 5 * 5, numClasses * 4, numClasses};
+        builder.addOnlyFCL(top, new TanH(), true);
         //builder.addOnlyFastLayer(new int[]{784, 25 * 25, numClasses * 2, numClasses}, new TanH());
 
 
         NeuralNetwork nn = builder.getModel();
+
+        nn = LoadModel.loadModel("fcl_emnist_letter_weights.csv");
+        nn.printSummary();
         nn.test(x_test, y_test);
 
-
+        double lr = 0.4;
         System.out.println("Train Data Size: " + x_train.length);
+        System.out.println("Architektur: " + Arrays.toString(top));
+        System.out.println("lr: " + lr);
         nn.setLoss(new MSE());
-        nn.train(10, x_train, y_train, x_test, y_test, 0.1);
-        nn.writeModelFast("fcl_emnist_letter_weights.csv");
-
+        nn.train(5, x_train, y_train, x_test, y_test, lr);
+        nn.writeModelFast("fcl_emnist_letter_weights2.csv");
+        nn.train(5, x_train, y_train, x_test, y_test, lr);
+        nn.writeModelFast("fcl_emnist_letter_weights2.csv");
 
     }
 }
