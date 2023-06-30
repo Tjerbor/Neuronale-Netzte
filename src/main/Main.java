@@ -42,7 +42,7 @@ public class Main {
 
         double[] probabilities = neuralNetwork.compute(testData);
 
-        System.out.println(Arrays.toString(probabilities));
+        //System.out.println(Arrays.toString(probabilities));
         System.out.println(Utils.argmax(probabilities));
     }
 
