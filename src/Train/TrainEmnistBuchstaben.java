@@ -2,7 +2,6 @@ package Train;
 
 import builder.NetworkBuilder;
 import function.TanH;
-import load.LoadModel;
 import loss.MSE;
 import main.MNIST;
 import main.NeuralNetwork;
@@ -27,15 +26,13 @@ public class TrainEmnistBuchstaben {
         double[][] y_test = testData[1];
 
         NetworkBuilder builder = new NetworkBuilder();
-        int[] top = new int[]{784, 25 * 25, 10 * 10, 5 * 5, numClasses * 4, numClasses};
+        int[] top = new int[]{784, 25 * 25, 15 * 15, numClasses * 4, numClasses};
         builder.addOnlyFCL(top, new TanH(), true);
         //builder.addOnlyFastLayer(new int[]{784, 25 * 25, numClasses * 2, numClasses}, new TanH());
 
 
         NeuralNetwork nn = builder.getModel();
 
-        nn = LoadModel.loadModel("fcl_emnist_letter_weights.csv");
-        nn.printSummary();
         nn.test(x_test, y_test);
 
         double lr = 0.4;
@@ -44,9 +41,9 @@ public class TrainEmnistBuchstaben {
         System.out.println("lr: " + lr);
         nn.setLoss(new MSE());
         nn.train(5, x_train, y_train, x_test, y_test, lr);
-        nn.writeModelFast("fcl_emnist_letter_weights2.csv");
+        nn.writeModelFast("fcl_emnist_letter_weights3.csv");
         nn.train(5, x_train, y_train, x_test, y_test, lr);
-        nn.writeModelFast("fcl_emnist_letter_weights2.csv");
+        nn.writeModelFast("fcl_emnist_letter_weights3.csv");
 
     }
 }

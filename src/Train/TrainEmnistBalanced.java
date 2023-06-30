@@ -25,13 +25,13 @@ public class TrainEmnistBalanced {
         double[][] y_test = testData[1];
 
         NetworkBuilder builder = new NetworkBuilder();
-        builder.addOnlyFCL(new int[]{784, 25 * 25, 15 * 15, 10 * 10, numClasses * 4, numClasses}, new TanH(), true);
+        builder.addOnlyFCL(new int[]{784, 25 * 25, 15 * 15, numClasses * 4, numClasses}, new TanH(), true);
 
         NeuralNetwork nn = builder.getModel();
 
         System.out.println("Train-Data Size: " + x_train.length + " : " + y_train.length);
         nn.setLoss(new MSE());
-        nn.train(10, x_train, y_train, x_test, y_test, 0.4);
+        nn.train(10, x_train, y_train, x_test, y_test, 0.1);
         nn.writeModel("nn_emnist_balanced_weights.txt");
 
     }
