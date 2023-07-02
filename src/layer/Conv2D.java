@@ -33,15 +33,10 @@ public class Conv2D extends Layer {
     final private int numFilters;
     final private int paddingH = 0;
     final private int paddingW = 0;
-    boolean training = false;
+    boolean training = true;
     boolean useBiases = false;
 
-    int iterationAt;
-
     Optimizer optimizer;
-    Dropout dropout;
-
-    Activation act; //only local Activations. Softmax is not supported.
 
     private double learningRate;
     private double[][][][] weights;
@@ -423,9 +418,9 @@ public class Conv2D extends Layer {
                 for (int x = 0; x < fRows; x++) {
                     for (int y = 0; y < fCols; y++) {
                         int inputRowIndex = i + x;
-                        int inpurColIndex = j + y;
+                        int inputColIndex = j + y;
 
-                        double value = filter[x][y][m][fi] * input[inputRowIndex][inpurColIndex];
+                        double value = filter[x][y][m][fi] * input[inputRowIndex][inputColIndex];
                         sum += value;
                     }
                 }
@@ -542,14 +537,13 @@ public class Conv2D extends Layer {
 
                 double[][] currFilter = new double[kernelSize1][kernelSize1];
 
-                double[][] error = gradInput[i * weights.length + f];
+                double[][] error = gradInput[f];
 
                 double[][] spacedError = spaceArray(error);
                 double[][] dLdF = convolve(input[i], spacedError);
 
                 double[][] delta = ArrayMathUtils.multiply(dLdF, learningRate * -1);
                 double[][] newTotalDelta = addSubmatrix(filtersDelta, delta, i, f);
-
 
                 for (int j = 0; j < kernelSize1; j++) {
                     for (int k = 0; k < kernelSize1; k++) {
@@ -660,7 +654,7 @@ public class Conv2D extends Layer {
 
     @Override
     public String summary() {
-        return "Conv2D inputSize: " + Arrays.toString(getInputShape())
+        return "Conv2D " + "filters: " + numFilters + " inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())
                 + " parameterSize: " + parameters() + "\n";
     }
@@ -726,6 +720,8 @@ public class Conv2D extends Layer {
     public void backward(Matrix m) {
         int dim = m.getDim();
 
+        double[][][] c = m.getData3D();
+        //printShape(c);
         if (dim == 3) {
             this.backward(m.getData3D());
         } else if (dim == 4) {

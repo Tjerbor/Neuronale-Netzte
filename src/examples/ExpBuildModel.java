@@ -5,11 +5,9 @@ import builder.NetworkBuilder;
 import main.NeuralNetwork;
 
 public class ExpBuildModel {
-
-
     public static void main(String[] args) {
 
-        int numFilter = 8;
+        int numFilter = 16;
         int numClasses = 10;
         int[] inputShape = new int[]{28, 28, 1};
         int kernelSize = 5;

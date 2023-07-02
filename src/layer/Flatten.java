@@ -13,7 +13,7 @@ public class Flatten extends Layer {
     public Flatten(int[] inputShape) {
 
         this.inputShape = inputShape;
-        this.outputShape = new int[]{Array_utils.getFlattenInputShape(inputShape)};
+        outputShape = new int[]{Array_utils.getFlattenInputShape(inputShape)};
 
     }
 

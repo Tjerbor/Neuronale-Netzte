@@ -6,6 +6,7 @@ import layer.FastLinearLayer;
 import layer.FullyConnectedLayer;
 import layer.Layer;
 import loss.Loss;
+import loss.MSE;
 import optimizer.AdamNew;
 import optimizer.Optimizer;
 import utils.Array_utils;
@@ -36,7 +37,7 @@ public class NeuralNetwork {
     /**
      * This variable contains the loss function of the neural network.
      */
-    private Loss loss;
+    private Loss loss = new MSE();
     /**
      * This variable contains the optimizer of the neural network.
      */

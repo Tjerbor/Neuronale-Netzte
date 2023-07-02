@@ -1,19 +1,24 @@
 package layer;
 
 
+import utils.Array_utils;
 import utils.Matrix;
 
 import java.util.Arrays;
 
 import static load.writeUtils.writeShape;
 
-public class MaxPooling2D extends Layer {
+/**
+ * Excpets the deepth of the imgae being one the frist dimension.
+ * Image: 1 ´,28, 28
+ */
+public class MeanPooling2D extends Layer {
+
 
     double[][][][] inputs;
     double[][][] input;
     double[][][] outBackward;
     double[][][][] outBackwards;
-
 
     boolean Training = true;
 
@@ -21,10 +26,6 @@ public class MaxPooling2D extends Layer {
     int stride2 = 2;
     int kernelSize1 = 2;
     int kernelSize2 = 2;
-
-
-    int[][][][] inputMaxIndicies_R;
-    int[][][][] inputMaxIndicies_C;
 
     int inputH;
     int inputW;
@@ -34,7 +35,7 @@ public class MaxPooling2D extends Layer {
     int out_H;
 
 
-    public MaxPooling2D(int[] shape, int[] poolSize, int[] strides) {
+    public MeanPooling2D(int[] shape, int[] poolSize, int[] strides) {
         this.stride1 = strides[0];
         this.stride2 = strides[1];
 
@@ -51,7 +52,7 @@ public class MaxPooling2D extends Layer {
 
     }
 
-    public MaxPooling2D(int[] shape, int poolSize) {
+    public MeanPooling2D(int[] shape, int poolSize) {
         this.kernelSize1 = poolSize;
         this.kernelSize2 = poolSize;
 
@@ -65,7 +66,7 @@ public class MaxPooling2D extends Layer {
 
     }
 
-    public MaxPooling2D(int[] shape, int poolSize, int stride) {
+    public MeanPooling2D(int[] shape, int poolSize, int stride) {
         this.stride1 = stride;
         this.kernelSize1 = poolSize;
         this.kernelSize2 = poolSize;
@@ -80,7 +81,7 @@ public class MaxPooling2D extends Layer {
 
     }
 
-    public MaxPooling2D(int[] shape) {
+    public MeanPooling2D(int[] shape) {
         this.channels = shape[0];
         this.inputH = shape[1];
         this.inputW = shape[2];
@@ -156,19 +157,6 @@ public class MaxPooling2D extends Layer {
         return c;
     }
 
-    public int getOutputRows() {
-        int h_out = (1 + (this.inputH - kernelSize1) / stride1);
-        return h_out;
-
-
-    }
-
-    public int getOutputCols() {
-        return (1 + (this.inputW - kernelSize2) / stride1);
-
-
-    }
-
     public double[][] getSubmatrix(double[][] in, int h_st, int h_end, int w_st, int w_end) {
 
         double[][] out = new double[h_end - h_st][w_end - w_st];
@@ -182,21 +170,20 @@ public class MaxPooling2D extends Layer {
     }
 
 
-    public double getSubmatrixMax(double[][] in, int h_st, int h_end, int w_st, int w_end) {
+    public double getSubmatrixMean(double[][] in, int h_st, int h_end, int w_st, int w_end) {
 
-        double val = Integer.MIN_VALUE;
+        double val = 0;
 
         for (int i = 0; i < h_end - h_st; i++) {
             for (int j = 0; j < w_end - w_st; j++) {
-                if (val < in[h_st + i][w_st + j]) {
-                    val = in[h_st + i][w_st + j];
+
+                val += in[h_st + i][w_st + j];
 
 
-                }
             }
         }
 
-        return val;
+        return val / kernelSize1 * kernelSize2;
     }
 
     public double[] getSubmatrixMaxAndIndex(double[][] in, int h_st, int h_end, int w_st, int w_end) {
@@ -264,58 +251,6 @@ public class MaxPooling2D extends Layer {
         return val;
     }
 
-    public double[][][][] forward(double[][][][] input) {
-
-
-        int batchSize = input.length;
-        int C = input[0].length;
-        int W = input[0][0].length;
-        int H = input[0][0][0].length;
-
-        int h_out = (1 + (H - kernelSize1) / stride1);
-        int w_out = (1 + (W - kernelSize2) / stride1);
-
-        double[][][][] out = new double[batchSize][C][h_out][w_out];
-
-        inputMaxIndicies_R = new int[batchSize][channels][out_H][out_W];
-        inputMaxIndicies_C = new int[batchSize][channels][out_H][out_W];
-
-        this.inputs = input;
-
-        double[][] tmpBack = new double[H][W];
-
-        double[] tmp = new double[3];
-
-
-        int wb;
-        int hb;
-        for (int bs = 0; bs < batchSize; bs++) {
-
-
-            for (int i = 0; i < C; i++) {
-                tmpBack = new double[H][W];
-                for (int hi = 0; hi < h_out; hi++) {
-                    for (int wi = 0; wi < w_out; wi++) {
-                        tmp = getSubmatrixMaxAndIndex(input[bs][i], hi * stride1, hi * stride1 + kernelSize1, wi * stride1, wi * stride1 + kernelSize2);
-                        out[bs][i][hi][wi] = tmp[0];
-                        hb = (int) tmp[1];
-                        wb = (int) tmp[2];
-                        tmpBack[hb][wb] = tmp[0];
-                        inputMaxIndicies_R[bs][i][hi][wi] = hb;
-                        inputMaxIndicies_C[bs][i][hi][wi] = wb;
-
-
-                    }
-
-                }
-
-            }
-
-        }
-        return out;
-
-    }
-
     public double[][][] forward(double[][][] input) {
 
 
@@ -328,32 +263,11 @@ public class MaxPooling2D extends Layer {
 
         double[][][] out = new double[C][h_out][w_out];
 
-        inputMaxIndicies_R = new int[1][channels][out_H][out_W];
-        inputMaxIndicies_C = new int[1][channels][out_H][out_W];
-
-        this.input = input;
-
-        double[][] tmpBack = new double[H][W];
-
-        this.outBackward = new double[C][H][W];
-        double[] tmp = new double[3];
-
-
-        int wb;
-        int hb;
+        this.input = Array_utils.copyArray(input);
         for (int i = 0; i < C; i++) {
-            tmpBack = new double[H][W];
             for (int hi = 0; hi < h_out; hi++) {
                 for (int wi = 0; wi < w_out; wi++) {
-                    tmp = getSubmatrixMaxAndIndex(input[i], hi * stride1, hi * stride1 + kernelSize1, wi * stride1, wi * stride1 + kernelSize2);
-                    out[i][hi][wi] = tmp[0];
-                    hb = (int) tmp[1];
-                    wb = (int) tmp[2];
-                    tmpBack[hb][wb] = tmp[0];
-                    inputMaxIndicies_R[0][i][hi][wi] = hb;
-                    inputMaxIndicies_C[0][i][hi][wi] = wb;
-
-
+                    out[i][hi][wi] = getSubmatrixMean(input[i], hi * stride1, hi * stride1 + kernelSize1, wi * stride1, wi * stride1 + kernelSize2);
                 }
 
             }
@@ -364,58 +278,108 @@ public class MaxPooling2D extends Layer {
 
     }
 
-    public double[][][] backward(double[][][] dLdO) {
+    public double[][][][] forward(double[][][][] inputs) {
 
-        double[][][] dXdL = new double[channels][][];
+        int B = inputs.length;
+        int C = inputs[0].length;
+        int H = inputs[0][0].length;
+        int W = inputs[0][0][0].length;
 
-        int l = 0;
+        int H_out = (1 + (H - kernelSize1) / stride1);
+        int W_out = (1 + (W - kernelSize2) / stride1);
 
+        double[][][][] out = new double[inputs.length][H_out][W_out][C];
 
-        for (int i = 0; i < dLdO.length; i++) {
-            double[][] error = new double[inputH][inputW];
-            for (int r = 0; r < getOutputRows(); r++) {
-                for (int c = 0; c < getOutputCols(); c++) {
-                    int max_i = inputMaxIndicies_R[0][i][r][c];
-                    int max_j = inputMaxIndicies_C[0][i][r][c];
+        this.outBackwards = new double[B][C][H][W];
 
-                    if (max_i != -1) {
-                        error[max_i][max_j] += dLdO[i][r][c];
+        for (int bs = 0; bs < B; bs++) {
+            for (int ci = 0; ci < C; ci++) { //channels
+                for (int hi = 0; hi < H_out; hi++) {
+                    for (int wi = 0; wi < W_out; wi++) {
+                        out[bs][ci][hi][wi] = getSubmatrixMean(inputs[bs][ci], hi * stride1, hi * stride1 + kernelSize1, wi * stride1, wi * stride1 + kernelSize2);
                     }
+
                 }
             }
-            dXdL[i] = error;
+
+
         }
 
-        return dXdL;
+
+        return out;
 
     }
 
-    public double[][][][] backward(double[][][][] dLdO) {
 
-        int batchSize = dLdO.length;
-        double[][][][] dXdL = new double[batchSize][channels][][];
+    public double[][][] backwardOld(double[][][] delta_inputs) {
 
-        int l = 0;
 
-        for (int bs = 0; bs < batchSize; bs++) {
-            for (int i = 0; i < dLdO[0].length; i++) {
-                double[][] error = new double[inputH][inputW];
-                for (int r = 0; r < getOutputRows(); r++) {
-                    for (int c = 0; c < getOutputCols(); c++) {
-                        int max_i = inputMaxIndicies_R[0][i][r][c];
-                        int max_j = inputMaxIndicies_C[0][i][r][c];
-
-                        if (max_i != -1) {
-                            error[max_i][max_j] += dLdO[bs][i][r][c];
-                        }
-                    }
-                }
-                dXdL[bs][i] = error;
-            }
-
+        if (Training) {
+            return this.outBackward;
         }
-        return dXdL;
 
+        /**
+         * needs to find the maximum and the rets is set to zero.
+         */
+        int C = input.length;
+        int H = input[0].length;
+        int W = input[0][0].length;
+
+        int h_out = (1 + (H - kernelSize1) / this.stride1);
+        int w_out = (1 + (W - kernelSize2) / this.stride1);
+
+        double[][][] out = new double[C][H][W];
+
+        for (int ci = 0; ci < C; ci++) {
+            double[][] tmp;
+            for (int hi = 0; hi < h_out; hi++) {
+                for (int wi = 0; wi < w_out; wi++) {
+                    tmp = getSubmatrixBackward(this.input[ci], hi * stride1, hi * stride1 + kernelSize1, wi * stride1, wi * stride1 + kernelSize2);
+                    this.setSubmatrix(out[ci], hi * stride1, hi * stride1 + kernelSize1, wi * stride1, wi * stride1 + kernelSize2, tmp);
+                }
+
+            }
+        }
+
+        return reshapeImgBack(out);
+    }
+
+
+    public double[][][][] backwardOld(double[][][][] delta_inputs) {
+
+        /**
+         * needs to find the maximum and the rets is set to zero.
+         */
+
+        int B = inputs.length;
+        int C = inputs[0].length;
+        int H = inputs[0][0].length;
+        int W = inputs[0][0][0].length;
+
+        int h_out = (1 + (H - kernelSize1) / this.stride1);
+        int w_out = (1 + (W - kernelSize2) / this.stride1);
+
+        double[][][][] out = new double[B][C][H][W];
+
+
+        double val;
+        double[][] tmp;
+        for (int bi = 0; bi < B; bi++) {
+
+
+            for (int ci = 0; ci < C; ci++) {
+
+                for (int hi = 0; hi < h_out; hi++) {
+                    for (int wi = 0; wi < w_out; wi++) {
+                        tmp = getSubmatrixBackward(this.inputs[bi][ci], hi * stride1, hi * stride1 + kernelSize1, wi * stride1, wi * stride1 + kernelSize2);
+                        this.setSubmatrix(out[bi][ci], hi * stride1, hi * stride1 + kernelSize1, wi * stride1, wi * stride1 + kernelSize2, tmp);
+                    }
+
+                }
+            }
+        }
+
+        return reshapeImgBack(out);
     }
 
     @Override
@@ -445,9 +409,9 @@ public class MaxPooling2D extends Layer {
         Matrix out;
 
         if (dim == 3) {
-            out = new Matrix(this.backward(m.getData3D()));
+            out = new Matrix(this.backwardOld(m.getData3D()));
         } else if (dim == 4) {
-            out = new Matrix(this.backward(m.getData4D()));
+            out = new Matrix(this.backwardOld(m.getData4D()));
         } else {
             throw new IllegalArgumentException("Got unsupported Dimension: " + dim);
         }
@@ -469,9 +433,9 @@ public class MaxPooling2D extends Layer {
         this.learningRate = learningRate;
         int dim = m.getDim();
         if (dim == 3) {
-            out = new Matrix(this.backward(m.getData3D()));
+            out = new Matrix(this.backwardOld(m.getData3D()));
         } else if (dim == 4) {
-            out = new Matrix(this.backward(m.getData4D()));
+            out = new Matrix(this.backwardOld(m.getData4D()));
         } else {
             throw new IllegalArgumentException("Got unsupported Dimension: " + dim);
         }
@@ -491,33 +455,28 @@ public class MaxPooling2D extends Layer {
     }
 
     @Override
-    public int[] getOutputShape() {
-        return new int[]{channels, out_H, out_W};
-
-    }
-
-    @Override
-    public int[] getInputShape() {
-        return new int[]{channels, inputH, inputW};
-
-    }
-
-
-    @Override
     public String export() {
-        return "maxpooling2d;" + kernelSize1 + ";" + kernelSize2 + ";" + stride1 + ";" + stride2 + ";" + writeShape(getInputShape());
+        return "meanpooling2d;" + kernelSize1 + ";" + kernelSize1 + ";" + stride1 + ";" + stride2 + ";" + writeShape(getInputShape());
     }
 
     @Override
     public boolean isEqual(Layer other) {
+
+        MaxPooling2D_Last tmp = (MaxPooling2D_Last) other;
+
+        if ((Arrays.equals(tmp.outputShape, this.outputShape) && Arrays.equals(tmp.inputShape, this.inputShape)) && this.kernelSize1 == tmp.kernelSize1 && tmp.kernelSize2 == kernelSize2
+                && this.stride1 == tmp.stride1 && this.stride2 == tmp.stride2) {
+
+            return true;
+        }
+
+
         return false;
     }
 
     public String summary() {
-        return "MaxPooling2D inputSize: " + Arrays.toString(getInputShape())
+        return "MeanPooling2D inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())
                 + " parameterSize: " + parameters() + "\n";
     }
-
-
 }

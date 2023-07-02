@@ -67,6 +67,26 @@ public class MaxPooling2D_Last extends Layer {
 
     }
 
+    public MaxPooling2D_Last(int[] shape, int kernelSize, int stride) {
+
+        this.stride1 = stride;
+        this.stride2 = stride;
+
+        this.kernelSize1 = kernelSize;
+        this.kernelSize2 = kernelSize;
+
+        inputHeight = shape[0];
+        inputWidth = shape[1];
+        channels = shape[2];
+
+        outputHeight = (((inputHeight - kernelSize1) / (stride1)) + 1);
+        outputWidth = (((inputWidth - kernelSize2) / (stride2)) + 1);
+
+        inputShape = shape;
+        outputShape = new int[]{outputHeight, outputWidth, channels};
+
+    }
+
     public MaxPooling2D_Last(int[] shape) {
 
 

@@ -33,11 +33,11 @@ public class Conv2D_Last extends Layer {
 
     double[][][][] weights;
 
-    int kernelSize1 = 5;
-    int kernelSize2 = 5;
+    int kernelSize1;
+    int kernelSize2;
     int numFilter;
 
-    int channels = 1;
+    int channels;
 
 
     int stride1 = 1;
@@ -86,9 +86,7 @@ public class Conv2D_Last extends Layer {
     public Conv2D_Last(int[] shape, int numFilter) {
 
         this.numFilter = numFilter;
-        this.weights = new double[kernelSize1][kernelSize2][shape[2]][numFilter];
 
-        RandomUtils.genGaussianRandomWeight(weights);
         inputHeight = shape[0];
         inputWidth = shape[1];
         channels = shape[2];
@@ -103,7 +101,9 @@ public class Conv2D_Last extends Layer {
 
         this.inputShape = new int[]{inputHeight, inputWidth, channels};
         this.outputShape = new int[]{outputHeight, outputWidth, numFilter};
+        this.weights = new double[kernelSize1][kernelSize2][shape[2]][numFilter];
 
+        RandomUtils.genGaussianRandomWeight(weights);
 
     }
 
@@ -149,9 +149,7 @@ public class Conv2D_Last extends Layer {
         this.kernelSize2 = kernelSize;
 
         this.numFilter = numFilter;
-        this.weights = new double[kernelSize][kernelSize][shape[0]][numFilter];
 
-        RandomUtils.genRandomWeight(weights);
         inputHeight = shape[0];
         inputWidth = shape[1];
 
@@ -166,16 +164,16 @@ public class Conv2D_Last extends Layer {
         this.inputShape = new int[]{inputHeight, inputWidth, channels};
         this.outputShape = new int[]{outputHeight, outputWidth, numFilter};
 
-
+        this.weights = new double[kernelSize][kernelSize][shape[0]][numFilter];
+        RandomUtils.genRandomWeight(weights);
     }
 
 
     public Conv2D_Last(int numFilter, int[] shape, int kernelSize, int stride) {
 
         this.numFilter = numFilter;
-        this.weights = new double[kernelSize1][kernelSize2][shape[0]][numFilter];
 
-        RandomUtils.genRandomWeightConv(weights);
+
         //RandomUtils.genGaussianRandomWeight(weights);
         inputHeight = shape[0];
         inputWidth = shape[1];
@@ -196,6 +194,9 @@ public class Conv2D_Last extends Layer {
 
         this.inputShape = new int[]{inputHeight, inputWidth, channels};
         this.outputShape = new int[]{outputHeight, outputWidth, numFilter};
+
+        this.weights = new double[kernelSize1][kernelSize2][shape[0]][numFilter];
+        RandomUtils.genRandomWeightConv(weights);
 
     }
 

@@ -34,8 +34,6 @@ public class FCL extends Layer {
 
         RandomUtils.genTypeWeights(2, weights);
 
-        this.useBiases = false;
-
         outputShape = new int[]{b};
         this.setInputShape(new int[]{a});
 
@@ -82,7 +80,6 @@ public class FCL extends Layer {
 
     public void forward(double[] input) {
         lastInput = input;
-
 
         double[] out = new double[weights[0].length];
 

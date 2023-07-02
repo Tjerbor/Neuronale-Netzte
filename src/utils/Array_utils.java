@@ -607,6 +607,117 @@ public class Array_utils {
         return out;
     }
 
+    public static double[] sum3D_axis_1_2(double[][][] a) {
+
+        double[] c = new double[a.length];
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    c[i] += a[i][j][k];
+                }
+            }
+        }
+
+        return c;
+    }
+
+
+    public static double[] mean_axis_1_2(double[][][] a) {
+
+        double[] c = sum3D_axis_1_2(a);
+
+        int s = a[0].length * a[0][0].length;
+        for (int i = 0; i < c.length; i++) {
+            c[i] /= s;
+        }
+
+
+        return c;
+    }
+
+    public static double[] mean_axis_1_2_3(double[][][][] a) {
+
+        double[] c = sum_axis_1_2_3(a);
+
+        int s = a[0].length * a[0][0].length;
+        for (int i = 0; i < c.length; i++) {
+            c[i] /= s;
+        }
+
+
+        return c;
+    }
+
+    public static double[][][] mean4D_axis_0(double[][][][] a) {
+
+        double[][][] c = sum_axis_0(a);
+
+        for (int i = 0; i < a[0].length; i++) {
+            for (int j = 0; j < a[0][0].length; j++) {
+                for (int k = 0; k < a[0][0][0].length; k++) {
+                    c[i][j][k] /= a.length;
+                }
+            }
+        }
+
+
+        return c;
+    }
+
+    public static double[][][] var4D_axis_0(double[][][][] a) {
+
+        double[][][] c = mean4D_axis_0(a);
+
+
+        double[][][][] tmp = zerosLike(a);
+        for (int j = 0; j < a.length; j++) {
+            for (int i = 0; i < a[0].length; i++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        tmp[i][j][k][l] = Math.pow(a[j][i][k][l] - c[j][k][l], 2);
+                    }
+
+                }
+            }
+        }
+
+        return mean4D_axis_0(tmp);
+    }
+
+    public static double[] var_axis_1_2(double[][][] a) {
+
+        double[] c = mean_axis_1_2(a);
+        double[][][] tmp = zerosLike(a);
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    tmp[i][j][k] = Math.pow(a[i][j][k] - c[i], 2);
+                }
+            }
+        }
+        return mean_axis_1_2(tmp);
+
+    }
+
+    public static double[] var_axis_1_2_3(double[][][][] a) {
+
+        double[] c = mean_axis_1_2_3(a);
+        double[][][][] tmp = zerosLike(a);
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        tmp[i][j][k][l] = Math.pow(a[i][j][k][l] - c[i], 2);
+                    }
+
+                }
+            }
+        }
+        return mean_axis_1_2_3(tmp);
+
+    }
+
+
     public static double[][] neg_sum_axis_0(double[][][] x) {
         double[][] out = new double[x[0].length][x[0][0].length];
         for (int j = 0; j < x.length; j++) {
@@ -1196,6 +1307,17 @@ public class Array_utils {
         return c;
     }
 
+    public static double[] add(double[] a, double b) {
+
+        double[] c = new double[a.length];
+
+        for (int i = 0; i < a.length; i++) {
+            c[i] = a[i] + b;
+        }
+
+        return c;
+    }
+
     public static double[][][][] mult(double[][][][] a, double b) {
 
         double[][][][] c = new double[a.length][a[0].length][a[0][0].length][a[0][0][0].length];
@@ -1268,6 +1390,78 @@ public class Array_utils {
         return c;
     }
 
+    public static double[][][][] sub4D(double[][][][] a, double[] b) {
+
+        if (a.length == b.length) {
+            return sub4D(a, b, 0);
+        } else if (a[0].length == b.length) {
+            return sub4D(a, b, 1);
+        } else if (a[0][0].length == b.length) {
+            return sub4D(a, b, 2);
+        } else if (a[0][0][0].length == b.length) {
+            return sub4D(a, b, 3);
+        } else {
+            throw new IllegalArgumentException("");
+        }
+
+
+    }
+
+    public static double[][][][] sub4D(double[][][][] a, double[] b, int axis) {
+
+        double[][][][] c = new double[a.length][a[0].length][a[0][0].length][a[0][0][0].length];
+
+        if (axis == 0) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    for (int k = 0; k < a[0][0].length; k++) {
+                        for (int l = 0; l < a[0][0][0].length; l++) {
+                            c[i][j][k][l] = a[i][j][k][l] - b[i];
+                        }
+                    }
+
+                }
+            }
+
+        } else if (axis == 1) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    for (int k = 0; k < a[0][0].length; k++) {
+                        for (int l = 0; l < a[0][0][0].length; l++) {
+                            c[i][j][k][l] = a[i][j][k][l] - b[j];
+                        }
+                    }
+
+                }
+            }
+
+        } else if (axis == 2) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    for (int k = 0; k < a[0][0].length; k++) {
+                        for (int l = 0; l < a[0][0][0].length; l++) {
+                            c[i][j][k][l] = a[i][j][k][l] - b[k];
+                        }
+                    }
+
+                }
+            }
+        } else if (axis == 3) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    for (int k = 0; k < a[0][0].length; k++) {
+                        for (int l = 0; l < a[0][0][0].length; l++) {
+                            c[i][j][k][l] = a[i][j][k][l] - b[l];
+                        }
+                    }
+
+                }
+            }
+        }
+        return c;
+
+    }
+
     public static double[][][] sub3D(double[][][] a, double[][][] b) {
 
         double[][][] c = new double[a.length][a[0].length][a[0][0].length];
@@ -1283,6 +1477,46 @@ public class Array_utils {
             }
         }
 
+        return c;
+    }
+
+
+    public static double[][][] sub3DRE(double[][][] a, double[] b, int axis) {
+
+        double[][][] c = new double[a.length][a[0].length][a[0][0].length];
+
+        if (axis == 0) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    for (int k = 0; k < a[0][0].length; k++) {
+                        c[i][j][k] = a[i][j][k] - b[i];
+
+                    }
+
+                }
+            }
+        } else if (axis == 1) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    for (int k = 0; k < a[0][0].length; k++) {
+                        c[i][j][k] = a[i][j][k] - b[j];
+
+                    }
+
+                }
+            }
+        } else if (axis == 2) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    for (int k = 0; k < a[0][0].length; k++) {
+                        c[i][j][k] = a[i][j][k] - b[k];
+
+                    }
+                }
+            }
+        } else {
+            throw new IllegalArgumentException("");
+        }
         return c;
     }
 
@@ -1332,6 +1566,31 @@ public class Array_utils {
 
                 }
             }
+        }
+
+        return c;
+    }
+
+
+    public static double[][] sub2DRE(double[][] a, double[] b, int axis) {
+
+        double[][] c = new double[a.length][a[0].length];
+        if (axis == 0) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    c[i][j] = a[i][j] - b[i];
+
+                }
+            }
+        } else if (axis == 1) {
+            for (int i = 0; i < a.length; i++) {
+                for (int j = 0; j < a[0].length; j++) {
+                    c[i][j] = a[i][j] - b[j];
+
+                }
+            }
+        } else {
+            throw new IllegalArgumentException("");
         }
 
         return c;

@@ -339,11 +339,11 @@ public class NetworkBuilder {
 
     }
 
-    public void addMaxPooling2D_Last(int strides, int poolSize) {
+    public void addMaxPooling2D_Last(int poolSize, int strides) {
         if (layers.size() != 0) {
             int position = layers.size() - 1;
             int[] shapeBefore = (layers.get(position).getOutputShape());
-            layers.add(new MaxPooling2D_Last(shapeBefore));
+            layers.add(new MaxPooling2D_Last(shapeBefore, poolSize, strides));
 
         } else {
             throw new IllegalArgumentException("No previous Layers are set.");
@@ -351,11 +351,34 @@ public class NetworkBuilder {
 
     }
 
-    public void addMaxPooling2D(int strides, int poolSize) {
+    public void addMeanPooling2D_Last(int poolSize, int strides) {
         if (layers.size() != 0) {
             int position = layers.size() - 1;
             int[] shapeBefore = (layers.get(position).getOutputShape());
-            layers.add(new MaxPooling2D(shapeBefore, strides, poolSize));
+            layers.add(new MeanPooling2D_Last(shapeBefore, poolSize, strides));
+
+        } else {
+            throw new IllegalArgumentException("No previous Layers are set.");
+        }
+
+    }
+
+    public void addMaxPooling2D(int poolSize, int strides) {
+        if (layers.size() != 0) {
+            int position = layers.size() - 1;
+            int[] shapeBefore = (layers.get(position).getOutputShape());
+            layers.add(new MaxPooling2D(shapeBefore, poolSize, strides));
+        } else {
+            throw new IllegalArgumentException("No previous Layers are set.");
+        }
+
+    }
+
+    public void addMeanPooling2D(int poolSize, int strides) {
+        if (layers.size() != 0) {
+            int position = layers.size() - 1;
+            int[] shapeBefore = (layers.get(position).getOutputShape());
+            layers.add(new MeanPooling2D(shapeBefore, poolSize, strides));
         } else {
             throw new IllegalArgumentException("No previous Layers are set.");
         }
@@ -379,7 +402,6 @@ public class NetworkBuilder {
             int position = layers.size() - 1;
             int[] shapeBefore = layers.get(position).getOutputShape();
             layers.add(new Flatten(shapeBefore));
-
         } else if (inputShape != null) {
             layers.add(new Flatten(inputShape));
         } else {
@@ -440,6 +462,7 @@ public class NetworkBuilder {
         if (layers.size() != 0) {
             int position = layers.size() - 1;
             int sizeBefore = getFlattenInputShape(layers.get(position).getOutputShape());
+
             this.layers.add(new FCL(sizeBefore, NeuronSize));
         } else if (this.inputSize > 0) {
             this.layers.add(new FCL(inputSize, NeuronSize));
@@ -531,6 +554,65 @@ public class NetworkBuilder {
             layers.add(l);
         } else {
             throw new IllegalArgumentException("No previous Layers are set for Activation.");
+        }
+
+    }
+
+    /**
+     * for image should be set to zero.
+     *
+     * @param axis
+     */
+    public void addLayerNorm(int axis) {
+        if (layers.size() != 0) {
+            int position = layers.size() - 1;
+            int[] shapeBefore = layers.get(position).getOutputShape();
+            LayerNorm l = new LayerNorm();
+            l.setInputShape(shapeBefore);
+            l.setOutputShape(shapeBefore);
+            l.setAxis(axis);
+            layers.add(l);
+
+        } else if (inputShape != null) {
+            LayerNorm l = new LayerNorm();
+            l.setInputShape(inputShape);
+            l.setOutputShape(inputShape);
+            l.setAxis(axis);
+            layers.add(l);
+
+        } else if (inputSize > 0) {
+            LayerNorm l = new LayerNorm(inputSize);
+            l.setInputShape(new int[]{inputSize});
+            l.setInputShape(new int[]{inputSize});
+            layers.add(l);
+        } else {
+            throw new IllegalArgumentException("No previous Layers are set for Layer-Norm.");
+        }
+
+    }
+
+    public void addLayerNorm() {
+        if (layers.size() != 0) {
+            int position = layers.size() - 1;
+            int[] shapeBefore = layers.get(position).getOutputShape();
+            Layer l = new LayerNorm(shapeBefore);
+            l.setInputShape(shapeBefore);
+            l.setOutputShape(shapeBefore);
+            layers.add(l);
+
+        } else if (inputShape != null) {
+            Layer l = new LayerNorm(inputShape);
+            l.setInputShape(inputShape);
+            l.setOutputShape(inputShape);
+            layers.add(l);
+
+        } else if (inputSize > 0) {
+            Layer l = new LayerNorm(inputSize);
+            l.setInputShape(new int[]{inputSize});
+            l.setInputShape(new int[]{inputSize});
+            layers.add(l);
+        } else {
+            throw new IllegalArgumentException("No previous Layers are set for Layer-Norm.");
         }
 
     }
