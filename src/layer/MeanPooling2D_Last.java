@@ -33,6 +33,7 @@ public class MeanPooling2D_Last extends Layer {
         outputWidth = (((inputWidth - kernelSize2) / (stride2)) + 1);
 
         this.inputShape = inputShape;
+        outputShape = new int[]{outputWidth, outputWidth, inputShape[2]};
 
 
     }
@@ -50,30 +51,27 @@ public class MeanPooling2D_Last extends Layer {
         this.stride1 = stride;
         this.stride2 = stride;
 
+        this.inputShape = inputShape;
+        outputShape = new int[]{outputWidth, outputWidth, inputShape[2]};
+
 
     }
 
-    public MeanPooling2D_Last(int strides) {
-
-        this.stride1 = strides;
-        this.stride2 = strides;
+    public MeanPooling2D_Last(int[] inputShape, int[] kernelSize, int[] strides) {
 
         outputHeight = (((inputHeight - kernelSize1) / (stride1)) + 1);
         outputWidth = (((inputWidth - kernelSize2) / (stride2)) + 1);
 
+        this.inputShape = inputShape;
 
-    }
-
-    public MeanPooling2D_Last(int[] strides, int[] kernelSizes) {
+        this.kernelSize1 = kernelSize[0];
+        this.kernelSize2 = kernelSize[1];
 
         this.stride1 = strides[0];
-        this.stride2 = strides[0];
+        this.stride2 = strides[1];
 
-        this.kernelSize1 = kernelSizes[0];
-        this.kernelSize2 = kernelSizes[1];
-
-        int outputHeight = (((inputHeight - kernelSize1) / (stride1)) + 1);
-        int outputWidth = (((inputWidth - kernelSize2) / (stride2)) + 1);
+        this.inputShape = inputShape;
+        outputShape = new int[]{outputWidth, outputWidth, inputShape[2]};
 
 
     }

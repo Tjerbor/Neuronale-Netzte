@@ -4,10 +4,11 @@ package utils;
 import exceptionMsg.MatrixExceptions;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 import static load.writeUtils.writeShape;
 
-public class Matrix<T> {
+public class Matrix<T> implements Iterable {
 
     T data;
 
@@ -15,6 +16,13 @@ public class Matrix<T> {
 
     int[] shape;
 
+
+    public Matrix(Matrix m) {
+        this.shape = m.shape;
+        this.dim = m.getDim();
+        this.data = (T) m.getData();
+
+    }
 
     public Matrix(double[][][][] d) {
         data = (T) d;
@@ -182,4 +190,175 @@ public class Matrix<T> {
             throw new IllegalArgumentException("Array has unsupported dimension.");
         }
     }
+
+
+    @Override
+    public Iterator iterator() {
+        return new MyIterator();
+    }
+
+    public Object getItem(int pos) {
+
+        if (this.dim == 0) {
+            return data;
+        } else if (this.dim == 2) {
+            return getArrayPos2D(getData2D(), pos);
+        } else if (this.dim == 3) {
+            return getArrayPos3D(getData3D(), pos, shape);
+        } else if (this.dim == 4) {
+            return getArrayPos4D(getData4D(), pos, shape);
+
+        }
+        return null;
+    }
+
+    //TODO needs to be tested. 
+    private Object getArrayPos5D(double[][][][][] d, int pos, int[] shape) {
+
+
+        int z = 0;
+
+        while (pos >= shape[1] * shape[2] * shape[3] * shape[4]) {
+            z += 1;
+            pos -= shape[1] * shape[2] * shape[3] * shape[4];
+        }
+
+
+        int[] shapeT = new int[]{shape[1], shape[2], shape[3], shape[4]};
+
+        return getArrayPos4D(d[z], pos, shapeT);
+
+
+    }
+
+    private Object getArrayPos4D(double[][][][] d, int pos, int[] shape) {
+
+
+        int z = 0;
+
+        while (pos >= shape[1] * shape[2] * shape[3]) {
+            z += 1;
+            pos -= shape[1] * shape[2] * shape[3];
+        }
+
+
+        int[] shapeT = new int[]{shape[1], shape[2], shape[3]};
+
+        return getArrayPos3D(d[z], pos, shapeT);
+
+
+    }
+
+    private Object getArrayPos3D(double[][][] d, int pos, int[] shape) {
+
+        int z = 0;
+
+
+        while (pos >= shape[1] * shape[2]) {
+            z += 1;
+            pos -= shape[1] * shape[2];
+        }
+        return getArrayPos2D(d[z], pos, shape[2]);
+
+
+    }
+
+    private Object getArrayPos2D(double[][] d, int pos) {
+
+        int maxY;
+        maxY = shape[1];
+        int x = 0;
+
+        while (true) {
+            if (pos >= maxY) {
+                pos -= maxY;
+                x += 1;
+            } else {
+                break;
+            }
+        }
+        return d[x][pos];
+
+
+    }
+
+    private Object getArrayPos2D(double[][] d, int pos, int shapeY) {
+
+        int maxX;
+        maxX = shapeY;
+        int x = 0;
+
+
+        //means is greater than x.
+        if (pos < maxX) {
+            return d[0][pos];
+        } else {
+            while (true) {
+                if (pos >= maxX) {
+                    pos -= maxX;
+                    x += 1;
+                } else {
+                    break;
+                }
+            }
+
+            return d[x][pos];
+        }
+
+    }
+
+    private Object getArrayPos(int pos, int dim) {
+
+        int max = Array_utils.sumUpMult(shape);
+        if (max < pos) {
+            throw new IllegalArgumentException("given position is greater than array size.");
+        }
+
+        if (dim == 3) {
+            return this.getArrayPos3D(getData3D(), pos, shape);
+        } else if (dim == 2) {
+            return getArrayPos2D(getData2D(), pos, shape[0]);
+        } else if (dim == 1) {
+            Object[] o = (Object[]) data;
+            return o[pos];
+        } else if (dim == 0) {
+            return data;
+        } else {
+            throw new IllegalArgumentException("unsupported Dimension " + dim);
+        }
+
+    }
+
+    private class MyIterator implements Iterator {
+
+        int currPos = 0;
+        int max;
+
+        public MyIterator() {
+            max = Array_utils.sumUpMult(shape);
+        }
+
+        @Override
+        public boolean hasNext() {
+
+            //because index starts with zero
+            if (max <= currPos) {
+                return false;
+            } else if (getItem(currPos) == null) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public Object next() {
+            Object o = getItem(currPos);
+
+            currPos += 1;
+
+            return o;
+
+        }
+    }
+
 }

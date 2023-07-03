@@ -12,26 +12,51 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 
 public class TestExportAndLoad {
-
-
+    
     @Test
     public void testExportAndLoad_CompleteModel() throws IOException {
         int numFilter = 8;
         int numClasses = 10;
-        int[] inputShape = new int[]{28, 28, 1};
+        int[] inputShape = new int[]{1, 28, 28};
         int kernelSize = 5;
         int strides = 2; //stepSize.
         NetworkBuilder builder = new NetworkBuilder(inputShape);
-        builder.addConv2D_Last(numFilter, kernelSize, strides);
+        builder.addConv2D(numFilter, kernelSize, strides);
         builder.addDropout(0.5);
-        builder.addMaxPooling2D_Last(); //uses for standard strides2 and poolSize2
+        builder.addMaxPooling2D(2, 2); //uses for standard strides2 and poolSize2
         builder.addBatchNorm();
         builder.addFlatten();
         builder.addFastLayer(numClasses);
 
         NeuralNetwork nn = builder.getModel();
-        nn.writeModel("model.txt");
+        nn.writeModelFast("model.txt");
         NeuralNetwork nn2 = load.LoadModel.loadModel("model.txt");
+
+
+        assert nn.isEqual(nn2);
+
+    }
+
+    @Test
+    public void testExportAndLoad_CompleteModel3() throws IOException {
+        int numFilter = 8;
+        int numClasses = 10;
+        int[] inputShape = new int[]{1, 28, 28};
+        int kernelSize = 5;
+        int strides = 2; //stepSize.
+        NetworkBuilder builder = new NetworkBuilder(inputShape);
+        builder.addConv2D(numFilter, kernelSize, strides);
+        builder.addDropout(0.5);
+        builder.addMaxPooling2D(2, 2); //uses for standard strides2 and poolSize2
+        builder.addMeanPooling2D(2, 2); //uses for standard strides2 and poolSize2
+        builder.addLayerNorm();
+        builder.addFlatten();
+        builder.addFastLayer(numClasses);
+
+        NeuralNetwork nn = builder.getModel();
+        nn.writeModelFast("model.txt");
+        NeuralNetwork nn2 = load.LoadModel.loadModel("model.txt");
+
 
         assert nn.isEqual(nn2);
 

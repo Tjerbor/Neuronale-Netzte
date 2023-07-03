@@ -621,7 +621,6 @@ public class Array_utils {
         return c;
     }
 
-
     public static double[] mean_axis_1_2(double[][][] a) {
 
         double[] c = sum3D_axis_1_2(a);
@@ -716,7 +715,6 @@ public class Array_utils {
         return mean_axis_1_2_3(tmp);
 
     }
-
 
     public static double[][] neg_sum_axis_0(double[][][] x) {
         double[][] out = new double[x[0].length][x[0][0].length];
@@ -1480,7 +1478,6 @@ public class Array_utils {
         return c;
     }
 
-
     public static double[][][] sub3DRE(double[][][] a, double[] b, int axis) {
 
         double[][][] c = new double[a.length][a[0].length][a[0][0].length];
@@ -1570,7 +1567,6 @@ public class Array_utils {
 
         return c;
     }
-
 
     public static double[][] sub2DRE(double[][] a, double[] b, int axis) {
 
@@ -1762,7 +1758,6 @@ public class Array_utils {
         return c;
     }
 
-
     public static double[][][] sqrtArrayRE(double[][][] a) {
 
         double[][][] c = zerosLike(a);
@@ -1789,6 +1784,51 @@ public class Array_utils {
 
 
         return c;
+    }
+
+    public static void arange(double[][] a) {
+
+        int count = 0;
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                a[i][j] = count;
+                count++;
+            }
+        }
+    }
+
+    public static void arange(double[][][] a) {
+
+        int count = 0;
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    a[i][j][k] = count;
+                    count++;
+                }
+
+            }
+        }
+    }
+
+    public static void arange(double[][][][] a) {
+
+        int count = 0;
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[0].length; j++) {
+                for (int k = 0; k < a[0][0].length; k++) {
+                    for (int l = 0; l < a[0][0][0].length; l++) {
+                        a[i][j][k][l] = count;
+                        count++;
+                    }
+
+                }
+
+            }
+        }
     }
 }
 

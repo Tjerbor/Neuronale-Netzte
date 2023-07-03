@@ -60,7 +60,6 @@ public class NetworkBuilder {
     public void addFullyConnectedLayer(int inputSize, int outputSize, double rate) {
         this.layers.add(new FullyConnectedLayer(inputSize, outputSize));
         int size = layers.size() - 1;
-
         layers.get(size).setDropout(rate);
     }
 
@@ -68,7 +67,7 @@ public class NetworkBuilder {
 
         if (layers.size() != 0) {
             int position = layers.size() - 1;
-            int sizeBefore = getFlattenInputShape(layers.get(position - 1).getOutputShape());
+            int sizeBefore = getFlattenInputShape(layers.get(position).getOutputShape());
             this.layers.add(new FullyConnectedLayer(sizeBefore, NeuronSize));
 
             layers.get(position).setUseBiases(useBiases);
@@ -89,7 +88,7 @@ public class NetworkBuilder {
 
         if (layers.size() != 0) {
             int position = layers.size() - 1;
-            int sizeBefore = getFlattenInputShape(layers.get(position - 1).getOutputShape());
+            int sizeBefore = getFlattenInputShape(layers.get(position).getOutputShape());
             this.layers.add(new FullyConnectedLayer(sizeBefore, NeuronSize));
             layers.get(position).setDropout(rate);
             layers.get(position).setActivation(act);
@@ -112,7 +111,7 @@ public class NetworkBuilder {
 
         if (layers.size() != 0) {
             int position = layers.size() - 1;
-            int sizeBefore = getFlattenInputShape(layers.get(position - 1).getOutputShape());
+            int sizeBefore = getFlattenInputShape(layers.get(position).getOutputShape());
             this.layers.add(new FullyConnectedLayer(sizeBefore, NeuronSize));
             layers.get(position).setDropout(rate);
             layers.get(position).setActivation(act);
@@ -134,7 +133,7 @@ public class NetworkBuilder {
 
         if (layers.size() != 0) {
             int position = layers.size() - 1;
-            int sizeBefore = getFlattenInputShape(layers.get(position - 1).getOutputShape());
+            int sizeBefore = getFlattenInputShape(layers.get(position).getOutputShape());
             this.layers.add(new FullyConnectedLayer(sizeBefore, NeuronSize));
             layers.get(position).setDropout(rate);
         } else if (this.inputSize > 0) {
@@ -153,7 +152,7 @@ public class NetworkBuilder {
 
         if (layers.size() != 0) {
             int position = layers.size() - 1;
-            int sizeBefore = getFlattenInputShape(layers.get(position - 1).getOutputShape());
+            int sizeBefore = getFlattenInputShape(layers.get(position).getOutputShape());
             this.layers.add(new FullyConnectedLayer(sizeBefore, NeuronSize));
         } else if (this.inputSize > 0) {
             this.layers.add(new FullyConnectedLayer(inputSize, NeuronSize));
@@ -168,7 +167,7 @@ public class NetworkBuilder {
 
         if (layers.size() != 0) {
             int position = layers.size() - 1;
-            int[] shapeBefore = (layers.get(position - 1).getOutputShape());
+            int[] shapeBefore = (layers.get(position).getOutputShape());
             this.layers.add(new Conv2D(shapeBefore, numFilter));
         } else if (this.inputShape != null) {
             this.layers.add(new Conv2D(inputShape, numFilter));
@@ -180,21 +179,14 @@ public class NetworkBuilder {
     }
 
     public void addConv2D(int[] inputShape, int numFilter) {
-
-        if (layers.size() != 0) {
-            this.layers.add(new Conv2D(inputShape, numFilter));
-        } else if (this.inputShape != null) {
-            this.layers.add(new Conv2D(inputShape, numFilter));
-        } else {
-            throw new IllegalArgumentException("No previous Layers are set.");
-        }
+        this.layers.add(new Conv2D(inputShape, numFilter));
     }
 
     public void addConv2D(int numFilter, int kernelSize, int strideSize) {
 
         if (layers.size() != 0) {
             int position = layers.size() - 1;
-            int[] shapeBefore = (layers.get(position - 1).getOutputShape());
+            int[] shapeBefore = (layers.get(position).getOutputShape());
             this.layers.add(new Conv2D(shapeBefore, numFilter, kernelSize, strideSize));
         } else if (this.inputShape != null) {
             this.layers.add(new Conv2D(inputShape, numFilter, kernelSize, strideSize));
@@ -209,7 +201,7 @@ public class NetworkBuilder {
 
         if (layers.size() != 0) {
             int position = layers.size() - 1;
-            int[] shapeBefore = (layers.get(position - 1).getOutputShape());
+            int[] shapeBefore = (layers.get(position).getOutputShape());
             this.layers.add(new Conv2D_Last(shapeBefore, numFilter));
         } else if (this.inputShape != null) {
             this.layers.add(new Conv2D_Last(inputShape, numFilter));
@@ -221,14 +213,7 @@ public class NetworkBuilder {
     }
 
     public void addConv2D_Last(int[] inputShape, int numFilter) {
-
-        if (layers.size() != 0) {
-            this.layers.add(new Conv2D_Last(inputShape, numFilter));
-        } else if (this.inputShape != null) {
-            this.layers.add(new Conv2D_Last(inputShape, numFilter));
-        } else {
-            throw new IllegalArgumentException("No previous Layers are set.");
-        }
+        this.layers.add(new Conv2D_Last(inputShape, numFilter));
     }
 
     public void addConv2D_Last(int numFilter, int kernelSize, int strideSize) {

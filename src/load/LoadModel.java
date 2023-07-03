@@ -113,6 +113,36 @@ public class LoadModel {
 
     }
 
+    public static Layer loadMaxPooling2D(String[] config) {
+        //first Starts with name, poolSize1, poolSize2, stride1, stride2,inputShape(1, 2, 3)
+        int[] inputShape = new int[]{Integer.parseInt(config[5]), Integer.parseInt(config[6]), Integer.parseInt(config[7])};
+        int[] poolSize = new int[]{Integer.parseInt(config[1]), Integer.parseInt(config[2])};
+        int[] strides = new int[]{Integer.parseInt(config[3]), Integer.parseInt(config[4])};
+        return new MaxPooling2D(inputShape, poolSize, strides);
+
+
+    }
+
+    public static Layer loadMeanPooling2D(String[] config) {
+        //first Starts with name, poolSize1, poolSize2, stride1, stride2,inputShape(1, 2, 3)
+        int[] inputShape = new int[]{Integer.parseInt(config[5]), Integer.parseInt(config[6]), Integer.parseInt(config[7])};
+        int[] poolSize = new int[]{Integer.parseInt(config[1]), Integer.parseInt(config[2])};
+        int[] strides = new int[]{Integer.parseInt(config[3]), Integer.parseInt(config[4])};
+        return new MeanPooling2D(inputShape, poolSize, strides);
+
+
+    }
+
+    public static Layer loadMeanPooling2D_Last(String[] config) {
+        //first Starts with name, poolSize1, poolSize2, stride1, stride2,inputShape(1, 2, 3)
+        int[] inputShape = new int[]{Integer.parseInt(config[5]), Integer.parseInt(config[6]), Integer.parseInt(config[7])};
+        int[] poolSize = new int[]{Integer.parseInt(config[1]), Integer.parseInt(config[2])};
+        int[] strides = new int[]{Integer.parseInt(config[3]), Integer.parseInt(config[4])};
+        return new MeanPooling2D_Last(inputShape, poolSize, strides);
+
+
+    }
+
     public static Layer loadFlatten(String[] config) {
         int[] inputShape = new int[]{Integer.parseInt(config[1]), Integer.parseInt(config[2]), Integer.parseInt(config[3])};
         return new Flatten(inputShape);
@@ -395,7 +425,7 @@ public class LoadModel {
         //config name, inputShape Length 1 or longer;
 
         if (config.length == 2) {
-            
+
             int inputSize = Integer.valueOf(config[0]);
             double[] gamma = new double[inputSize];
             double[] beta = new double[inputSize];
@@ -513,6 +543,10 @@ public class LoadModel {
                     layers.add(loadBatchNorm(config, lines.get(LineCount + 1)));
                     LineCount += 2;
                 }
+                case "layernorm" -> {
+                    layers.add(loadLayerNorm(config, lines.get(LineCount + 1), lines.get(LineCount + 2)));
+                    LineCount += 3;
+                }
                 case "dropout" -> {
                     layers.add(loadDropout(config));
                     LineCount += 1;
@@ -530,7 +564,15 @@ public class LoadModel {
                     LineCount += 1;
                 }
                 case "maxpooling2d" -> {
-                    layers.add(loadMaxPooling2D_Last(config));
+                    layers.add(loadMaxPooling2D(config));
+                    LineCount += 1;
+                }
+                case "meanpooling2d_last" -> {
+                    layers.add(loadMeanPooling2D_Last(config));
+                    LineCount += 1;
+                }
+                case "meanpooling2d" -> {
+                    layers.add(loadMeanPooling2D(config));
                     LineCount += 1;
                 }
                 case "activation" -> {

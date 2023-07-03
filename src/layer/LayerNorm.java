@@ -617,17 +617,73 @@ public class LayerNorm extends Layer {
 
     @Override
     public Matrix getWeights() {
-        return null;
+
+
+        if (this.gamma.getDim() == 1) {
+            double[][] d = new double[][]{gamma.getData1D(), beta.getData1D()};
+            return new Matrix(d);
+
+        } else if (gamma.getDim() == 2) {
+            double[][][] d = new double[][][]{gamma.getData2D(), beta.getData2D()};
+            return new Matrix(d);
+        } else if (gamma.getDim() == 3) {
+            double[][][][] d = new double[][][][]{gamma.getData3D(), beta.getData3D()};
+            return new Matrix(d);
+        } else {
+            throw new IllegalArgumentException("get Weights: unsupported Weights");
+        }
     }
 
     @Override
     public void setWeights(Matrix m) {
 
+        if (m.getDim() == 2) {
+            this.setWeights(m.getData2D()[0], m.getData2D()[1]);
+        } else if (m.getDim() == 3) {
+            this.setWeights(m.getData3D()[0], m.getData3D()[1]);
+        } else if (m.getDim() == 4) {
+            this.setWeights(m.getData4D()[0], m.getData4D()[1]);
+        } else {
+            throw new IllegalArgumentException("LayerNorm: set Weights got unsupported weight shape: " + m.getDim());
+        }
+
     }
+
+    public void setWeights(Matrix g, Matrix b) {
+
+
+        if (g.getDim() == b.getDim() && Arrays.equals(g.getShape(), b.getShape())) {
+            gamma = g;
+            beta = b;
+        } else {
+            throw new IllegalArgumentException("LayerNorm Weights are different: g dim: " + g.getDim() + " shape: " + Arrays.toString(g.getShape())
+                    + " b dim: " + g.getDim() + " shape: " + Arrays.toString(g.getShape()));
+        }
+
+
+    }
+
+    public void setWeights(double[] g, double[] b) {
+
+        gamma = new Matrix(g);
+        beta = new Matrix(b);
+
+    }
+
+    public void setWeights(double[][] g, double[][] b) {
+        gamma = new Matrix(g);
+        beta = new Matrix(b);
+    }
+
+    public void setWeights(double[][][] g, double[][][] b) {
+        gamma = new Matrix(g);
+        beta = new Matrix(b);
+    }
+
 
     @Override
     public String export() {
-        
+
         String s = "layernorm;" + writeShape(inputShape) + "\n";
 
 
@@ -648,7 +704,26 @@ public class LayerNorm extends Layer {
 
     @Override
     public boolean isEqual(Layer other) {
-        return false;
+        return this.isEqual((LayerNorm) other);
+    }
+
+    public boolean isEqual(LayerNorm other) {
+
+        //config part
+        if (axisMinusOne != other.axisMinusOne && other.getInputShape() != inputShape) {
+            String s = "Not equal config: this inputShape" + Arrays.toString(inputShape) + " other: " + Arrays.toString(other.getInputShape());
+            System.out.println(s);
+            return false;
+        }
+
+        //weights part.
+        if (!(this.gamma.isEquals(other.gamma) &&
+                beta.isEquals(other.beta))) {
+            System.out.println("Not equal weights");
+            return false;
+        }
+
+        return true;
     }
 
 

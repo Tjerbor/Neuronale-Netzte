@@ -48,6 +48,8 @@ public class MaxPooling2D extends Layer {
         out_H = (1 + (inputH - kernelSize1) / stride1);
         out_W = (1 + (inputW - kernelSize2) / stride2);
 
+        inputShape = shape;
+        outputShape = new int[]{channels, out_H, out_W};
 
     }
 
@@ -62,6 +64,8 @@ public class MaxPooling2D extends Layer {
         out_H = (1 + (inputH - kernelSize1) / stride1);
         out_W = (1 + (inputW - kernelSize2) / stride1);
 
+        inputShape = shape;
+        outputShape = new int[]{channels, out_H, out_W};
 
     }
 
@@ -77,6 +81,8 @@ public class MaxPooling2D extends Layer {
         out_H = (1 + (inputH - kernelSize1) / stride);
         out_W = (1 + (inputW - kernelSize2) / stride);
 
+        inputShape = shape;
+        outputShape = new int[]{channels, out_H, out_W};
 
     }
 
@@ -88,6 +94,8 @@ public class MaxPooling2D extends Layer {
         out_H = (1 + (inputH - kernelSize1) / stride1);
         out_W = (1 + (inputW - kernelSize2) / stride1);
 
+        inputShape = shape;
+        outputShape = new int[]{channels, out_H, out_W};
 
     }
 
@@ -510,7 +518,16 @@ public class MaxPooling2D extends Layer {
 
     @Override
     public boolean isEqual(Layer other) {
-        return false;
+        return this.isEqual((MaxPooling2D) other);
+    }
+
+
+    public boolean isEqual(MaxPooling2D other) {
+
+        return Arrays.equals(other.getInputShape(), this.inputShape) && other.stride1 == this.stride1 && other.stride2 == this.stride2
+                && other.kernelSize1 == this.kernelSize1 && other.kernelSize2 == this.kernelSize2;
+
+
     }
 
     public String summary() {

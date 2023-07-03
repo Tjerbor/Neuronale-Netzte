@@ -62,6 +62,9 @@ public class Conv2D extends Layer {
         weights = new double[kernelSize1][kernelSize2][channels][numFilters];
         RandomUtils.genTypeWeights(2, weights);
 
+        this.inputShape = new int[]{channels, inputHeight, inputWidth};
+        this.outputShape = new int[]{numFilters, outputHeight, outputWidth};
+
     }
 
     public Conv2D(int[] shape, int numFilters, int[] kernelSize, int[] strideSize) {
@@ -84,6 +87,9 @@ public class Conv2D extends Layer {
             this.biases = new double[numFilters][outputHeight][outputWidth];
             RandomUtils.genTypeWeights(2, this.biases);
         }
+
+        this.inputShape = new int[]{channels, inputHeight, inputWidth};
+        this.outputShape = new int[]{numFilters, outputHeight, outputWidth};
 
     }
 
@@ -110,6 +116,8 @@ public class Conv2D extends Layer {
         this.weights = new double[kernelSize1][kernelSize2][channels][numFilters];
         RandomUtils.genTypeWeights(2, weights);
 
+        this.inputShape = new int[]{channels, inputHeight, inputWidth};
+        this.outputShape = new int[]{numFilters, outputHeight, outputWidth};
     }
 
     public Conv2D(int[] shape, int numFilter) {
@@ -132,6 +140,9 @@ public class Conv2D extends Layer {
 
         this.weights = new double[kernelSize1][kernelSize2][channels][this.numFilters];
         RandomUtils.genTypeWeights(2, weights);
+
+        this.inputShape = new int[]{channels, inputHeight, inputWidth};
+        this.outputShape = new int[]{numFilters, outputHeight, outputWidth};
 
     }
 
@@ -680,24 +691,32 @@ public class Conv2D extends Layer {
     public boolean isEqual(Layer other2) {
 
         Conv2D other = (Conv2D) other2;
-        if (Arrays.equals(other.getInputShape(), this.inputShape) && other.stride1 == this.stride1 && other.stride2 == this.stride2
-                && other.kernelSize1 == this.kernelSize1 && other.kernelSize2 == this.kernelSize2 && this.numFilters == other.numFilters && this.getWeights().isEquals(other.getWeights())) {
-            return true;
-        }
-
-        return false;
+        return this.isEqual(other);
 
 
     }
 
     public boolean isEqual(Conv2D other) {
 
-        if (other.getInputShape() == this.inputShape && other.stride1 == this.stride1 && other.stride2 == this.stride2
-                && other.kernelSize1 == this.kernelSize1 && other.kernelSize2 == this.kernelSize2 && this.numFilters == other.numFilters && this.getWeights() == other.getWeights()) {
-            return true;
+
+        if (!Arrays.equals(other.getInputShape(), this.inputShape)) {
+            System.out.println("InputShape is different: this: " + Arrays.toString(inputShape) + " other: " + Arrays.toString(other.getInputShape()));
+            return false;
         }
 
-        return false;
+        if (!(other.stride1 == this.stride1 && other.stride2 == this.stride2
+                && other.kernelSize1 == this.kernelSize1 && other.kernelSize2 == this.kernelSize2 && this.numFilters == other.numFilters)) {
+            return false;
+
+        }
+        if (!this.getWeights().isEquals(other.getWeights())) {
+            System.out.println("Weights are different.");
+            return false;
+
+        }
+
+
+        return true;
 
 
     }

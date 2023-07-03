@@ -49,6 +49,8 @@ public class MeanPooling2D extends Layer {
         out_H = (1 + (inputH - kernelSize1) / stride1);
         out_W = (1 + (inputW - kernelSize2) / stride2);
 
+        inputShape = shape;
+        outputShape = new int[]{channels, out_H, out_W};
 
     }
 
@@ -63,6 +65,8 @@ public class MeanPooling2D extends Layer {
         out_H = (1 + (inputH - kernelSize1) / stride1);
         out_W = (1 + (inputW - kernelSize2) / stride1);
 
+        inputShape = shape;
+        outputShape = new int[]{channels, out_H, out_W};
 
     }
 
@@ -78,6 +82,8 @@ public class MeanPooling2D extends Layer {
         out_H = (1 + (inputH - kernelSize1) / stride);
         out_W = (1 + (inputW - kernelSize2) / stride);
 
+        inputShape = shape;
+        outputShape = new int[]{channels, out_H, out_W};
 
     }
 
@@ -462,7 +468,7 @@ public class MeanPooling2D extends Layer {
     @Override
     public boolean isEqual(Layer other) {
 
-        MaxPooling2D_Last tmp = (MaxPooling2D_Last) other;
+        MeanPooling2D tmp = (MeanPooling2D) other;
 
         if ((Arrays.equals(tmp.outputShape, this.outputShape) && Arrays.equals(tmp.inputShape, this.inputShape)) && this.kernelSize1 == tmp.kernelSize1 && tmp.kernelSize2 == kernelSize2
                 && this.stride1 == tmp.stride1 && this.stride2 == tmp.stride2) {
