@@ -145,7 +145,7 @@ public class Flatten extends Layer {
     public String summary() {
         return "Flatten inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())
-                + " parameterSize: " + parameters() + "\n";
+                + " parameters: " + parameters() + "\n";
     }
 
     @Override

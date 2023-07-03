@@ -390,6 +390,50 @@ public class LoadModel {
         return b;
     }
 
+    public static Layer loadLayerNorm(String[] config, String nextLine, String betaLine) {
+
+        //config name, inputShape Length 1 or longer;
+
+        if (config.length == 2) {
+            
+            int inputSize = Integer.valueOf(config[0]);
+            double[] gamma = new double[inputSize];
+            double[] beta = new double[inputSize];
+            getWeightsFromLine(gamma, nextLine);
+            getWeightsFromLine(beta, nextLine);
+            LayerNorm l = new LayerNorm(inputSize);
+
+            l.setWeights(new Matrix(new double[][]{gamma, beta}));
+            return l;
+
+
+        } else if (config.length == 3) {
+
+            int[] shape = new int[]{Integer.parseInt(config[1]), Integer.parseInt(config[2])};
+            double[][] gamma = new double[shape[0]][shape[1]];
+            double[][] beta = new double[shape[0]][shape[1]];
+            getWeightsFromLine(gamma, nextLine);
+            getWeightsFromLine(beta, nextLine);
+            LayerNorm l = new LayerNorm(shape);
+            l.setWeights(new Matrix(new double[][][]{gamma, beta}));
+            return l;
+        } else if (config.length == 4) {
+
+            int[] shape = new int[]{Integer.parseInt(config[1]), Integer.parseInt(config[2]), Integer.parseInt(config[3])};
+            double[][][] gamma = new double[shape[0]][shape[1]][shape[2]];
+            double[][][] beta = new double[shape[0]][shape[1]][shape[2]];
+            getWeightsFromLine(gamma, nextLine);
+            getWeightsFromLine(beta, nextLine);
+            LayerNorm l = new LayerNorm(shape);
+            l.setWeights(new Matrix(new double[][][][]{gamma, beta}));
+            return l;
+        } else {
+            throw new IllegalArgumentException("Layer-Norm got wrong Config: " + Arrays.toString(config));
+        }
+
+
+    }
+
     public static Layer loadDropout(String[] config) {
         //config -> name, rate, inputShape
         DropoutLayer d = new DropoutLayer(Double.parseDouble(config[1]));

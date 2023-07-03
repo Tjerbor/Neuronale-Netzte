@@ -283,11 +283,12 @@ public class FastLinearLayer extends Layer {
         return output;
     }
 
+
     @Override
     public String summary() {
         return "FastLinear inputSize: " + getInputShape()[0]
                 + " outputSize: " + getOutputShape()[0]
-                + " parameter: " + parameters() + "\n";
+                + " parameters: " + parameters() + "\n";
     }
 
     @Override

@@ -656,7 +656,7 @@ public class Conv2D extends Layer {
     public String summary() {
         return "Conv2D " + "filters: " + numFilters + " inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())
-                + " parameterSize: " + parameters() + "\n";
+                + " parameters: " + parameters() + "\n";
     }
 
     @Override

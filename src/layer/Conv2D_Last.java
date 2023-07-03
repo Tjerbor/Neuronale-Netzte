@@ -877,7 +877,7 @@ public class Conv2D_Last extends Layer {
     public String summary() {
         return "Conv2D_Last inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())
-                + " parameterSize: " + parameters() + "\n";
+                + " parameters: " + parameters() + "\n";
     }
 
     @Override

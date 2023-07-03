@@ -316,7 +316,7 @@ public class MeanPooling2D_Last extends Layer {
     public String summary() {
         return "MeanPooling2D_Last inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())
-                + " parameterSize: " + parameters() + "\n";
+                + " parameters: " + parameters() + "\n";
     }
 
 

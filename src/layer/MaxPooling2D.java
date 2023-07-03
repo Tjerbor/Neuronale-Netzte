@@ -516,7 +516,7 @@ public class MaxPooling2D extends Layer {
     public String summary() {
         return "MaxPooling2D inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())
-                + " parameterSize: " + parameters() + "\n";
+                + " parameters: " + parameters() + "\n";
     }
 
 

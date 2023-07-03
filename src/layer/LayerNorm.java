@@ -6,6 +6,9 @@ import utils.Utils;
 
 import java.util.Arrays;
 
+import static load.writeUtils.writeShape;
+import static load.writeUtils.writeWeights;
+
 /**
  * has different weights with different Shape
  */
@@ -33,6 +36,8 @@ public class LayerNorm extends Layer {
         this.gamma = new Matrix(gamma);
         this.beta = new Matrix(beta);
 
+        inputShape = new int[]{shape};
+
 
     }
 
@@ -56,6 +61,8 @@ public class LayerNorm extends Layer {
 
         this.gamma = new Matrix(gamma);
         this.beta = new Matrix(beta);
+
+        inputShape = shape;
 
 
     }
@@ -620,7 +627,23 @@ public class LayerNorm extends Layer {
 
     @Override
     public String export() {
-        return null;
+        
+        String s = "layernorm;" + writeShape(inputShape) + "\n";
+
+
+        if (this.gamma.getDim() == 1) {
+            s += writeWeights(gamma.getData1D()) + "\n";
+            s += writeWeights(beta.getData1D());
+
+
+        } else if (gamma.getDim() == 2) {
+            s += writeWeights(gamma.getData2D()) + "\n";
+            s += writeWeights(beta.getData2D());
+        } else if (gamma.getDim() == 3) {
+            s += writeWeights(gamma.getData3D()) + "\n";
+            s += writeWeights(beta.getData3D());
+        }
+        return s;
     }
 
     @Override
@@ -628,9 +651,17 @@ public class LayerNorm extends Layer {
         return false;
     }
 
+
+    @Override
+    public int parameters() {
+        return Array_utils.sumUpMult(gamma.getShape()) * 2;
+    }
+
     @Override
     public String summary() {
-        return null;
+        return "LayerNorm inputSize: " + Arrays.toString(getInputShape())
+                + " outputSize: " + Arrays.toString(getOutputShape())
+                + " parameters: " + parameters() + "\n";
     }
 
 

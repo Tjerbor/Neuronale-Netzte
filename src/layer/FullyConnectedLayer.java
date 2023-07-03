@@ -690,7 +690,7 @@ public class FullyConnectedLayer extends Layer {
     public String summary() {
         return "Fully Connected Layer inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())
-                + " parameter: " + parameters() + "\n";
+                + " parameters: " + parameters() + "\n";
     }
 
 

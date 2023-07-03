@@ -262,7 +262,7 @@ public class ActivationLayer extends Layer {
     public String summary() {
         return act.toString() + " inputSize: " + Arrays.toString(getInputShape())
                 + " outputSize: " + Arrays.toString(getOutputShape())
-                + " parameter" + parameters() + "\n";
+                + " parameters: " + parameters() + "\n";
     }
 
 
